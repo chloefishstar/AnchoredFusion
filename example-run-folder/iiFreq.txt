@@ -1,0 +1,3 @@
+AP7	Sample_ID	Panel	cpuBWA
+A01-P701	L18-00001T	LungFusion	2
+A02-P702	L18-00002T	LungFusion	2
