@@ -12,7 +12,7 @@
 ##	cp ~/projects/criStr/rd2.filter bam/sa.filter  ## or
 ##	cp ~/projects/criStr/A01.filter bam/A01-P701/sa.filter
 ## then:
-##      . ./run.info.sh; Rscript  $SplitFusionPath/30_splitFusion.R &
+##      . ./run.info; Rscript  $SplitFusionPath/30_splitFusion.R &
 
 source('run.info')
 options(width=204)

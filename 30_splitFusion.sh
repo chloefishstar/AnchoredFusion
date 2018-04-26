@@ -16,7 +16,7 @@
 
 
 # enter your working directory
-. ../run.info.sh
+. ../run.info
 subii='SUBID_'
 mkdir -p $subii
 cd  $subii
