@@ -32,7 +32,7 @@ if [ ! -f breakpoint ]; then
 #==========================
 
 ## get reads with SA
-grep 'SA:' ../../bam/$subii/consolidated.sam  > _sa.sam
+$REPPATH/samtools/samtools view ../../bam/$subii.consolidated.bam | grep 'SA:' > _sa.sam
 
 
     $REPPATH/samtools/samtools view --threads $cpuBWA -T $DEPATH/Homo_sapiens_assembly19.fasta -bS _sa.sam > _sa.bam
@@ -227,7 +227,7 @@ fi
 		cat _tmp1 _tmp2 | sort -u > fu.breakpoint.for.anno
 
 		perl $REPPATH/annovar/table_annovar.pl fu.breakpoint.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out fu.anno -remove -protocol refGene -operation g -nastring NA
-		Rscript $SplitFusionPath/chr.pos.anno.extraction.R fu.anno ## generate .ext0
+		Rscript $SplitFusionPath/scripts/chr.pos.anno.extraction.R fu.anno ## generate .ext0
 		sort -k1,1b fu.anno.ext0 > fu.anno.ext
 		
 		## readID orp
@@ -242,7 +242,7 @@ fi
 		    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > mid.for.anno
 
 		    perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA
-		    Rscript $SplitFusionPath/chr.pos.anno.extraction.R mid.anno ## generate .ext0
+		    Rscript $SplitFusionPath/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
 
 		    sed 's: :_:' _mid.for.anno0 | sort -k1,1b > _mid.for.anno1
 		    sort -k1,1b mid.anno.ext0 > _mid.anno.ext

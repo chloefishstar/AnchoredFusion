@@ -7,9 +7,7 @@ subii = sub('.*/', '', getwd())
 ii = read.table('../../iiFreq.txt', sep='\t', stringsAsFactors=F, header=T)
 head(ii)
 (panel = sub("\\..*", '', ii$Panel[ii$AP7 == subii][1]))
-#if (panel == 'ONETUBE') {panel = 'FDA'}
-#panel = 'FDA'
-(genes = readLines(paste(DEPATH, '/panel/', panel, '.target.genes', sep='')))
+(genes = readLines(paste(SplitFusionPath, '/scripts/', panel, '.target.genes', sep='')))
 ## left
     colnames = c('chrorp', 'chr', 'pos', 'strand', 'overlap', 'readID', 'gene', 'geneStrand', 'inEx', 'functiontype', 'nm', 'exon', 'cdna')
     left = read.table('fu.anno.left', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnames)
@@ -68,7 +66,7 @@ lr = subset(lr000, (lr000$gene_L %in% genes) | (lr000$gene_R %in% genes))
 
 
 ##== remove recurrent breakpoints that are not significant (mannually curated)
-filter.breakpointID = readLines(paste(DEPATH, '/fusion.filter.breakpointID', sep=''))
+filter.breakpointID = readLines(paste(SplitFusionPath, '/scripts/fusion.filter.breakpointID', sep=''))
 lr = subset(lr, !(fusionID %in% filter.breakpointID))
 
 #head(subset(lr00, exclude==1))
@@ -282,7 +280,7 @@ lr3$ge1ge2 = paste(lr3$gene_L, '_', lr3$exon_L,'---', lr3$gene_R, '_', lr3$exon_
 	# inter-gene, in-frame
 	# inter-gene, NA frame and >100 reads  
 	# or forced 
-	(forced = readLines(paste(DEPATH, '/fusion.forced.txt', sep='')))
+	(forced = readLines(paste(SplitFusionPath, '/scripts/fusion.forced.txt', sep='')))
 	# table(fusion.tab2$ge1ge2)	
 	# head(fusion.tab2)
 	ex = subset(fusion.tab2, (intragene==0 & frame=='in-frame')

@@ -1,0 +1,6 @@
+MET_exon13---MET_exon15
+EML4_intronic---ALK_exon20
+ALK_intronic---EML4_intronic
+EML4_intronic---ALK_intronic
+CD74_intronic---ROS1_intronic
+ROS1_intronic---CD74_intronic
