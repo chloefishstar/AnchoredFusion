@@ -59,7 +59,7 @@ fu2 = subset(fu1, select=c(AP7, GeneExon5...GeneExon3, num_unique_reads, frame))
 iiFreq = read.table('../iiFreq.txt', header=T, stringsAsFactors=F)
 head(iiFreq)
 
-fu3 = merge(iiFreq[, c('AP7', 'Sample_ID', 'RNA2DNA')], fu2, by='AP7', all=TRUE)
+fu3 = merge(iiFreq[, c('AP7', 'Sample_ID')], fu2, by='AP7', all=TRUE)
 	fu3[is.na(fu3)] = '-'
 	head(fu3)
 write.table(fu3, 'fusion.summary.txt', sep='\t', col.names=T, row.names=F)

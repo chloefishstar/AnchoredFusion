@@ -300,11 +300,11 @@ lr3$ge1ge2 = paste(lr3$gene_L, '_', lr3$exon_L,'---', lr3$gene_R, '_', lr3$exon_
 		write.table(ex.xls, paste(subii, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
 
 	##=======================================
-        ## output max 10 example fusion reads
+        ## output FASTA reads for max 10 fusion candidates
 	##=======================================
 	(nex = min(10, nrow(ex)))
             if (nex >0){
-                ## show max 25 example reads 
+                ## show max 25 example reads per candidate
 		i=1
                 for (i in 1:nex){
                         ## get read ID
@@ -314,12 +314,10 @@ lr3$ge1ge2 = paste(lr3$gene_L, '_', lr3$exon_L,'---', lr3$gene_R, '_', lr3$exon_
 			(sample.n = min(25, ngeci))
 			(readid = sample(lr4$readID[lr4$gec_LR == geci], sample.n))
 			writeLines(readid, 'tmp.readid')
-			#system('grep "/1" tmp.readid | sed "s:/1::" > tmp.readid.1')
-			#system('grep "/2" tmp.readid | sed "s:/2::" > tmp.readid.2')
 			system('sed "s/::umi.*//" tmp.readid | sort -u > tmp.readid2')
 
                         ## get fa
-                        system(paste("grep -f tmp.readid2 -A1 ../../fq.demux/", subii, ".R1.fq | sed 's: :/1 :' | sed 's:^@:>:' | grep -v '\\-\\-' >> ", subii, '.', gei, ".txt", sep=''))
+                        system(paste("grep -f tmp.readid2 -A1 _sa.sam | cut -f1,2,10 | sed -e 's: :/1 :' -e 's:^:>:' | sed 's/\t/_flag_/' | tr '\t' '\n' | grep -v '\\-\\-' >> ", subii, '.', gei, ".txt", sep=''))
                 system('rm tmp.readid*')
                 }
        }

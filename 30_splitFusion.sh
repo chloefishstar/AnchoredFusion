@@ -252,7 +252,6 @@ fi
 		Rscript $SplitFusionPath/scripts/breakpoint.anno.R
 		
 ##=== End of StrVarMinUniqMap
-	
 
 
 #################################	
@@ -260,5 +259,4 @@ fi
 #################################	
 
 rm _*
-
 rm ../_job_.$subii
