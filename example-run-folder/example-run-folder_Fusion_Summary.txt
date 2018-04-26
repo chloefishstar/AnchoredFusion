@@ -1,0 +1,5 @@
+"AP7"	"Sample_ID"	"Panel"	"GeneExon5...GeneExon3"	"num_unique_reads"	"frame"
+"A01-P701"	"L18-00001T"	"LungFusion"	"KIF5B_exon15---RET_exon12"	7	"in-frame"
+"A02-P702"	"L18-00002T"	"LungFusion"	"EML4_intronic---ALK_exon20"	9	"_NA_"
+"A02-P702"	"L18-00002T"	"LungFusion"	"EML4_intronic---ALK_exon20"	10	"_NA_"
+"A02-P702"	"L18-00002T"	"LungFusion"	"EML4_exon4---ALK_exon20"	64	"in-frame"

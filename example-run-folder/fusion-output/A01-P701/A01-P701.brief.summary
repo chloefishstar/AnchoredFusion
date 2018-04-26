@@ -1,0 +1,2 @@
+AP7	ge1ge2	num_unique_reads	frame	gec_LR	transcript_L	transcript_R	function_L	function_R	cdna_L	cdna_R	intragene	order
+A01-P701	KIF5B_exon15---RET_exon12	7	in-frame	KIF5B exon15 c.1723 .NM_004521.---RET exon12 c.2138 .NM_020630.	NM_004521	NM_020630	exonic	exonic	1723	2138	0	2

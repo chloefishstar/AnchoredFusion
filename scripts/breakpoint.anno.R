@@ -317,7 +317,7 @@ lr3$ge1ge2 = paste(lr3$gene_L, '_', lr3$exon_L,'---', lr3$gene_R, '_', lr3$exon_
 			system('sed "s/::umi.*//" tmp.readid | sort -u > tmp.readid2')
 
                         ## get fa
-                        system(paste("grep -f tmp.readid2 -A1 _sa.sam | cut -f1,2,10 | sed -e 's: :/1 :' -e 's:^:>:' | sed 's/\t/_flag_/' | tr '\t' '\n' | grep -v '\\-\\-' >> ", subii, '.', gei, ".txt", sep=''))
+                        system(paste("grep -f tmp.readid2 -A1 _sa.sam | cut -f1,2,10 | sed -e 's: :/1 :' -e 's:^:>:' | sed 's/\t/_flag_/' | tr '\t' '\n' | grep -v '\\-\\-' >> ", subii, '.', gei, ".fa", sep=''))
                 system('rm tmp.readid*')
                 }
        }

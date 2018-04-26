@@ -21,8 +21,8 @@ options(width=204)
 ##
 ii = read.table("iiFreq.txt",header=T, sep='\t', stringsAsFactors=F, fill=T)
 head(ii)
-dir.create('fusion', showWarnings = FALSE, recursive = TRUE)
-setwd('fusion')
+dir.create('fusion-output', showWarnings = FALSE, recursive = TRUE)
+setwd('fusion-output')
 
 ## prep jobs
 # (i=ii$AP7[1])
@@ -59,12 +59,13 @@ fu2 = subset(fu1, select=c(AP7, GeneExon5...GeneExon3, num_unique_reads, frame))
 iiFreq = read.table('../iiFreq.txt', header=T, stringsAsFactors=F)
 head(iiFreq)
 
-fu3 = merge(iiFreq[, c('AP7', 'Sample_ID')], fu2, by='AP7', all=TRUE)
+fu3 = merge(iiFreq[, c('AP7', 'Sample_ID', 'Panel')], fu2, by='AP7', all=TRUE)
 	fu3[is.na(fu3)] = '-'
 	head(fu3)
-write.table(fu3, 'fusion.summary.txt', sep='\t', col.names=T, row.names=F)
+write.table(fu3, '_Fusion_Summary.txt', sep='\t', col.names=T, row.names=F)
 
-system(paste("ssconvert fusion.summary.txt ../", runID, "_Fusion_Summary.xls 2>/dev/null", sep=''))
+system(paste("ssconvert _Fusion_Summary.txt ../", runID, "_Fusion_Summary.xls 2>/dev/null", sep=''))
+system(paste("mv _Fusion_Summary.txt ../", runID, "_Fusion_Summary.txt 2>/dev/null", sep=''))
 
 system('mv */*---* .')
 

@@ -1,0 +1,10 @@
+AP7	GeneExon5'---GeneExon3'	num_unique_reads	frame	Gene_Exon_cDNA_5'_3'	transcript_5'	transcript_3'	function_5'	function_3'	cdna_5'	cdna_3'	intragene	order
+A01-P701	KIF5B_exon15---RET_exon12	7	in-frame	KIF5B exon15 c.1723 .NM_004521.---RET exon12 c.2138 .NM_020630.	NM_004521	NM_020630	exonic	exonic	1723	2138	0	1
+A01-P701	FGR_intronic---FGR_UTR5	27	_NA_	FGR intronic c.NA .NM_001042729.---FGR UTR5 c.NA .NM_001042729.	NM_001042729	NM_001042729	intronic	UTR5	NA	NA	1	NA
+A01-P701	MET_intronic---MET_exon14	27	_NA_	MET intronic c.NA .NM_000245.---MET exon14 c.2889 .NM_000245.	NM_000245	NM_000245	intronic	exonic	NA	2889	1	NA
+A01-P701	ROS1_intronic---ROS1_exon31	16	_NA_	ROS1 intronic c.NA .NM_002944.---ROS1 exon31 c.5080 .NM_002944.	NM_002944	NM_002944	intronic	exonic	NA	5080	1	NA
+A01-P701	MET_exon14---MET_intronic	13	_NA_	MET exon14 c.3026 .NM_000245.---MET intronic c.NA .NM_000245.	NM_000245	NM_000245	exonic	intronic	3026	NA	1	NA
+A01-P701	MET_intronic---MET_exon14	11	_NA_	MET intronic c.NA .NM_000245.---MET exon14 c.2960 .NM_000245.	NM_000245	NM_000245	intronic	exonic	NA	2960	1	NA
+A01-P701	RET_intronic---RET_exon8	9	_NA_	RET intronic c.NA .NM_020630.---RET exon8 c.1536 .NM_020630.	NM_020630	NM_020630	intronic	exonic	NA	1536	1	NA
+A01-P701	MET_exon14---MET_splicing	7	_NA_	MET exon14 c.2912 .NM_000245.---MET splicing c.NA .NM_000245.	NM_000245	NM_000245	exonic	splicing	2912	NA	1	NA
+A01-P701	ALK_intronic---ALK_exon19	3	_NA_	ALK intronic c.NA .NM_004304.---ALK exon19 c.3070 .NM_004304.	NM_004304	NM_004304	intronic	exonic	NA	3070	1	NA

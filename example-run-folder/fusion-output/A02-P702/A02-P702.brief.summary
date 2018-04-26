@@ -1,0 +1,4 @@
+AP7	ge1ge2	num_unique_reads	frame	gec_LR	transcript_L	transcript_R	function_L	function_R	cdna_L	cdna_R	intragene	order
+A02-P702	EML4_intronic---ALK_exon20	9	_NA_	EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3171 .NM_004304.	NM_001145076	NM_004304	intronic	exonic	NA	3171	0	1
+A02-P702	EML4_intronic---ALK_exon20	10	_NA_	EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304.	NM_001145076	NM_004304	intronic	exonic	NA	3173	0	1
+A02-P702	EML4_exon4---ALK_exon20	64	in-frame	EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304.	NM_001145076	NM_004304	exonic	exonic	468	3171	0	2
