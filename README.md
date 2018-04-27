@@ -37,22 +37,22 @@ Required software, libraries and data dependency
 
 The dependency data (e.g. in 'scripts') should contain:
 
-| Filename    | Content |
-| :---------: |:-------:|
-| panel-name.target.genes   | Contains the list of targets (gene name, e.g. ALK, ROS1, etc.)
-| fusion.filter.breakpointID   | Contains recurrent breakpoints identified as data accumulates, but are not of interest.
-| fusion.forced.txt   | Contains known breakpoints that are clinically relevant, e.g. "MET_exon13---MET_exon15" which is an exon-skipping event that forms an important theraputic target. Many exon skipping/alternative splicing events are natural or of unknown clinical relevance are thus not output by default.
+| Filename                   | Content                                                        |
+|:--------------------------:|:--------------------------------------------------------------:|
+| panel-name.target.genes    | Contains a list of targets (gene name, e.g. ALK, ROS1, etc.)   |
+| fusion.filter.breakpointID | Contains recurrent breakpoints identified as data accumulates, but are not of interest. |
+| fusion.forced.txt          | By default, SplitFusion only outputs fusions that are *in-frame* fusion of two different genes or when number of breakpoint-supporting reads exceed predefined threashold. This file contains known breakpoints that do not belong to the above two kinds, but are clinically relevant, e.g. "MET_exon13---MET_exon15" an exon-skipping event forms an important theraputic target. Many exon skipping/alternative splicing events are normal or of unknown clinical relevance and are thus not output by default. |
 
 The above two files could be updated periodically as a backend supporting database that facilitates automatc filtering and outputing of fusion candidates.
 
 An example brief output table:
 
-| AP7         | GeneExon5'---GeneExon3' | num_unique_reads | frame | Gene_Exon_cDNA_5'_3' |
-| :---------: |:-----------------------:|:----------------:|:-----:|:--------------------:|
-| A01-P701 | KIF5B_exon15---RET_exon12 | 7 | in-frame | KIF5B exon15 c.1723 .NM_004521.---RET exon12 c.2138 .NM_020630. |
-| A02-P702 | EML4_intronic---ALK_exon20 | 9 | _NA_ | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
-| A02-P702 | EML4_intronic---ALK_exon20 | 10 | _NA_ | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304. |
-| A02-P702 | EML4_exon4---ALK_exon20 | 64 | in-frame | EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
+| AP7         | GeneExon5'---GeneExon3'    | num_unique_reads | frame    | Gene_Exon_cDNA_5'_3'            |
+|:-----------:|:--------------------------:|:----------------:|:--------:|:-------------------------------:|
+| A01-P701    | KIF5B_exon15---RET_exon12  |                7 | in-frame | KIF5B exon15 c.1723 .NM_004521.---RET exon12 c.2138 .NM_020630. |
+| A02-P702    | EML4_intronic---ALK_exon20 |                9 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
+| A02-P702    | EML4_intronic---ALK_exon20 |               10 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304. |
+| A02-P702    | EML4_exon4---ALK_exon20    |               64 | in-frame | EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
 
 An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:
 
