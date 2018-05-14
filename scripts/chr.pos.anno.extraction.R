@@ -9,7 +9,7 @@ source('../../run.info')
 
 in.anno = commandArgs(TRUE)[1]
 #in.anno = 'fu.anno'
-refNM = read.table(paste(DEPATH,'/refGene.mostExon.NM', sep=''), sep='\t', header=T, stringsAsFactors=F)
+refNM = read.table(paste(SplitFusionPath, '/scripts/refGene.mostExon.NM', sep=''), sep='\t', header=T, stringsAsFactors=F)
 names(refNM) = c('Gene.refGene', 'refNM')
 #head(refNM)
 
