@@ -258,5 +258,5 @@ fi
 ## Prepare data for circos plot...to add later
 #################################	
 
-rm _*
+#rm _*
 rm ../_job_.$subii
