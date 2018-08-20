@@ -7,6 +7,7 @@
 #	- fu.breakpointID.stgRight
 #
 options(width=204)
+options(scipen=999)
 source('../../run.info')
 .libPaths(c(paste(DEPATH, '/Rlib', sep=''), .libPaths()))
 library(plyr)
@@ -19,7 +20,8 @@ head(ii)
 (genes = readLines(paste(DEPATH, '/panel/', panel, '.target.genes', sep='')))
 
 ##====1: left-right annotations
-    colnames = c('readID', 'chrorp_L', 'chr_L', 'orp_L', 'pos_L', 'strand_L', 'overlap', 'fusion_point', 'num_start_site', 'stgSide'
+    colnames = c('readID', 'chrorp_L', 'chr_L', 'orp_L', 'pos_L', 'strand_L'
+		, 'num_unique_molecules', 'num_start_site', 'num_start_site2', 'breakpoint', 'overlap'
 		, 'gene_L', 'geneStrand_L', 'inEx_L', 'functiontype_L', 'nm_L', 'exon_L', 'cdna_L'
 		, 'chrorp_R', 'chr_R', 'orp_R', 'pos_R', 'strand_R', 'gene_R', 'geneStrand_R', 'inEx_R', 'functiontype_R', 'nm_R', 'exon_R', 'cdna_R')
     lr1 = read.table('anno.left.right', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnames)
@@ -30,72 +32,109 @@ head(ii)
     lr1$exonn_L = suppressWarnings(as.numeric(sub('exon','',lr1$exon_L)))
     lr1$exonn_R = suppressWarnings(as.numeric(sub('exon','',lr1$exon_R)))
 
-##====2: filter
-## Among one-sided stagger fusion, remove fusion candidates with non-staggering side not on target genes
+##====2: filter targeted site (non-ligation end) being non-targets
 if (n.lr1 >0){
-	    lr1$exclude = 0
-		#==== filter non-stg side being non-targets
-	    lr1$exclude[     (lr1$stgSide =='stgLeft' & !(lr1$gene_R %in% genes))
-			    | (lr1$stgSide =='stgRight' & !(lr1$gene_L %in% genes))
-			    ] = 1
-		table(lr1$exclude)
-	    lr2 = subset(lr1, exclude==0)
+	# extract ligation end
+	lr1$ligEnd0 = sub('.*umi:C', '', lr1$readID)
+	lr1$ligEndChr = sub('P.*', '', lr1$ligEnd0)
+	lr1$ligEndPos = as.numeric(sub('-.*', '', sub('.*P', '', lr1$ligEnd0))) - 100000000
+
+	lr1$gene_T = ifelse((lr1$chr_L == lr1$ligEndChr) & (abs(lr1$ligEndPos - lr1$pos_L) < 100)
+				, lr1$gene_R
+				, ifelse(lr1$chr_R == lr1$ligEndChr & (abs(lr1$ligEndPos - lr1$pos_R) < 100)
+                        	, lr1$gene_L
+				, "-"
+			))
+
+    lr1$exclude = 0
+    lr1$exclude[!(lr1$gene_T %in% genes)] = 1
+	table(lr1$exclude)
+    lr2 = subset(lr1, exclude==0)
 	}else{
 	    lr2 = lr1
 }
-
-## exlude off targets (neither of the partners is on target)
-lr = subset(lr2, (lr2$gene_L %in% genes) | (lr2$gene_R %in% genes))
-
 
 ##== remove recurrent breakpoints that are not significant (mannually curated)
 #filter.breakpointID = readLines(paste(DEPATH, '/fusion.filter.breakpointID', sep=''))
 #lr = subset(lr, !(fusionID %in% filter.breakpointID))
 
 ## kepp original cdna pos for later frameness calculation
-lr$cdna_L0 = lr$cdna_L
-lr$cdna_R0 = lr$cdna_R
-head(lr,3)
+lr2$cdna_L0 = lr2$cdna_L
+lr2$cdna_R0 = lr2$cdna_R
+head(lr2,3)
 
 ## lmr
-if (file.exists('mid.anno.ext')){
-	    colnamesM = c('readID', 'start_M', 'end_M', 'mq_M', 'gene_M', 'geneStrand_M', 'inEx_M', 'functiontype_M', 'nm_M', 'exon_M', 'cdna_M')
-	    mid = read.table('mid.anno2', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
-		mid2 = subset(mid, inEx_M == 'exonic')
-		head(mid2)
-		#head(subset(mid2, gene_M ==chk), 6)
+## 	correct breakpoint exon number by add/minus middle split size
+##	correct breakpoint cdna position by add/minus middle split size
+##	correct breakpoint gdna position by add/minus middle split size
+if (file.exists('mid.anno2')){
+    colnamesM = c('annoPos', 'readID', 'start_M', 'end_M', 'mq_M', 'gene_M', 'geneStrand_M', 'inEx_M', 'functiontype_M', 'nm_M', 'exon_M', 'cdna_M')
+    mid = read.table('mid.anno2', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
+	mid$exonn_M = suppressWarnings(as.numeric(sub('exon', '', mid$exon_M)))
+	mid2 = subset(mid, inEx_M == 'exonic')
+	head(mid2)
 
-		lmr = merge(lr, mid2, by="readID")
-		if (nrow(lmr) >0){
-			lmr$exonn_M = as.numeric(sub('exon', '', lmr$exon_M))
-			head(lmr,4)
-			#head(subset(lmr, gene_M ==chk), 6)
+	lmr = merge(lr2, mid2, by="readID")
+	if (nrow(lmr) >0){
+		lmr_L = subset(lmr, nm_L==nm_M)
+		lmr_R = subset(lmr, nm_R==nm_M & nm_L != nm_M)
 
-		    ## correct breakpoint exon number by add/minus middle split size
-		    lmr$nm_L[is.na(lmr$nm_L)] = '-l'
-		    lmr$nm_R[is.na(lmr$nm_R)] = '-r'
-		    lmr$exon_L[lmr$nm_L == lmr$nm_M] = lmr$exon_M[lmr$nm_L == lmr$nm_M]
-		    lmr$exon_R[lmr$nm_R == lmr$nm_M] = lmr$exon_M[lmr$nm_R == lmr$nm_M]
+		# mid belong to Left
+		if (nrow(lmr_L)>0){
+		    	lmr_L$exon_L = lmr_L$exon_M
+		    	lmr_L$exonn_L = lmr_L$exonn_M
+			lmr_L$cdna_L = lmr_L$cdna_L + (1 - (lmr_L$exonn_L > lmr_L$exonn_M)*2) * lmr_L$overlap
+			
+			lmr_L$absMstart = abs(lmr_L$start_M - lmr_L$orp_L)
+			lmr_L$absMend = abs(lmr_L$end_M - lmr_L$orp_L)
+			lmr_L$pos_M = ifelse(
+				lmr_L$absMstart > lmr_L$absMend
+				, lmr_L$start_M
+				, lmr_L$end_M
+				)
+			lmr_L$chrpos_M = paste(lmr_L$chr_L, lmr_L$pos_M, sep='_')
+			lmr_L$chrpos_R = paste(lmr_L$chr_R, lmr_L$pos_R, sep='_')
+			lmr_L$breakpoint = ifelse(
+				lmr_L$chrpos_M < lmr_L$chrpos_R
+				, paste(lmr_L$chrpos_M, lmr_L$chrpos_R, sep='__')
+				, paste(lmr_L$chrpos_R, lmr_L$chrpos_M, sep='__')
+				)
+			}
 
-		    ## correct breakpoint cdna position by add/minus middle split size
-		    lmr$cdna_L[lmr$nm_L==lmr$nm_M] = lmr$cdna_L[lmr$nm_L == lmr$nm_M] + (1 - (lmr$exonn_M[lmr$nm_L == lmr$nm_M] > lmr$exonn_L[lmr$nm_L == lmr$nm_M])*2) * lmr$overlap_L[lmr$nm_L == lmr$nm_M]
-		    lmr$cdna_R[lmr$nm_R==lmr$nm_M] = lmr$cdna_R[lmr$nm_R == lmr$nm_M] + (1 - (lmr$exonn_M[lmr$nm_R == lmr$nm_M] > lmr$exonn_R[lmr$nm_R == lmr$nm_M])*2) * lmr$overlap_R[lmr$nm_R == lmr$nm_M]
-
-		    lmr$exonn_L = as.numeric(sub('exon', '', lmr$exon_L))
-		    lmr$exonn_R = as.numeric(sub('exon', '', lmr$exon_R))
-		    
-		    lmr.keep = lmr[, c(names(lr))]
-		    lr0 = lr[!(lr$readID %in% lmr.keep$readID),]
-
-		    nrow(lr0); nrow(lmr.keep); nrow(lr)
-		    lr2 = rbind(lmr.keep, lr0)
+		# mid belong to Right
+		if (nrow(lmr_R)>0){
+		    	lmr_R$exon_R = lmr_R$exon_M
+		    	lmr_R$exonn_R = lmr_R$exonn_M
+			lmr_R$cdna_R = lmr_R$cdna_R + (1 - (lmr_R$exonn_R > lmr_R$exonn_M)*2) * lmr_R$overlap
+			
+			lmr_R$absMstart = abs(lmr_R$start_M - lmr_R$orp_R)
+			lmr_R$absMend = abs(lmr_R$end_M - lmr_R$orp_R)
+			lmr_R$pos_M = ifelse(
+				lmr_R$absMstart > lmr_R$absMend
+				, lmr_R$start_M
+				, lmr_R$end_M
+				)
+			lmr_R$chrpos_M = paste(lmr_R$chr_R, lmr_R$pos_M, sep='_')
+			lmr_R$chrpos_L = paste(lmr_R$chr_L, lmr_R$pos_L, sep='_')
+			lmr_R$breakpoint = ifelse(
+				lmr_R$chrpos_M < lmr_R$chrpos_L
+				, paste(lmr_R$chrpos_M, lmr_R$chrpos_L, sep='__')
+				, paste(lmr_R$chrpos_L, lmr_R$chrpos_M, sep='__')
+				)
+			}
+		   
+		lmr2 = rbind(lmr_L, lmr_R)
+		lmr2.keep = lmr2[, c(names(lr2))]
+		    lr0 = lr2[!(lr2$readID %in% lmr2.keep$readID),]
+		    nrow(lr0); nrow(lmr2.keep); nrow(lr2)
+		lr3 = rbind(lmr2.keep, lr0)
 		} else {
-			lr2 = lr
+			lr3 = lr2
 		}
 	} else {
-		lr2 = lr
+		lr3 = lr2
 }
-
+lr2=lr3
 ## make Left as 5' and Right as 3'
 sense = subset(lr2, (strand_L == geneStrand_L & strand_R == geneStrand_R)
 			| (is.na(geneStrand_L) & strand_R == geneStrand_R)
@@ -105,7 +144,7 @@ antisense = subset(lr2, (strand_L != geneStrand_L & strand_R != geneStrand_R)
 			| (is.na(geneStrand_L) & strand_R != geneStrand_R)
 			| (is.na(geneStrand_R) & strand_L != geneStrand_L)
 )
-nosense = subset(lr2, is.na( geneStrand_L) & is.na(geneStrand_R))
+nosense = subset(lr2, is.na(geneStrand_L) & is.na(geneStrand_R))
 #head(nosense[nosense$gene_L =='PIK3CA',])
 #head(sense)
 #head(nosense)
@@ -209,12 +248,12 @@ if (n.lr4>0){
 		lr4 = lr4[order(-lr4$known, -lr4$num_start_site, lr4$intragene, lr4$frame),]
 		fusion.list = subset(lr4, select=c('AP7', 'ge1ge2', 'frame','gec_LR','chr_L','pos_L','inEx_L','gene_L','nm_L','exon_L','cdna_L'
 					, 'overlap','chr_R','pos_R','inEx_R','gene_R','nm_R','exon_R','cdna_R','intragene','readID'
-					, 'fusion_point', 'num_start_site', 'known'))
+					, 'breakpoint', 'num_start_site', 'known'))
 			write.table(fusion.list, paste(subii, '.fusion.list.post-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
 
-		## consolidate fusion_point
-		fusion.tab1 = ddply(fusion.list, .(fusion_point), summarize
-						, fusion_point=fusion_point[1], 'AP7'=subii, 'ge1ge2'=ge1ge2[1]
+		## consolidate breakpoint
+		fusion.tab1 = ddply(fusion.list, .(breakpoint), summarize
+						, breakpoint=breakpoint[1], 'AP7'=subii, 'ge1ge2'=ge1ge2[1]
 						, 'num_unique_reads'=length(readID), 'frame'=frame[1]
 						, 'transcript_L'=nm_L[1], 'transcript_R'=nm_R[1]
 						, 'function_L'=inEx_L[1], 'function_R'=inEx_R[1]
@@ -232,7 +271,7 @@ if (n.lr4>0){
 		# fitler those with too few unique reads given long L/R overlap, when overlap >6
 		fusion.tab2 = subset(fusion.tab1, ((num_unique_reads > overlap) | overlap <=6))
 			head(fusion.tab2)
-			out.names = c("AP7", "ge1ge2", "frame", "num_start_site", "num_unique_reads", "fusion_point"
+			out.names = c("AP7", "ge1ge2", "frame", "num_start_site", "num_unique_reads", "breakpoint"
 					, "transcript_L", "transcript_R", "function_L", "function_R", "cdna_L", "cdna_R", "intragene", "known")
 
 		fusion.table = fusion.tab2[, out.names]
@@ -292,3 +331,7 @@ if (n.lr4>0){
 	}
 	}
 }
+
+	if (!file.exists(paste(subii, '.brief.summary', sep=''))){
+			file.create(paste(subii, '.brief.summary', sep=''))
+		}

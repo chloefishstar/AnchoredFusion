@@ -6,76 +6,84 @@
 		## reads with middle split
 		cut -f1 split.mid | sort -u | awk '{print $0,"_mid"}' > _mid.id
 		
-		join -a1 breakpoint _mid.id > breakpoint2
-		grep '_mid$' breakpoint2 | sed 's:_mid$::' > breakpoint.w.mid
-		grep -v '_mid$' breakpoint2 > breakpoint.wo.mid
+		join -a1 breakpoint.noFilter _mid.id > breakpoint.noFilter2
+		grep '_mid$' breakpoint.noFilter2 | sed 's:_mid$::' > breakpoint.noFilter.w.mid
+		grep -v '_mid$' breakpoint.noFilter2 > breakpoint.noFilter.wo.mid
 
 		## 1. at least minMapLength 
-		## 2. at least minExclusive bp exculsive between hit1 and hit2
+		## 2. at least minExclusive bp exculsive between alignments 1 and 2
 		## 3. no larger than maxQueryGap
 		## 4. less than max overlapping length
 
 		## reads without middle split
 		    ## left:  $10-------$11
-		    ## right:       $24------$25
-		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
-		    '{ gap = $24-$11-1; 
-		       overlap = $11-$24+1;
-			    if (  ($11-$10 >= minMapLength && $25-$24 >= minMapLength) \
-				    && ($24-$10 >= minExclusive && $25-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+		    ## right:       $21------$22
+		echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
+		    '{ gap = $21-$11-1; 
+		       overlap = $11-$21+1;
+			    if (  ($11-$10 >= minMapLength && $22-$21 >= minMapLength) \
+				    && ($21-$10 >= minExclusive && $22-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			) {print $0,overlap}}' \
-			     breakpoint.wo.mid > _sa.fu0
+			     breakpoint.noFilter.wo.mid > _sa.fu0
 
 		## reads with middle split, turn off maxQueryGap by let = 100
 		    ## left:  $10-------$11
-		    ## right:		       $24------$25
-		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=100 \
-		    '{ gap = $24-$11-1; 
-		       overlap = $11-$24+1;
-			    if (  ($11-$10 >= minMapLength && $25-$24 >= minMapLength) \
-				    && ($24-$10 >= minExclusive && $25-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+		    ## right:		       $21------$22
+		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=1000 \
+		    '{ gap = $21-$11-1; 
+		       overlap = $11-$21+1;
+			    if (  ($11-$10 >= minMapLength && $22-$21 >= minMapLength) \
+				    && ($21-$10 >= minExclusive && $22-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			) {print $0,overlap}}' \
-			     breakpoint.w.mid >> _sa.fu0
+			     breakpoint.noFilter.w.mid >> _sa.fu0
 
-			## keep fusionID, gap, overlap
-			cut -d ' ' -f 32,33 _sa.fu0 > fusionID.overlap
+##==== Filter 2: StrVarMinStartSite
+	## breakpoint ($24) and separate start site (chr+pos)
+	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $25,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
+	# sort by breakpoint and  start.site.umi
+	sort -k1,1b -k6,6b _sa.fu2 > _sa.fu3
 
-##==== Filter 2: StrVarMinUniqMap
-## Default in run.info.sh: StrVarMinUniqMap=2
-    ## or uncomment below and define the value:
-    # StrVarMinUniqMap=new.value
-
-	## stagger sites on left $4
-	# sort by point-point, left-breakpoint, left-stagger.point
-	sort -k32,32b  -k30,30b -k4,4n _sa.fu0 > _sa.fu0s
-	sort -k32,32b  -k30,30b -k4,4n -u  _sa.fu0s > _fu_1u	
-
-		## if stagger sites >= minUniqMap
-                echo | awk -v minUniqMap=$StrVarMinUniqMap '{
-			if ($32==pre32 && $30==pre30){
-				if ($4 - pre4 >1){
-					cnt=cnt+1
+	## breakpoint stats: num_start_site (nss), num_unique_molecule (numi), num_start_site2 (diff by at least 2, nss2)
+        awk '{OFS="\t";
+		if ($1 == pre1 && $2 == pre2){
+			diff = $3-pre3;
+			if (diff < 100){
+				siteID = preSiteID
+				if (diff==0){
+					if ($4 != pre4){
+						numi = numi+1
+					}
+				} else {
+					numi = numi+1;
+					nss = nss+1;
+					if (diff >1){
+						nss2 = nss2+1
+					}
 				}
-			} else { cnt = 1};
-                        pre32=$32; pre30=$30; pre4=$4;
-			print $32,cnt,"stgLeft"}' _fu_1u | sort -k1,1b -k2,2nr | sort -k1,1b -u | awk '{if ($2 != 1) print $0}' > fu.breakpointID.stgLeft
-		join -2 32 fu.breakpointID.stgLeft _sa.fu0s > fu.info.stgLeft	
-	
-	## stagger sites on right $19
-	sort -k32,32b -k31,31b -k19,19n -u  _sa.fu0s > _fu_2u	
+			} else {
+				siteID = NR
+				numi=1; nss=1; nss2=1
+			};
+		} else {
+				numi=1; nss=1; nss2=1; siteID=NR
+		}
+		print siteID,numi,nss,nss2,$0 > "breakpoint.stats";
+     		pre1=$1; pre2=$2; pre3=$3; pre4=$4; preSiteID=siteID
+	}' _sa.fu3 
 
-		## if stagger sites >= minUniqMap
-                echo | awk -v minUniqMap=$StrVarMinUniqMap '{
-			if ($32==pre32 && $31==pre31) {
-				if ($19 - pre19 >1){
-                            		cnt=cnt+1
-				}
-			} else {cnt = 1};
-                        pre32=$32; pre31=$31; pre19=$19;
-			print $32,cnt,"stgRight"}' _fu_2u | sort -k1,1b -k2,2nr | sort -k1,1b -u | awk '{if ($2 != 1) print $0}' > fu.breakpointID.stgRight
-		join -2 32 fu.breakpointID.stgRight _sa.fu0s > fu.info.stgRight	
+	## Apply Filter2
+	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
+	sort -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
+	echo | awk -v StrVarMinStartSite=$StrVarMinStartSite \
+		'{if ($3 >= StrVarMinStartSite){
+			print $0 > "breakpoint.siteID.MinStartSite"
+			}
+		}' _breakpoint.stats4.u
 
+	sort -k1,1b breakpoint.stats > _breakpoint.stats.s
+	join breakpoint.siteID.MinStartSite  _breakpoint.stats.s \
+		| sed 's/ /:umi:/12' \
+		| tr ' ' '\t' | cut -f 2,3,4,12- > breakpoint.candidates
 
-	##=== combine fusionID
-	cat fu.info.stgLeft fu.info.stgRight | sort -k1,1b  > fusion.candidates
+## End: breakpoint candidates
