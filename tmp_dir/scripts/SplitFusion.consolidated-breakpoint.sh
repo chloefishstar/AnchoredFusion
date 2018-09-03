@@ -49,29 +49,48 @@ subii=$( pwd | sed "s:.*/::")
 ##==== 3. remove MQ low
 	echo | awk -v minMQ=$minMQ '{OFS="\t"; if ($6 >= minMQ) print $0}' _sa.len.bed > _sa.len.bed.mq
 
-##==== 4. corrected read length for small size clipping which is either
-		# 1) likely residual adaptor
-		# 2) shorter splice fragments (< minMapLength) that could not be mapped by BWA MEM
-	# transform CIGAR strings
-	sed 's:\([0-9]\+\)\([SH]\)\([0-9A-Z]\+\)$:\1\t\2\t\3:' _sa.len.bed.mq > _sa.SMH01
-	sed 's:\([0-9]\+\)\([SH]\)$:\t\1\t\2:' _sa.SMH01 > _sa.SMH02
-
-##==== 5. output two-split alignment reads (10 fileds only) to _tmpOK
-		# more than two-split reads sent to _tmp1 for later processing
-	awk '{if ($12 ~ /[HS]/) {print > "_tmp1"} else {print $1,$2,$3,$4,$5,$6,$7,$8$9$10 > "_tmpOK"} }' _sa.SMH02 
-
-		# mid split
-		echo | awk -v minMapLength=$minMapLength '{if ($8 >= minMapLength && $11 >= minMapLength) {print > "split.mid"} else {print > "_tmp2"} }' _tmp1
-
-		# remove head/tail HS and correct effective query read length
-    		awk '{if ($8 >= $11) {$2 = $2-$11; newcigar=$8$9$10} else {$2 = $2-$8; newcigar=$10$11$12} print $0,newcigar}' _tmp2 | cut -d ' ' -f 1-7,13 >  _tmpOK2
-
-		# Corrected SMH, with left size and SMH type separated for later processing. 
-		cat _tmpOK _tmpOK2 | tr ' ' '\t' | sed 's:\([0-9]\+\)\([SMH]\)\([0-9A-Z]\+\)$:\1\t\2\t\3:' > _sa.SMHc
-
 ##==== 6. calculate query start, end
-	    awk '{if ($9 == "M") print}' _sa.SMHc | tr ' ' '\t' | cut -f 1-9 > _M
-	    awk '{if ($9 != "M") print}' _sa.SMHc | tr ' ' '\t' | cut -f 1-9 > _HS
+	# corrected read length for small size clipping which is either
+	# transform CIGAR strings
+	cut -f 2,7,8 -d ' ' _sa.len.bed.mq > _sa.SMH1
+	sed -e 's/M/ M /g' -e 's/S/ S /g' -e 's/H/ H /g' _sa.SMH1 > _sa.SMH2
+	awk '{if ($4=="M"){
+			if ($2=="+"){
+				start=1; end=$3
+			}else if ($2=="-"){
+				start=$1-$3+1; end=$1
+			}
+		} else if ($6=="M"){
+			if ($2=="+"){
+				start=$3+1; end=$3+$5
+			}else if ($2=="-"){
+				start=$1-$3-$5+1; end=$1-$3
+			}
+		} else {start=0; end=0}; print start,end}' _sa.SMH2 > _sa.SMH3
+	paste _sa.len.bed.mq _sa.SMH3 | tr ' ' '\t' > _sa.SMH4
+	
+	sort -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
+
+##==== sep left/right
+
+	awk '{if ($1==pre1){
+			n=n+1
+		} else {n=1};
+
+		if (n==1) {
+			print $0 > "_left";
+			if (pren !=1) {print pre0 > "_right"}
+		} else if (n>2){
+			print pre0 > "_split.mid"
+		};
+		pre1=$1; pren=n; pre0=$0;
+		print n,$0 > "_sa.SMH4sn"
+	}' _sa.SMH4s
+
+
+#=====================================================================
+#=====================================================================
+
 
 	## 4 positions on a query read (after left and right alignments are merged by ReadID):
 		##  left.query.start....left.query.end-[breakpoint]-right.query.start....right.query.end
@@ -79,25 +98,27 @@ subii=$( pwd | sed "s:.*/::")
 			## 2: left.query.end [corresponding mapping position in the genome is breakpoint 1]
 			## 3: right.query.start [corresponding mapping position in the genome is breakpoint 2]
 
-	## re-calculate read query start and end for '-' alignment
-	## add read part ('left' or 'right' at field $12), breadkpoint chr ($13) and pos ($14)
+	## add read part ('left' or 'right'), breadkpoint (chr and pos)
 
-	## if left of query is mapped
-		    ## Left: $7+ and M; $7- and HS
-		    ## Right: $7- and M; $7+ and HS
-	    awk '{if ($7 =="+") {qstart=1; qend=$5-$4+1; print $0,qstart,qend,"left",$3,$5}}' _M | tr ' ' '\t' > _left
-	    awk '{if ($7 =="-") {qstart=1; qend=$5-$4+1; mstart=$5; mend=$4; $4=mstart; $5=mend; print $0,qstart,qend,"left",$3,$5}}' _HS | tr ' ' '\t' >> _left
+	    awk '{if ($7 =="+") {
+				print $0,"left",$3,$5
+			} else {
+				mstart=$5; mend=$4; $4=mstart; $5=mend; 
+				print $0,"left",$3,$5
+			}
+		}' _left | tr ' ' '\t' > _lefts
 
-	## if right of query is mapped
-	    awk '{if ($7 =="+") {qstart=$8+1; qend=$8+$5-$4; print $0,qstart,qend,"right",$3,$4}}' _HS | tr ' ' '\t' > _right
-	    awk '{if ($7 =="-") {qstart=$2-$5+$4; qend=$2; mstart=$5; mend=$4; $4=mstart; $5=mend; print $0,qstart,qend,"right",$3,$4}}' _M | tr ' ' '\t' >> _right
+	    awk '{if ($7 =="+") {
+				print $0,"right",$3,$4
+			} else {
+	    			mstart=$5; mend=$4; $4=mstart; $5=mend; 
+				print $0,"right",$3,$4
+			}
+		}' _right | tr ' ' '\t' | sed 1d > _rights
 
 ##==== 7.1 Aggregate (+/- 5 base window) breakpoints and center on nearest peak
-	grep 'left'  _left > _lefts
-	grep 'right' _right > _rights
-
-	cut -f 12-14 _lefts > _bk 
-	cut -f 12-14 _rights >> _bk
+	cut -f 11-13 _lefts > _bk 
+	cut -f 11-13 _rights >> _bk
 	sort -k1,1b -k2,2b -k3,3n _bk > _bks
 	uniq -c _bks | sed -e 's/^ \+//' -e 's/ /\t/g' > _peak1
 
@@ -143,43 +164,64 @@ subii=$( pwd | sed "s:.*/::")
 		pre1=$1; pre6=$6;
 		print $0,pos,cnt
 	}' _peak2at > _peak2b
-	tac _peak2b > loacl_breakpoint_peak
+	tac _peak2b > local_breakpoint_peak
 
 	# merge back
-	awk '{OFS="\t"; print $1"_"$5,$4"_"$8}' loacl_breakpoint_peak > _loacl_breakpoint_peak
-	sort -k1,1b _loacl_breakpoint_peak > _loacl_breakpoint_peak.s
+	awk '{OFS="\t"; print $1"_"$5,$4"_"$8}' local_breakpoint_peak > _local_breakpoint_peak
+	sort -k1,1b _local_breakpoint_peak > _local_breakpoint_peak.s
 
-	sed -e 's/\t/_/12' -e 's/\t/_/12' _lefts > _lefts.p
-	sort -k12,12b _lefts.p > _lefts.ps
-	join -1 12 -2 1 _lefts.ps _loacl_breakpoint_peak.s | tr ' ' '\t' | cut -f 2- > _lefts.psj
-	
-	sed -e 's/\t/_/12' -e 's/\t/_/12' _rights > _rights.p
-	sort -k12,12b _rights.p > _rights.ps
-	join -1 12 -2 1 _rights.ps _loacl_breakpoint_peak.s | tr ' ' '\t' | cut -f 2- > _rights.psj
+	sed -e 's/\t/_/11' -e 's/\t/_/11' _lefts > _lefts.pk
+	sed -e 's/\t/_/11' -e 's/\t/_/11' _rights > _rights.pk
+		sort -k11,11b _lefts.pk > _lefts.pks
+		sort -k11,11b _rights.pk > _rights.pks
 
-##==== 7.2 join left and right by ReadID to form a query read
-	# sort by Query position too
-	sort -k1,1b -k10,10n _lefts.psj > _leftsrt
-	sort -k1,1b -k10,10n _rights.psj > _rightsrt
+	join -1 11 -2 1 _lefts.pks _local_breakpoint_peak.s > _lefts.pk1	
+	join -1 11 -2 1 _rights.pks _local_breakpoint_peak.s > _rights.pk1	
 
-	    ## left: $2 - $15; right: $16 - $29
-	join _leftsrt _rightsrt > _left_right.j
-	
-##==== 8. update mapping start.site.umi
-	sed 's/:umi:[^-]\+/ /' _left_right.j | awk '{
-		pos2 = $5 + 100000000;
-		ssu = ":umi:C"$4"P"pos2;
-		print $1""ssu""$2,$0
-	}' | cut -d ' ' -f 1,4- > _left_right.ssu
+##=== join leftmost and rightmost
+	cut -f2- -d ' ' _lefts.pk1 | sort -k1,1b > _lefts.pk2
+	cut -f2- -d ' ' _rights.pk1 | sort -k1,1b > _rights.pk2
+	join _lefts.pk2 _rights.pk2 > _left_right.j
 
 ##==== 9. breakpoint candidates
-	## left: 2-12; right 13-23
-	awk '{if ($12 < $23){
-			pp=$12"__"$23
-		} else {pp=$23"__"$12
+	## left: 2-11; right 12-21
+	awk '{if ($11 < $21){
+			pp=$11"__"$21
+		} else {pp=$21"__"$11
 		}; 
 		print $0,pp
-	}' _left_right.ssu > _breakpoint.noFilter
-	sort -k1,1b _breakpoint.noFilter > breakpoint.noFilter
+	}' _left_right.j > _breakpoint.noFilter1
+	sort -k1,1b _breakpoint.noFilter1 > _breakpoint.noFilter2
 
-# DONE breakpoint candidate 
+##====	correct breakpoint for those contain mid
+	cut -f1 _split.mid | sort -u > _mid.id
+	sort -k2,2b _sa.SMH4sn > _sa.SMH4sns
+	join -1 1 -2 2 _mid.id _sa.SMH4sns > split.mid
+
+	awk '{if ($1==pre1){
+		diff = $5 - pre5;
+		if ($4 != pre4 || diff > 100000){
+			if (pre8=="+"){bkp1=pre4"_"pre6} else {bkp1=pre4"_"pre5};
+			if ($8=="+"){bkp2=$4"_"$5} else {bkp2=$4"_"$6}
+                   };
+        	};
+	if (bkp1 < bkp2){bkp = bkp1"__"bkp2};
+	if (bkp1 > bkp2){bkp = bkp2"__"bkp1};
+        if (bkp != ""){print $1,bkp > "_sa.mid.bkp"}
+
+        diff=""; bkp=""; bkp1=""; bkp2=""
+        pre1=$1; pre4=$4; pre5=$5; pre6=$6; pre8=$8;
+	}' split.mid
+
+	sort -k1,1b _sa.mid.bkp > _sa.mid.bkps
+	join -a1 _breakpoint.noFilter2 _sa.mid.bkps > _breakpoint.noFilter3
+
+	awk '{if (NF==23) {
+		$22=$23; $23=""; print > "breakpoint.noFilter.w.mid"
+		} else {
+		print > "breakpoint.noFilter.wo.mid"
+		}
+	}' _breakpoint.noFilter3 
+
+
+# DONE breakpoint candidate

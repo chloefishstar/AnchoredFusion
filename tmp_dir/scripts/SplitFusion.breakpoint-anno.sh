@@ -10,18 +10,18 @@
 #		 and should belong to, next (on the sense strand if on cDNA) split alignment)
 #	- Add 6 bases to breakpoint to make orp, which needs to be accounted for in later frame determination
     awk '{OFS="\t"; if ($10=="+") {
-		    orpL = $8-$28-6
+		    orpL = $8-$26-6
 	    } else if ($10=="-") {
-		    orpL = $8+$28+6
+		    orpL = $8+$26+6
 	    };
 
-	    if ($21=="+") {
-		    orpR = $18+$28+6
-	    } else if ($21=="-") {
-		    orpR = $18-$28-6
+	    if ($20=="+") {
+		    orpR = $17+$26+6
+	    } else if ($20=="-") {
+		    orpR = $17-$26-6
 	    };
 
-	    print $6"_"orpL,$6,orpL,$8,$10,$17"_"orpR,$17,orpR,$18,$21,$4,$1,$2,$3,$27,$28
+	    print $6"_"orpL,$6,orpL,$8,$10,$16"_"orpR,$16,orpR,$17,$20,$4,$1,$2,$3,$25,$26
     }' breakpoint.candidates > _orp
 
 ## Make mock variants for annotation to get gene, exon and fucntion info
@@ -48,7 +48,7 @@
 	join -1 6 -2 6 _anno.left _anno.right > anno.left.right
 
     ## anno middle split
-    awk '{mid = $4 + 10; print $3,mid,mid,"A","A",$1,$4,$5,$6}' split.mid > _mid.for.anno0
+    awk '{mid = $5 + 10; print $4,mid,mid,"A","A",$1,$4,$5,$6}' split.mid > _mid.for.anno0
     tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > mid.for.anno
 
     perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA

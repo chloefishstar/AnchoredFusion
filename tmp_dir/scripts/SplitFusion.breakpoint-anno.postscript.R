@@ -25,8 +25,8 @@ head(ii)
 		, 'gene_L', 'geneStrand_L', 'inEx_L', 'functiontype_L', 'nm_L', 'exon_L', 'cdna_L'
 		, 'chrorp_R', 'chr_R', 'orp_R', 'pos_R', 'strand_R', 'gene_R', 'geneStrand_R', 'inEx_R', 'functiontype_R', 'nm_R', 'exon_R', 'cdna_R')
     lr1 = read.table('anno.left.right', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnames)
-    lr1$cdna_L = as.numeric(lr1$cdna_L)
-    lr1$cdna_R = as.numeric(lr1$cdna_R)
+    lr1$cdna_L = suppressWarnings(as.numeric(lr1$cdna_L))
+    lr1$cdna_R = suppressWarnings(as.numeric(lr1$cdna_R))
     head(lr1)
     (n.lr1 = nrow(lr1))
     lr1$exonn_L = suppressWarnings(as.numeric(sub('exon','',lr1$exon_L)))
@@ -39,13 +39,12 @@ if (n.lr1 >0){
 	lr1$ligEndChr = sub('P.*', '', lr1$ligEnd0)
 	lr1$ligEndPos = as.numeric(sub('-.*', '', sub('.*P', '', lr1$ligEnd0))) - 100000000
 
-	lr1$gene_T = ifelse((lr1$chr_L == lr1$ligEndChr) & (abs(lr1$ligEndPos - lr1$pos_L) < 100)
+	lr1$gene_T = ifelse((lr1$chr_L == lr1$ligEndChr) & (abs(lr1$ligEndPos - lr1$pos_L) < 300)
 				, lr1$gene_R
-				, ifelse(lr1$chr_R == lr1$ligEndChr & (abs(lr1$ligEndPos - lr1$pos_R) < 100)
+				, ifelse(lr1$chr_R == lr1$ligEndChr & (abs(lr1$ligEndPos - lr1$pos_R) < 300)
                         	, lr1$gene_L
 				, "-"
 			))
-
     lr1$exclude = 0
     lr1$exclude[!(lr1$gene_T %in% genes)] = 1
 	table(lr1$exclude)
@@ -61,20 +60,16 @@ if (n.lr1 >0){
 ## kepp original cdna pos for later frameness calculation
 lr2$cdna_L0 = lr2$cdna_L
 lr2$cdna_R0 = lr2$cdna_R
-head(lr2,3)
 
 ## lmr
-## 	correct breakpoint exon number by add/minus middle split size
-##	correct breakpoint cdna position by add/minus middle split size
-##	correct breakpoint gdna position by add/minus middle split size
+## 	correct breakpoint exon number, cdna, gdna by add/minus middle split size
 if (file.exists('mid.anno2')){
-    colnamesM = c('annoPos', 'readID', 'start_M', 'end_M', 'mq_M', 'gene_M', 'geneStrand_M', 'inEx_M', 'functiontype_M', 'nm_M', 'exon_M', 'cdna_M')
+    colnamesM = c('annoPos', 'readID', 'chr_M', 'start_M', 'end_M', 'gene_M', 'geneStrand_M', 'inEx_M', 'functiontype_M', 'nm_M', 'exon_M', 'cdna_M')
     mid = read.table('mid.anno2', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
 	mid$exonn_M = suppressWarnings(as.numeric(sub('exon', '', mid$exon_M)))
-	mid2 = subset(mid, inEx_M == 'exonic')
-	head(mid2)
+	head(mid)
 
-	lmr = merge(lr2, mid2, by="readID")
+	lmr = merge(lr2, mid, by="readID")
 	if (nrow(lmr) >0){
 		lmr_L = subset(lmr, nm_L==nm_M)
 		lmr_R = subset(lmr, nm_R==nm_M & nm_L != nm_M)
@@ -93,11 +88,11 @@ if (file.exists('mid.anno2')){
 				, lmr_L$end_M
 				)
 			lmr_L$chrpos_M = paste(lmr_L$chr_L, lmr_L$pos_M, sep='_')
-			lmr_L$chrpos_R = paste(lmr_L$chr_R, lmr_L$pos_R, sep='_')
+			lmr_L$chrpos_Target = paste(lmr_L$chr_R, lmr_L$pos_R, sep='_')
 			lmr_L$breakpoint = ifelse(
-				lmr_L$chrpos_M < lmr_L$chrpos_R
-				, paste(lmr_L$chrpos_M, lmr_L$chrpos_R, sep='__')
-				, paste(lmr_L$chrpos_R, lmr_L$chrpos_M, sep='__')
+				lmr_L$chrpos_M < lmr_L$chrpos_Target
+				, paste(lmr_L$chrpos_M, lmr_L$chrpos_Target, sep='__')
+				, paste(lmr_L$chrpos_Target, lmr_L$chrpos_M, sep='__')
 				)
 			}
 
@@ -115,11 +110,11 @@ if (file.exists('mid.anno2')){
 				, lmr_R$end_M
 				)
 			lmr_R$chrpos_M = paste(lmr_R$chr_R, lmr_R$pos_M, sep='_')
-			lmr_R$chrpos_L = paste(lmr_R$chr_L, lmr_R$pos_L, sep='_')
+			lmr_R$chrpos_Target = paste(lmr_R$chr_L, lmr_R$pos_L, sep='_')
 			lmr_R$breakpoint = ifelse(
-				lmr_R$chrpos_M < lmr_R$chrpos_L
-				, paste(lmr_R$chrpos_M, lmr_R$chrpos_L, sep='__')
-				, paste(lmr_R$chrpos_L, lmr_R$chrpos_M, sep='__')
+				lmr_R$chrpos_M < lmr_R$chrpos_Target
+				, paste(lmr_R$chrpos_M, lmr_R$chrpos_Target, sep='__')
+				, paste(lmr_R$chrpos_Target, lmr_R$chrpos_M, sep='__')
 				)
 			}
 		   
@@ -127,44 +122,48 @@ if (file.exists('mid.anno2')){
 		lmr2.keep = lmr2[, c(names(lr2))]
 		    lr0 = lr2[!(lr2$readID %in% lmr2.keep$readID),]
 		    nrow(lr0); nrow(lmr2.keep); nrow(lr2)
-		lr3 = rbind(lmr2.keep, lr0)
+		lr2b = rbind(lmr2.keep, lr0)
 		} else {
-			lr3 = lr2
+			lr2b = lr2
 		}
 	} else {
-		lr3 = lr2
+		lr2b = lr2
 }
-lr2=lr3
+
 ## make Left as 5' and Right as 3'
-sense = subset(lr2, (strand_L == geneStrand_L & strand_R == geneStrand_R)
-			| (is.na(geneStrand_L) & strand_R == geneStrand_R)
-			| (is.na(geneStrand_R) & strand_L == geneStrand_L)
-)
-antisense = subset(lr2, (strand_L != geneStrand_L & strand_R != geneStrand_R)
-			| (is.na(geneStrand_L) & strand_R != geneStrand_R)
-			| (is.na(geneStrand_R) & strand_L != geneStrand_L)
-)
-nosense = subset(lr2, is.na(geneStrand_L) & is.na(geneStrand_R))
-#head(nosense[nosense$gene_L =='PIK3CA',])
-#head(sense)
-#head(nosense)
+# tab.sen = ddply(lr2b, .(strand_L, geneStrand_L, strand_R, geneStrand_R), summarize, n=length(readID))
+#sense = subset(lr2b, (strand_L == geneStrand_L & strand_R == geneStrand_R)
+#			| (is.na(geneStrand_L) & strand_R == geneStrand_R)
+#			| (is.na(geneStrand_R) & strand_L == geneStrand_L)
+#)
+#antisense = subset(lr2b, (strand_L != geneStrand_L & strand_R != geneStrand_R)
+#			| (is.na(geneStrand_L) & strand_R != geneStrand_R)
+#			| (is.na(geneStrand_R) & strand_L != geneStrand_L)
+#)
+#nosense = subset(lr2b, is.na(geneStrand_L) & is.na(geneStrand_R)
+#			| (strand_L == geneStrand_L & strand_R != geneStrand_R)
+#			| (strand_L != geneStrand_L & strand_R == geneStrand_R)
+#			)
+#nrow(sense); nrow(antisense); nrow(nosense); nrow(lr2b)
+#lr2c = rbind(sense, anti2, nosense)
+	#nrow(lr2b); nrow(lr2c)
 
-nrow(sense); nrow(antisense); nrow(nosense); nrow(lr2)
+# reverse strand for Read2
+r1 = lr2b[!(grepl("/2", lr2b$readID)),]
+r2 = lr2b[grepl("/2", lr2b$readID),]
 
-## switch L/R
-    tmp.n = gsub('_L', '_000R', names(antisense))
-    tmp.n2 = gsub('_R', '_000L', tmp.n)
-    tmp.n3 = gsub('_000', '_', tmp.n2)
-    tmp.n3
-    anti2 = antisense
-    names(anti2) = tmp.n3
-    #head(antisense,3)
-    #head(anti2,3)
+## switch L/R for Read2
+if (nrow(r2)>0){
+    r2r = r2
+	tmp.n = gsub('_L', '_Tmp000R', names(r2))
+	tmp.n2 = gsub('_R', '_Tmp000L', tmp.n)
+	tmp.n3 = gsub('_Tmp000', '_', tmp.n2)
+	names(r2r) = tmp.n3
 
-lr3 = rbind(sense, anti2, nosense)
-lr3 = lr3[!duplicated(lr3$readID),]
-nrow(lr2)
-n.lr3 = nrow(lr3)
+    lr3 = rbind(r1, r2r)
+} else {lr3 = lr2b}
+
+n.lr3 = nrow(lr3); n.lr3
 
 #=========================================================
 #=========================================================
@@ -207,16 +206,14 @@ if (n.lr3 >0){
 	
 	(known.partners = readLines(paste(DEPATH, '/fusion.partners.txt', sep='')))
 	(known.ge = readLines(paste(DEPATH, '/fusion.gene-exon.txt', sep='')))
-	#(known.skipping = readLines(paste(DEPATH, '/fusion.skipping.txt', sep='')))
+	(known.filter = readLines(paste(DEPATH, '/fusion.gene-exon.filter.txt', sep='')))
 	lr3$known=0
-	lr3$known[ (lr3$stgSide =='stgLeft'  & lr3$gene_L %in% known.partners & lr3$intragene==0)
-		  |(lr3$stgSide =='stgRight' & lr3$gene_R %in% known.partners & lr3$intragene==0)
+	lr3$known[ (lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partners & lr3$intragene==0)
+		  |(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partners & lr3$intragene==0)
 		  | lr3$ge1ge2 %in% known.ge
-		#  | (lr3$ge1 %in% known.skipping & lr3$neighb==0 & lr3$intragene==1)
-		#  | (lr3$ge2 %in% known.skipping & lr3$neighb==0 & lr3$intragene==1)
 		  | (lr3$ge1 %in% c('FGFR1_exon17', 'FGFR2_exon17', 'FGFR3_exon17') & lr3$intragene==0)
 			] = 1
-	lr32 = subset(lr3, known==1 | (num_start_site >=3 & intragene==0))
+	lr32 = subset(lr3, (known==1 | (num_start_site >=3 & intragene==0)) & !(ge1ge2 %in% known.filter))
 		nrow(lr3); nrow(lr32)
 
 if (nrow(lr32)>0){
@@ -239,6 +236,7 @@ if (nrow(lr32)>0){
 		
 if (n.lr4>0){
 		lr4$AP7 = subii
+		# remove illegal symbol
 		lr4$gec_LR = gsub('\\(', '.', lr4$gec_LR)
 		lr4$gec_LR = gsub('\\)', '.', lr4$gec_LR)
 		lr4$ge1ge2 = gsub('\\(', '.', lr4$ge1ge2)
@@ -252,13 +250,17 @@ if (n.lr4>0){
 			write.table(fusion.list, paste(subii, '.fusion.list.post-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
 
 		## consolidate breakpoint
+			fusion.list[is.na(fusion.list)]='-'
+			fusion.list$readID2 = sub(':umi:.*', '', fusion.list$readID)
 		fusion.tab1 = ddply(fusion.list, .(breakpoint), summarize
-						, breakpoint=breakpoint[1], 'AP7'=subii, 'ge1ge2'=ge1ge2[1]
-						, 'num_unique_reads'=length(readID), 'frame'=frame[1]
+						, 'AP7'=subii
+						, 'ge1ge2' = names(sort(table(ge1ge2),decreasing=TRUE)[1])
+						, 'num_unique_reads'=length(unique(readID2))
+						, 'frame'=frame[1]
 						, 'transcript_L'=nm_L[1], 'transcript_R'=nm_R[1]
 						, 'function_L'=inEx_L[1], 'function_R'=inEx_R[1]
 						, 'cdna_L'=cdna_L[1], 'cdna_R'=cdna_R[1]
-						, 'intragene'=unique(intragene)
+						, 'intragene'=intragene[1]
 						, 'overlap'=overlap[1]
 						, 'num_start_site'=num_start_site[1]
 						, 'known'=known[1]
@@ -268,9 +270,10 @@ if (n.lr4>0){
 		##==============================
 		## filter: overlap length and num of reads
 		##==============================
-		# fitler those with too few unique reads given long L/R overlap, when overlap >6
-		fusion.tab2 = subset(fusion.tab1, ((num_unique_reads > overlap) | overlap <=6))
-			head(fusion.tab2)
+		# Deprecated: fitler those with too few unique reads given long L/R overlap, when overlap >6
+			# fusion.tab2 = subset(fusion.tab1, ((num_unique_reads > overlap) | overlap <=6))
+			fusion.tab2=fusion.tab1
+				head(fusion.tab2)
 			out.names = c("AP7", "ge1ge2", "frame", "num_start_site", "num_unique_reads", "breakpoint"
 					, "transcript_L", "transcript_R", "function_L", "function_R", "cdna_L", "cdna_R", "intragene", "known")
 
@@ -283,21 +286,16 @@ if (n.lr4>0){
 			names(fusion.table) = name4
 		write.table(fusion.table, paste(subii, '.fusion.table.txt', sep=''), row.names=F, quote=F, sep='\t')
 
-
 		##=======================================
 		## export max 10 example fusion reads
 		##=======================================
 		    # inter-gene, in-frame
-		    # inter-gene, NA frame and num_start_site >10 reads  
 		    # or known
 		ex = subset(fusion.table, known ==1
 					| (intragene==0 & frame =='in-frame' & num_start_site >=3)
-					| (intragene==0 & num_start_site >=10)
-				)[, 1:12]
-			head(ex)
-
+				)[, 1:14]
 		# keep 1st
-		ex1 = ex[order(ex$"GeneExon5_GeneExon3", ex$frame, -ex$num_start_site, -ex$num_unique_reads),]
+		ex1 = ex[order(ex$frame, -ex$num_start_site, -ex$num_unique_reads),]
 		ex2 = ex1[!duplicated(ex1$"GeneExon5_GeneExon3"),]
 		
 			write.table(ex2, paste(subii, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
@@ -311,7 +309,8 @@ if (n.lr4>0){
 				## get read ID
 				(gei = ex2$"GeneExon5_GeneExon3"[i])
 				(ngeci = ex2$num_unique_reads[i])
-				(sample.n = min(10, ngeci))
+				readids = unique(lr4$readID[lr4$ge1ge2 == gei])
+				(sample.n = min(10, ngeci, length(readids)))
 				(readid = sample(unique(lr4$readID[lr4$ge1ge2 == gei]), sample.n))
 				writeLines(readid, 'tmp.readid')
 				system('sed -e "s/:umi.*//" -e "s:/1.*::" -e "s:/2.*::" tmp.readid | sort -u > tmp.readid2')

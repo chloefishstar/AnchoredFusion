@@ -3,43 +3,36 @@
 
 ##==== Filter 1: minMapLength, minExclusive, maxQueryGap, maxOverlap ====:
 
-		## reads with middle split
-		cut -f1 split.mid | sort -u | awk '{print $0,"_mid"}' > _mid.id
-		
-		join -a1 breakpoint.noFilter _mid.id > breakpoint.noFilter2
-		grep '_mid$' breakpoint.noFilter2 | sed 's:_mid$::' > breakpoint.noFilter.w.mid
-		grep -v '_mid$' breakpoint.noFilter2 > breakpoint.noFilter.wo.mid
-
 		## 1. at least minMapLength 
 		## 2. at least minExclusive bp exculsive between alignments 1 and 2
 		## 3. no larger than maxQueryGap
 		## 4. less than max overlapping length
 
 		## reads without middle split
-		    ## left:  $10-------$11
-		    ## right:       $21------$22
+		    ## left:  $9-------$10
+		    ## right:       $19------$20
 		echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
-		    '{ gap = $21-$11-1; 
-		       overlap = $11-$21+1;
-			    if (  ($11-$10 >= minMapLength && $22-$21 >= minMapLength) \
-				    && ($21-$10 >= minExclusive && $22-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+		    '{ gap = $19-$10-1; 
+		       overlap = $10-$19+1;
+			    if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
+				    && ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			) {print $0,overlap}}' \
 			     breakpoint.noFilter.wo.mid > _sa.fu0
 
 		## reads with middle split, turn off maxQueryGap by let = 100
-		    ## left:  $10-------$11
-		    ## right:		       $21------$22
+		    ## left:  $9-------$10
+		    ## right:		       $19------$20
 		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=1000 \
-		    '{ gap = $21-$11-1; 
-		       overlap = $11-$21+1;
-			    if (  ($11-$10 >= minMapLength && $22-$21 >= minMapLength) \
-				    && ($21-$10 >= minExclusive && $22-$11 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+		    '{ gap = $19-$10-1; 
+		       overlap = $10-$19+1;
+			    if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
+				    && ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			) {print $0,overlap}}' \
 			     breakpoint.noFilter.w.mid >> _sa.fu0
 
 ##==== Filter 2: StrVarMinStartSite
-	## breakpoint ($24) and separate start site (chr+pos)
-	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $25,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
+	## breakpoint ($22 now, later $23) and separate start site (chr+pos)
+	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $23,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
 	# sort by breakpoint and  start.site.umi
 	sort -k1,1b -k6,6b _sa.fu2 > _sa.fu3
@@ -48,7 +41,7 @@
         awk '{OFS="\t";
 		if ($1 == pre1 && $2 == pre2){
 			diff = $3-pre3;
-			if (diff < 100){
+			if (diff < 750000){
 				siteID = preSiteID
 				if (diff==0){
 					if ($4 != pre4){
