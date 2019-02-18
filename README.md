@@ -33,7 +33,7 @@ Required software, libraries and data dependency
 - R packages (plyr, data.table, parallel, dplyr, tidyr, ggplot2)
 - samtools
 - bedtools
-- snpEff
+- [snpEff](http://snpeff.sourceforge.net/download_donate.html)
 - java
 - bwa
 
