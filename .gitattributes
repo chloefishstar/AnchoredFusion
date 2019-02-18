@@ -1,0 +1,2 @@
+/inst/data/Database/snpEff_latest_core/snpEff/data/GRCh37.75/snpEffectPredictor.bin filter=lfs diff=lfs merge=lfs -text
+/inst/data/Database/snpEff_latest_core/snpEff/data/hg19/snpEffectPredictor.bin filter=lfs diff=lfs merge=lfs -text

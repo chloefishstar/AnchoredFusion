@@ -1,0 +1,18 @@
+# The following table is formatted as tab separated values. 
+#GeneName	GeneId	TranscriptId	BioType	variants_impact_HIGH	variants_impact_LOW	variants_impact_MODERATE	variants_impact_MODIFIER	variants_effect_5_prime_UTR_variant	variants_effect_downstream_gene_variant	variants_effect_frameshift_variant	variants_effect_intron_variant	variants_effect_sequence_feature	variants_effect_splice_acceptor_variant	variants_effect_structural_interaction_variant	variants_effect_upstream_gene_variant
+ALK	ALK	NM_004304.4	protein_coding	1	0	0	0	0	0	1	0	0	0	0	0
+EGFR	EGFR	NM_005228.3	protein_coding	1	0	0	4	0	0	0	5	0	1	0	0
+EGFR-AS1	EGFR-AS1	NR_047551.1		0	0	0	2	0	0	0	0	0	0	0	2
+EIF4A3	EIF4A3	NM_014740.3	protein_coding	0	0	0	1	0	1	0	0	0	0	0	0
+EML4	EML4	NM_019063.4	protein_coding	4	0	0	1	0	0	4	1	0	0	0	0
+ERBB2	ERBB2	NM_004448.3	protein_coding	0	0	0	1	0	0	0	1	0	0	0	0
+ETFRF1	ETFRF1	NM_001001660.2	protein_coding	0	0	0	4	0	4	0	0	0	0	0	0
+FGR	FGR	NM_001042729.1	protein_coding	1	0	0	4	3	0	1	1	0	0	0	0
+FREM3	FREM3	NM_001168235.1	protein_coding	2	0	0	0	0	0	2	0	0	0	0	0
+KRAS	KRAS	NM_033360.3	protein_coding	0	0	0	4	0	0	0	4	0	0	0	0
+MET	MET	NM_001127500.2	protein_coding	3	0	0	0	0	0	3	0	0	0	0	0
+NTRK1	NTRK1	NM_002529.3	protein_coding	6	2	0	0	0	0	3	0	2	0	3	0
+NTRK2	NTRK2	NM_006180.4	protein_coding	18	0	1	1	0	0	18	1	1	0	0	0
+NTRK3	NTRK3	NM_001012338.2	protein_coding	9	0	0	0	0	0	7	0	0	0	2	0
+RET	RET	NM_020975.4	protein_coding	3	0	0	0	0	0	3	0	0	0	0	0
+SMAD4	SMAD4	NM_005359.5	protein_coding	3	0	0	0	0	0	3	0	0	0	0	0
