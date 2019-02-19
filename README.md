@@ -104,8 +104,9 @@ Below is included in 'data/' directory of SplitFusion packages:
 
 Below need to be installed by yourself:
 
+```java
 - Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
-
+```
 
 ### 2. Installing SplitFusion
 
