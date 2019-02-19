@@ -108,6 +108,8 @@ R command line:
 
 >Library(SplitFusion)
 
+### ?runSplitFusion to study how to use this function.
+
 >runSplitFusion(runInfo= "/path/example.runInfo", output= "/path/result/", sample.id="example")
 ```
 
