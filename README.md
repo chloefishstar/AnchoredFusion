@@ -30,12 +30,17 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 Required software, libraries and data dependency
 
 - R 
-- R packages (plyr, data.table, parallel, dplyr, tidyr, ggplot2)
+- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
 - samtools
 - bedtools
-- [snpEff](http://snpeff.sourceforge.net/download_donate.html)
 - java
 - bwa
+- [snpEff](http://snpeff.sourceforge.net/download_donate.html)
+
+Installing snpEff Database 
+wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
+unzip snpEff_latest_core.zip
+java -jar snpEff/snpEff.jar download hg19
 
 ## Command line of Installation
 
