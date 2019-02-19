@@ -1,5 +1,21 @@
+#' fq2png
+#'
+#' Converted fastq sequnce into png file.
+#'
+#' @param seq raw fastq suquence of breakpoint
+#' @param aln Transformed cigar records of breakpoint reads
+#' @param nam prefixed name of output file
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#'
+#' fq2png(seq = "example.EML4_intron6---ALK_exon20.txt", aln = "breakpoint.reads"
+#' ,nam = "example.EML4_intron6---ALK_exon20")
+#'
 fq2png <- function(seq,aln,nam){
-  
+
   library("dplyr")
   library("tidyr")
   library("ggplot2")
@@ -32,7 +48,7 @@ fq2png <- function(seq,aln,nam){
 ### plot... table? ###
   BK_table <- BK_table %>% dplyr::mutate(part_seq=substring(seq, V10, V11)) %>% select(RD, part_order, seq, V10, V11)
 
-### convert it to a table 
+### convert it to a table
   seq_order=c()
   RD_col=c()
   part_order=c()
@@ -46,7 +62,7 @@ fq2png <- function(seq,aln,nam){
       location<-c(location, j)
       part_order<-c(part_order, BK_table[i, "part_order"])
     }
-  } 
+  }
 
   base_table<-data.frame(seq_order, RD=RD_col, part_order, base, location, stringsAsFactors = F)
 

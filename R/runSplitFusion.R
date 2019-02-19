@@ -3,7 +3,7 @@
 ## from BAM SA hits to structure variation (fusion, cDNA or large indel)
 ## input:
 ##	- bam/id_folder (current folder)
-##	- bam/id_folder/consolidated.sam 
+##	- bam/id_folder/consolidated.sam
 ##
 ## output:
 ##	- strV_read_ID
@@ -17,6 +17,31 @@
 
 # enter your working directory
 #. ../run.info.sh  ###Modified by Baifeng###
+
+#' runSplitFusion
+#'
+#' Main function of SplitFusion software.
+#'
+#' (https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/README.md).
+#'
+#' A fast pipeline for detection of gene fusion based on fusion-supporting split alignment.
+#'
+#' @param step step name in which you want to run SplitFusion, included "bam-consolidate",
+#' "breakpoint-consolidate", "breakpoint-filter", "breakpoint-anno" and "breakpoint-anno-post"
+#' five steps.
+#' @param runInfo config file which sets the path and parameters of depended tools.
+#' @param output directory of output.
+#' @param sample.id sample name (matches with prefixed name of raw fastq or bam file).
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#'
+#' runSplitFuion(step = c("bam-consolidate", "breakpoint-consolidate", "breakpoint-filter"),
+#' runInfo = "/path/example.runInfo", output = "/path/result", sample.id = "example")
+#'
+#'
 runSplitFusion <- function (step = c("bam-consolidate", "breakpoint-consolidate", "breakpoint-filter", "breakpoint-anno", "breakpoint-anno-post"), runInfo, output, sample.id){
 	library(SplitFusion)
 	options(width=204)
@@ -51,7 +76,7 @@ runSplitFusion <- function (step = c("bam-consolidate", "breakpoint-consolidate"
 	#	bash $SplitFusionPath/scripts/SplitFusion.breakpoint-anno.sh $runInfo  ###Modified by Baifeng###
 	#fi
 	if ( "breakpoint-anno" %in% step & !(file.exists("mid.anno2") & file.size("mid.anno2") !=0)) {
-        
+
         	system(paste0("bash ",SplitFusionPath,"/exec/SplitFusion.breakpoint-anno.sh ",runInfo))
 	}
 

@@ -1,4 +1,19 @@
 
+#' exon.cds.extraction
+#'
+#' Extracting exon or cds informtaion of primary annotation from snpEff.
+#'
+#' @param input annotation file outputted by snpEff.
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#'
+#' exon.cds.extraction(input = "mid.anno")
+#'
+#' exon.cds.extraction(input = "__breakpoint.annotated")
+#'
 exon.cds.extraction <- function(input){
 library(data.table)
 library(parallel)

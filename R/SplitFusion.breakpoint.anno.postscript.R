@@ -1,7 +1,22 @@
+#' SplitFusion.breakpoint.anno.postscript
+#'
+#' Post annotation of breakpoint detected by SplitFusion.
+#'
+#' @param runInfo config file which sets the path and parameters of depended tools.
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples
+#'
+#' #"anno.left.right" file outputted by last step "breakpoint-anno" of SplitFusion should be exist.
+#'
+#' SplitFusion.breakpoint.anno.postscript(runInfo = "/path/example.runInfo")
+#'
 SplitFusion.breakpoint.anno.postscript <- function(runInfo){
 # breakpoint post annotation processing
-# 
-# required: 
+#
+# required:
 #	- fu.anno.right
 #	- fu.anno.left
 #	- fu.breakpointID.stgLeft
@@ -42,7 +57,7 @@ head(ii)
     ###add transcript orientation
     orien <- data.frame(fread(paste0(Panel_path,'/ENSEMBL.orientation.txt')))
     rownames(orien) <- orien[,"ID"]
-    nm_L <- lr1[,"nm_L"] 
+    nm_L <- lr1[,"nm_L"]
     lr1[,"geneStrand_L"] <- orien[nm_L,"Orientation"]
     nm_R <- lr1[,"nm_R"]
     lr1[,"geneStrand_R"] <- orien[nm_R,"Orientation"]
@@ -60,7 +75,7 @@ head(ii)
 #        tmp.n2 = gsub('_R', '_Tmp000L', tmp.n)
 #        tmp.n3 = gsub('_Tmp000', '_', tmp.n2)
 #        names(lr1.rev.r) = tmp.n3
- 
+
 #        lr1 = rbind(lr1.nor, lr1.rev.r)
 #   } else {lr1 = lr1}
 
@@ -113,7 +128,7 @@ if (file.exists('mid.anno2')){
 		    	lmr_L$exon_L = lmr_L$exon_M
 		    	lmr_L$exonn_L = lmr_L$exonn_M
 			lmr_L$cdna_L = lmr_L$cdna_L + (1 - (lmr_L$exonn_L > lmr_L$exonn_M)*2) * lmr_L$overlap
-			
+
 			lmr_L$absMstart = abs(lmr_L$start_M - lmr_L$orp_L)
 			lmr_L$absMend = abs(lmr_L$end_M - lmr_L$orp_L)
 			lmr_L$pos_M = ifelse(
@@ -135,7 +150,7 @@ if (file.exists('mid.anno2')){
 		    	lmr_R$exon_R = lmr_R$exon_M
 		    	lmr_R$exonn_R = lmr_R$exonn_M
 			lmr_R$cdna_R = lmr_R$cdna_R + (1 - (lmr_R$exonn_R > lmr_R$exonn_M)*2) * lmr_R$overlap
-			
+
 			lmr_R$absMstart = abs(lmr_R$start_M - as.numeric(lmr_R$orp_R))
 			lmr_R$absMend = abs(lmr_R$end_M - as.numeric(lmr_R$orp_R))
 			lmr_R$pos_M = ifelse(
@@ -151,7 +166,7 @@ if (file.exists('mid.anno2')){
 				, paste(lmr_R$chrpos_Target, lmr_R$chrpos_M, sep='__')
 				)
 			}
-		   
+
 		lmr2 = rbind(lmr_L, lmr_R)
 		lmr2.keep = lmr2[, c(names(lr2))]
 		    lr0 = lr2[!(lr2$readID %in% lmr2.keep$readID),]
@@ -182,7 +197,7 @@ if (file.exists('mid.anno2')){
 #lr2c = rbind(sense, anti2, nosense)
 	#nrow(lr2b); nrow(lr2c)
 
-# reverse strand for sense Read2 
+# reverse strand for sense Read2
 r1 = lr2b[!(grepl("/2", lr2b$readID)),]
 r2 = lr2b[grepl("/2", lr2b$readID),]
 
@@ -231,7 +246,7 @@ if (n.lr3 >0){
         names(lr3.rev.r) = tmp.n3
 
         lr3 = rbind(lr3.nor, lr3.rev.r)
-   } else {lr3 = lr3}	
+   } else {lr3 = lr3}
 
 	## intra-gene
 	lr3$intragene = ifelse(lr3$gene_L == lr3$gene_R, 1, 0)
@@ -257,7 +272,7 @@ if (n.lr3 >0){
 		#head(lr3)
 		## expect mostly in-frame or _NA_. Otherwise, might need inspection
 		#table(lr3$frame,useNA='always')
-				     
+
 	    lr3$neighb = ifelse(lr3$exonD==1, 1, 0)
 	    lr3$neighb[is.na(lr3$neighb)] = 0
 
@@ -266,7 +281,7 @@ if (n.lr3 >0){
 
 	##======================
 	## fitler num_start_site: >=3 or known recurrent
-	
+
 #	(known.partners = readLines(paste(DEPATH, '/fusion.partners.txt', sep='')))
 #	(known.ge = readLines(paste(DEPATH, '/fusion.gene-exon.txt', sep='')))
 #	(known.filter = readLines(paste(DEPATH, '/fusion.gene-exon.filter.txt', sep='')))
@@ -304,7 +319,7 @@ if (n.lr3 >0){
 		lr4 = lr40[!duplicated(lr40$readID),]
 		(n.lr40 = nrow(lr40))
 		(n.lr4 = nrow(lr4))
-		
+
 		if (n.lr4>0){
 		lr4$AP7 = subii
 		# remove illegal symbol
@@ -368,14 +383,14 @@ if (n.lr3 >0){
 		# keep 1st
 		ex1 = ex[order(ex$frame, -ex$num_start_site, -ex$num_unique_reads),]
 		ex2 = ex1[!duplicated(ex1$"GeneExon5_GeneExon3"),]
-		
+
 			write.table(ex2, paste(subii, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
 
-		
+
 	ex2 = read.table(paste(subii, '.brief.summary', sep=''), sep='\t', stringsAsFactors=F, header=T)
 		(nex = min(10, nrow(ex2)))
 			if (nex >0){
-			## show max 25 example reads 
+			## show max 25 example reads
 				for (i in 1:nex){
 					## get read ID
 					(gei = ex2$"GeneExon5_GeneExon3"[i])
@@ -410,6 +425,6 @@ if (n.lr3 >0){
 
 	if (!file.exists(paste(subii, '.brief.summary', sep=''))){
 			file.create(paste(subii, '.brief.summary', sep=''))
-		
+
 }
 }

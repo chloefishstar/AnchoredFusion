@@ -9,3 +9,4 @@ Depends: plyr, data.table, parallel, dplyr, tidyr, ggplot2
 License: GPL
 Encoding: UTF-8
 LazyData: false
+RoxygenNote: 6.1.0
