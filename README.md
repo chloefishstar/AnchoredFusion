@@ -25,16 +25,59 @@ The analysis consists of ## computational steps:
 
 Lastly, outputs a summary table and breakpoint-spanning reads.
 
+The dependency data (e.g. in 'data') should contain:
+
+| Filename                   | Content                                                        |
+|:--------------------------:|:--------------------------------------------------------------:|
+| Homo_sapiens_assembly19.fasta | Contains a list of human genome reference, please mannually downloaded from ucsc or other official site. |
+| panel-name.target.genes.txt    | Contains a list of targets (gene name, e.g. ALK, ROS1, etc.), e.g: ITFTNA.target.genes.txt   |
+| fusion.gene-exon.filter.txt | Contains recurrent breakpoints identified as data accumulates, but are not of interest. |
+| fusion.gene-exon.txt          | By default, SplitFusion only outputs fusions that are *in-frame* fusion of two different genes or when number of breakpoint-supporting reads exceed predefined threashold. This file contains known breakpoints that do not belong to the above two kinds, but are clinically relevant, e.g. "MET_exon13---MET_exon15" an exon-skipping event forms an important theraputic target. Many exon skipping/alternative splicing events are normal or of unknown clinical relevance and are thus not output by default. |
+| fusion.partners.txt | Contains a list of known fusion partners of targets. |
+| ENSEMBL.orientation.txt | Due to the lack of transcript orientation in snpEff annotation, so this file include two columns, Orientation (+ or –) and transcript ID (ENST*). |
+
+
+The above files could be updated periodically as a backend supporting database that facilitates automatc filtering and outputing of fusion candidates.
+
+
 ## Installation
 
-[Required software](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database), libraries and [data dependency](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data).
+### 1. Installing requirements
+
+[Required tools](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database):
+
+Below is included in 'data/database' directory of SplitFusion packages:
 
 - R 
-- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
 - samtools
 - bedtools
-- java
 - bwa
+
+Below need to be installed by yourself:
+
+- java
+```java
+###Installation
+1. Go to http://java.com and click on the Download button
+
+2. cd directory_path_name
+
+3. Move the .tar.gz archive binary to the current directory.
+
+4. tar zxvf jre-8u73-linux-i586.tar.gz
+
+5. The Java files are installed in a directory called jre1.8.0_73 in the current directory.
+In this example, it is installed in the /usr/java/jre1.8.0_73 directory.
+```
+
+- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
+
+```java
+
+> install.packages(c("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2"))
+
+```
+
 - [snpEff](http://snpeff.sourceforge.net/download_donate.html)
 
 ```java
@@ -47,7 +90,22 @@ unzip snpEff_latest_core.zip
 java -jar snpEff/snpEff.jar download hg19
 ```
 
-## Command line of Installation
+[Required files](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/):
+
+Below is included in 'data/' directory of SplitFusion packages:
+
+- panel-name.target.genes.txt
+- fusion.gene-exon.filter.txt
+- fusion.gene-exon.txt
+- fusion.partners.txt
+- ENSEMBL.orientation.txt
+
+Below need to be installed by yourself:
+
+- Homo_sapiens_assembly19.fasta #Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
+
+
+### 2. Installing SplitFusion
 
 ```java
 git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
@@ -55,26 +113,14 @@ git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
 R CMD INSTALL SplitFusion
 ```
 
-The dependency data (e.g. in 'data') should contain:
 
-| Filename                   | Content                                                        |
-|:--------------------------:|:--------------------------------------------------------------:|
-| Homo_sapiens_assembly19.fasta | Contains a list of human genome reference, please mannually downloaded from ucsc or other official site. |
-| panel-name.target.genes.txt    | Contains a list of targets (gene name, e.g. ALK, ROS1, etc.)   |
-| fusion.gene-exon.filter.txt | Contains recurrent breakpoints identified as data accumulates, but are not of interest. |
-| fusion.gene-exon.txt          | By default, SplitFusion only outputs fusions that are *in-frame* fusion of two different genes or when number of breakpoint-supporting reads exceed predefined threashold. This file contains known breakpoints that do not belong to the above two kinds, but are clinically relevant, e.g. "MET_exon13---MET_exon15" an exon-skipping event forms an important theraputic target. Many exon skipping/alternative splicing events are normal or of unknown clinical relevance and are thus not output by default. |
-| fusion.partners.txt | Contains a list of known fusion partners of targets. |
-| ENSEMBL.orientation.txt | Due to the lack of transcript orientation in snpEff annotation, so this file include two columns, Orientation (+ or –) and transcript ID (ENST*). |
+## Run
+[Example data for testing](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/):
 
-
-The above files could be updated periodically as a backend supporting database that facilitates automatc filtering and outputing of fusion candidates.
-
-# [Example data for testing](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/)
-
-## Input file
+### Preparing Input file
 1.Sample information table:  Sample name (prefixed name in bam file), Cancer type or project name ( not used in script, just for user labeling ), Panel name (prefixed panel name in panel-name.target.genes), cpuBWA number
 
-[An example table (table separated): sampleInfo](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/sampleInfo)  :
+[sampleInfo (table separated)](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/sampleInfo):
 
 ```java
 AP7 Sample_ID Panel cpuBWA
@@ -88,7 +134,7 @@ example LungFusion ITFTNA 2
 
 2.Config file: you can set the path and parameters of depended tools in this file.
 
-[Example  table: example.runInfo](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/example.runInfo):
+[example.runInfo](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/example.runInfo):
 
 ```java
 ### Input file
@@ -101,14 +147,11 @@ runInfo="$SplitFusionPath/data/example_data/example.runInfo"
 ...
 ```
 
-## Run
-
+### Commend line of run SplitFusion
 ```java
-R command line:
+> Library(SplitFusion)
 
->Library(SplitFusion)
-
->runSplitFusion(runInfo= "/path/example.runInfo", output= "/path/result/", sample.id="example") ### ?runSplitFusion to study how to use this function.
+> runSplitFusion(runInfo= "/path/example.runInfo", output= "/path/result/", sample.id="example") ### ?runSplitFusion to study how to use this function.
 ```
 
 ## Output 
