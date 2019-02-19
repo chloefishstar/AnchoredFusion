@@ -27,7 +27,7 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ## Installation
 
-Required software, libraries and data dependency
+[Required software](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database), libraries and [data dependency](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data).
 
 - R 
 - R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
