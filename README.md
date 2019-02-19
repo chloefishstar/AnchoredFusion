@@ -44,7 +44,7 @@ The above files could be updated periodically as a backend supporting database t
 
 ### 1. Installing requirements
 
-1.1 [Required tools](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database):
+[1.1 Required tools](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database):
 
 Below is included in 'data/database' directory of SplitFusion packages:
 
@@ -90,7 +90,7 @@ unzip snpEff_latest_core.zip
 java -jar snpEff/snpEff.jar download hg19
 ```
 
-1.2 [Required files](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/):
+[1.2 Required files](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/):
 
 Below is included in 'data/' directory of SplitFusion packages:
 
@@ -115,12 +115,11 @@ R CMD INSTALL SplitFusion
 
 
 ## Run
-[Example data for testing](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/):
 
-### 1. Preparing Input file
-1.1 Sample information table:  Sample name (prefixed name in bam file), Cancer type or project name ( not used in script, just for user labeling ), Panel name (prefixed panel name in panel-name.target.genes), cpuBWA number
+### 1. Preparing Input file ([Example](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/)):
 
-[sampleInfo (table separated)](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/sampleInfo):
+[1.1 sampleInfo (table separated)](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/sampleInfo): Sample information table. Sample name (prefixed name in bam file), Cancer type or project name ( not used in script, just for user labeling ), Panel name (prefixed panel name in panel-name.target.genes), cpuBWA number.
+
 
 ```java
 AP7 Sample_ID Panel cpuBWA
@@ -132,9 +131,8 @@ example LungFusion ITFTNA 2
 ...
 ```
 
-1.2 Config file: you can set the path and parameters of depended tools in this file.
+[1.2 example.runInfo](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/example.runInfo): Config file. You can set the path and parameters of depended tools in this file.
 
-[example.runInfo](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/example.runInfo):
 
 ```java
 ### Input file
