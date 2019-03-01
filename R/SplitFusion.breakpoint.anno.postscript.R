@@ -39,7 +39,9 @@ head(ii)
 (panel = sub("[vV][0-9]", "", ii$Panel[ii$AP7==subii][1]))
 #(genes = readLines(paste(DEPATH, '/panel/', panel, '.target.genes', sep='')))
 #(genes = readLines(paste(SplitFusionPath, '/scripts/', panel, '.target.genes', sep=''))) ###Modified by Baifeng###
-(genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
+#if (file.exists(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))){
+#	(genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
+#}
 
 ##====1: left-right annotations
     colnames = c('readID', 'chrorp_L', 'chr_L', 'orp_L', 'pos_L', 'strand_L'
@@ -95,7 +97,12 @@ if (n.lr1 >0){
 				, "-"
 			))
     lr1$exclude = 0
-    lr1$exclude[!(lr1$gene_T %in% genes)] = 1
+
+    if (file.exists(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))){
+        (genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
+	lr1$exclude[!(lr1$gene_T %in% genes)] = 1
+    }
+
 	table(lr1$exclude)
     lr2 = subset(lr1, exclude==0)
 	}else{

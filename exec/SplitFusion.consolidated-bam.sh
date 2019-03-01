@@ -14,7 +14,7 @@ if [ ! -s $bam_path/$subii.consolidated.bam ]; then
 
 	#== fasq2bam ==
 	if [ ! -s $bam_path/$subii.bam ]; then
-		$bwa mem -T 20 -5a -t 5 $hgRef $bam_path/$subii.R1.fq $bam_path/$subii.R2.fq > $bam_path/$subii.sam 2> bwa.log
+		$bwa mem -T 20 -5a -t $cpuBWA $hgRef $bam_path/$subii.R1.fq $bam_path/$subii.R2.fq > $bam_path/$subii.sam 2> bwa.log
 		$samtools view -@ $cpuBWA -T $hgRef -bS $bam_path/$subii.sam > $bam_path/$subii.bam
 	fi
 
