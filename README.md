@@ -20,7 +20,7 @@ The analysis consists of ## computational steps:
 
 3. The consolidated SA belonging to the same UMI-tagged read are then divided into three alignment groups (left, middle and right) according to their relative mapping position to the original read.
 
-4. Splitfusion defines a genuine breakpoint supporting SA by several criteria.
+4. Define a genuine breakpoint supporting SA by several criteria.
 
 5. Fusion effect inference for oncogenic fusion using snpEff.
 
