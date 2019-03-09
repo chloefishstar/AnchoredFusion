@@ -33,10 +33,15 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ## Installation
 
-### 1. Preparing human genome reference file
+### 1. Dependencies
+
+- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
+
 
 ```java
-- Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
+
+> install.packages(c("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2"))
+
 ```
 
 ### 2. Installing SplitFusion
