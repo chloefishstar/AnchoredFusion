@@ -43,6 +43,12 @@ head(ii)
 #	(genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
 #}
 
+if(!('samtools' %in% ls())){
+	samtools <- paste(paste0(SplitFusionPath,"/data/Database/samtools"))
+}
+
+
+
 ##====1: left-right annotations
     colnames = c('readID', 'chrorp_L', 'chr_L', 'orp_L', 'pos_L', 'strand_L'
 		, 'num_unique_molecules', 'num_start_site', 'num_start_site2', 'breakpoint', 'overlap'

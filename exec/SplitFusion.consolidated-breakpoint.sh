@@ -2,7 +2,30 @@
 #!/bin/bash
 . $1
 
+#subii=$( pwd | sed "s:.*/::")
+samtools=$SplitFusionPath/data/Database/samtools
+bedtools=$SplitFusionPath/data/Database/bedtools
+java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
+R="$SplitFusionPath/data/Database/R"
+bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
+snpEff="$SplitFusionPath/data/Database/snpEff/"
+StrVarMinStartSite=3
+
+maxQueryGap=0
+
+minMapLength=25
+
+minExclusive=25
+
+maxOverlap=9
+
+minMQ=13
+
+
+. $1
+
 subii=$( pwd | sed "s:.*/::")
+
 # get threads
 	head -n 1 $sampleInfo > _head.1
         gawk '{for (i=1; i<=NF; i++) {if ($i ~ /cpuBWA/) {print $i,i}}}' _head.1 | sed 's/.* /cpuField=/' > _t.sh

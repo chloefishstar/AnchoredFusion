@@ -1,6 +1,26 @@
 #!/bin/bash
 
 . $1
+samtools=$SplitFusionPath/data/Database/samtools
+bedtools=$SplitFusionPath/data/Database/bedtools
+java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
+R="$SplitFusionPath/data/Database/R"
+bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
+snpEff="$SplitFusionPath/data/Database/snpEff/"
+snpEff_ref="hg19"
+StrVarMinStartSite=3
+
+maxQueryGap=0
+
+minMapLength=25
+
+minExclusive=25
+
+maxOverlap=9
+
+minMQ=13
+
+. $1
 
 ##==== 3: Annotate breakpoint gene, exon, cDNA position
 
@@ -34,7 +54,12 @@
 ## Annotate
     #perl $REPPATH/annovar/table_annovar.pl __breakpoint.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out __breakpoint.annotated -remove -protocol refGene -operation g -nastring NA
     #Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R __breakpoint.annotated ## generate .ext0
-    $java -jar $snpEff -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
+
+    if [ ! -x "$snpEff/data/$snpEff_ref" ]; then    
+	$java -jar $snpEff/snpEff.jar download $snpEff_ref
+    fi
+
+    $java -jar $snpEff/snpEff.jar -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
 #    $R -f $SplitFusionPath/R/exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
     $R -e 'library(SplitFusion);exon.cds.extraction(input = "__breakpoint.annotated")'
 
@@ -56,7 +81,7 @@
 
 #    perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA
 #    Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
-    $java -jar $snpEff -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
+    $java -jar $snpEff/snpEff.jar -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
 #    $R -f $SplitFusionPath/R/exon.cds.extraction.R --args mid.anno  ###R version###
     $R -e 'library(SplitFusion);exon.cds.extraction(input = "mid.anno")'
 

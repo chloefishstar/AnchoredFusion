@@ -1,42 +1,42 @@
 ### Input file
 SplitFusionPath="The installed library path of SplitFusion R Package/SplitFusion" ### .libPaths() command in R environment
 
-sampleInfo="$SplitFusionPath/data/example_data/sampleInfo"
+sampleInfo="/full path/sampleInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/sampleInfo
 
-runInfo="$SplitFusionPath/data/example_data/example.runInfo"
+runInfo="/full path/example.runInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/example.runInfo
 
-bam_path="$SplitFusionPath/data/example_data/"
+bam_path="full path of bam files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/
 
-Panel_path="$SplitFusionPath/data/"
+Panel_path="full path of panel files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/
 
 
 ### Tools and database
-hgRef="$SplitFusionPath/data/Database/Homo_sapiens_assembly19.fasta"
+hgRef="full path of Homo_sapiens_assembly19.fasta"  ## example: "/data/genome_reference/Homo_sapiens_assembly19.fasta"
 
-samtools="$SplitFusionPath/data/Database/samtools" #Version: 1.9 (using htslib 1.9)
+#samtools="$SplitFusionPath/data/Database/samtools" #Version: 1.9 (using htslib 1.9)
 
-bedtools="$SplitFusionPath/data/Database/bedtools" #Version: v2.25.0
+#bedtools="$SplitFusionPath/data/Database/bedtools" #Version: v2.25.0
 
-java="$SplitFusionPath/data/Database/java" #openjdk version "1.8.0_181", OpenJDK Runtime Environment (build 1.8.0_181-8u181-b13-1ubuntu0.16.04.1-b13), OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
+#java="$SplitFusionPath/data/Database/java" #openjdk version "1.8.0_181", OpenJDK Runtime Environment (build 1.8.0_181-8u181-b13-1ubuntu0.16.04.1-b13), OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 
-snpEff="$SplitFusionPath/data/Database/snpEff_latest_core/snpEff/snpEff.jar" #Downloaded from http://snpeff.sourceforge.net/download_donate.html
+#snpEff="$SplitFusionPath/data/Database/snpEff_latest_core/snpEff/snpEff.jar" #Downloaded from http://snpeff.sourceforge.net/download_donate.html
 
-snpEff_ref="hg19"   ### Note: annotation result varys with different version of $snpEff_ref, which is better to match the version of hgRef
+#snpEff_ref="hg19"   ### Note: annotation result varys with different version of $snpEff_ref, which is better to match the version of hgRef
 
-R="$SplitFusionPath/data/Database/R"
+#R="$SplitFusionPath/data/Database/R"
 
-bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa" #Version: bwa-0.7.17
+#bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa" #Version: bwa-0.7.17
 
 
 ### Parameters of SplitFusion
-StrVarMinStartSite=3
+#StrVarMinStartSite=3
 
-maxQueryGap=0
+#maxQueryGap=0
 
-minMapLength=25
+#minMapLength=25
 
-minExclusive=25
+#minExclusive=25
 
-maxOverlap=9
+#maxOverlap=9
 
-minMQ=13
+#minMQ=13
