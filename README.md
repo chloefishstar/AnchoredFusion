@@ -35,66 +35,8 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ### 1. Installing requirements
 
-[1.1 Required tools:](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/Database)
-
-Below is included in 'data/database' directory of SplitFusion packages:
-
-- R 
-- samtools
-- bedtools
-- bwa
-
-Below need to be installed by yourself:
-
-- java
 ```java
-###Installation
-1. Go to http://java.com and click on the Download button
-
-2. cd directory_path_name
-
-3. Move the .tar.gz archive binary to the current directory.
-
-4. tar zxvf jre-8u73-linux-i586.tar.gz
-
-5. The Java files are installed in a directory called jre1.8.0_73 in the current directory.
-In this example, it is installed in the /usr/java/jre1.8.0_73 directory.
-```
-
-- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
-
-```java
-
-> install.packages(c("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2"))
-
-```
-
-- [snpEff](http://snpeff.sourceforge.net/download_donate.html)
-
-```java
-###Installing snpEff Database
-
-wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
-
-unzip snpEff_latest_core.zip
-
-java -jar snpEff/snpEff.jar download hg19
-```
-
-[1.2 Required files:](https://github.com/Zheng-NGS-Lab/SplitFusion/tree/master/inst/data/)
-
-Below is included in 'data/' directory of SplitFusion packages:
-
-- panel-name.target.genes.txt
-- fusion.gene-exon.filter.txt
-- fusion.gene-exon.txt
-- fusion.partners.txt
-- ENSEMBL.orientation.txt
-
-Below need to be installed by yourself:
-
-```java
-- Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
+- Download Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
 ```
 
 ### 2. Installing SplitFusion
@@ -118,7 +60,7 @@ AP7 Sample_ID Panel cpuBWA
 
 example LungFusion ITFTNA 2
 
-example LungFusion ITFTNA 2
+example NA NA 2
 
 ...
 ```
