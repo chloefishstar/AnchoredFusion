@@ -33,10 +33,10 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ## Installation
 
-### 1. Installing requirements
+### 1. Preparing human genome reference file
 
 ```java
-- Download Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
+- Homo_sapiens_assembly19.fasta # Contains a list of human genome reference, please mannually downloaded from ucsc or other official site.
 ```
 
 ### 2. Installing SplitFusion
