@@ -19,7 +19,7 @@ hgRef="full path of Homo_sapiens_assembly19.fasta"  ## example: "/data/genome_re
 
 #java="$SplitFusionPath/data/Database/java" #openjdk version "1.8.0_181", OpenJDK Runtime Environment (build 1.8.0_181-8u181-b13-1ubuntu0.16.04.1-b13), OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 
-#snpEff="$SplitFusionPath/data/Database/snpEff_latest_core/snpEff/snpEff.jar" #Downloaded from http://snpeff.sourceforge.net/download_donate.html
+snpEff="$SplitFusionPath/data/Database/snpEff_latest_core/snpEff/" #Downloaded from http://snpeff.sourceforge.net/download_donate.html
 
 #snpEff_ref="hg19"   ### Note: annotation result varys with different version of $snpEff_ref, which is better to match the version of hgRef
 
