@@ -23,7 +23,7 @@ snpEff="$SplitFusionPath/data/Database/snpEff_latest_core/snpEff/" #Downloaded f
 
 #snpEff_ref="hg19"   ### Note: annotation result varys with different version of $snpEff_ref, which is better to match the version of hgRef
 
-#R="$SplitFusionPath/data/Database/R"
+R="full path of R you used"
 
 #bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa" #Version: bwa-0.7.17
 
