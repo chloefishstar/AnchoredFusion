@@ -75,11 +75,23 @@ example NA NA 2
 
 ```java
 ### Input file
+
 SplitFusionPath="The installed library path of SplitFusion R Package/SplitFusion" ### .libPaths() command in R environment
 
-sampleInfo="$SplitFusionPath/data/example_data/sampleInfo"
+sampleInfo="/full path/sampleInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/sampleInfo
 
-runInfo="$SplitFusionPath/data/example_data/example.runInfo"
+runInfo="/full path/example.runInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/example.runInfo
+
+bam_path="full path of bam files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/
+
+Panel_path="full path of panel files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/
+
+
+### Tools and database
+
+hgRef="full path of Homo_sapiens_assembly19.fasta"  ## example: "/data/genome_reference/Homo_sapiens_assembly19.fasta"
+
+R="full path of R you used"
 
 ...
 ```
