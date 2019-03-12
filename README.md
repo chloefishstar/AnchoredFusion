@@ -92,8 +92,6 @@ Panel_path="full path of panel files" ## example: The installed library path of 
 hgRef="full path of Homo_sapiens_assembly19.fasta"  ## example: "/data/genome_reference/Homo_sapiens_assembly19.fasta"
 
 R="full path of R you used"
-
-...
 ```
 
 ### 2. run SplitFusion
