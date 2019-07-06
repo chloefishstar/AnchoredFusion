@@ -49,7 +49,7 @@ runSplitFusion <- function (step = c("bam-consolidate", "breakpoint-consolidate"
 #	subii='SUBID_'
 #	dir.create(subii)
 #	setwd(subii)
-	dir.create(paste0(output,"/",sample.id), recursive = TRUE)
+	dir.create(paste0(output,"/",sample.id), recursive = TRUE, showWarnings = FALSE)
 	setwd(paste0(output,"/",sample.id))
 	SplitFusionPath <- system.file(package='SplitFusion')
 	####==== 1: consolidated raw bam ====
