@@ -7,9 +7,9 @@ import argparse
 
 def parseArgs():
 
-    parser = argparse.ArgumentParser(description='Anchored-Fusion is a fast data analysis 
-                    pipeline detects gene fusion based on split reads \
-                    and/or paired-end reads.')
+    parser = argparse.ArgumentParser(description='Anchored-Fusion is a \
+                    fast data analysis pipeline detects gene fusion based \
+                    on split reads and/or paired-end reads.')
     parser.add_argument('--AnchoredFusionPath', required=True
                         , default='/tools/repo/anchored-fusion'
                         , help="the path where Anchored-Fusion pipeline is installed.")
@@ -22,8 +22,8 @@ def parseArgs():
 
     return args
 
-cleanup = "rm config.txt"
-os.system(cleanup)
+#cleanup = "rm config.txt"
+#os.system(cleanup)
 if __name__ == '__main__':
     
     args = parseArgs()
