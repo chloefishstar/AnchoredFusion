@@ -1,6 +1,6 @@
-#' SplitFusion.breakpoint.anno.postscript
+#' AnchoredFusion.breakpoint.anno.postscript
 #'
-#' Post annotation of breakpoint detected by SplitFusion.
+#' Post annotation of breakpoint detected by AnchoredFusion.
 #'
 #' @param runInfo config file which sets the path and parameters of depended tools.
 #'
@@ -9,11 +9,11 @@
 #'
 #' @examples
 #'
-#' #"anno.left.right" file outputted by last step "breakpoint-anno" of SplitFusion should be exist.
+#' #"anno.left.right" file outputted by last step "breakpoint-anno" of AnchoredFusion should be exist.
 #'
-#' SplitFusion.breakpoint.anno.postscript(runInfo = "/path/example.runInfo")
+#' AnchoredFusion.breakpoint.anno.postscript(runInfo = "/path/example.runInfo")
 #'
-SplitFusion.breakpoint.anno.postscript <- function(runInfo){
+AnchoredFusion.breakpoint.anno.postscript <- function(runInfo){
 # breakpoint post annotation processing
 #
 # required:
@@ -29,22 +29,25 @@ options(scipen=999)
 
 #runInfo = commandArgs(TRUE)[1]  ###Modified by Baifeng###
 source(runInfo)  ###Modified by Baifeng###
+fusion_library = paste0(AnchoredFusionPath,"/data/")
+source(runInfo)
 
 library(plyr)
 subii = sub('.*/', '', getwd())
 
 ## target genes
-ii = read.table(sampleInfo, sep='\t', stringsAsFactors=F, header=T)
-head(ii)
-(panel = sub("[vV][0-9]", "", ii$Panel[ii$AP7==subii][1]))
+#ii = read.table(sampleInfo, sep='\t', stringsAsFactors=F, header=T)
+#head(ii)
+##(panel = sub("[vV][0-9]", "", ii$Panel[ii$AP7==subii][1]))
+
 #(genes = readLines(paste(DEPATH, '/panel/', panel, '.target.genes', sep='')))
-#(genes = readLines(paste(SplitFusionPath, '/scripts/', panel, '.target.genes', sep=''))) ###Modified by Baifeng###
+#(genes = readLines(paste(AnchoredFusionPath, '/scripts/', panel, '.target.genes', sep=''))) ###Modified by Baifeng###
 #if (file.exists(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))){
 #	(genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
 #}
 
 if(!('samtools' %in% ls())){
-	samtools <- paste(paste0(SplitFusionPath,"/data/Database/samtools"))
+	samtools <- paste(paste0(AnchoredFusionPath,"/data/Database/samtools"))
 }
 
 
@@ -63,7 +66,7 @@ if(!('samtools' %in% ls())){
     lr1$exonn_R = suppressWarnings(as.numeric(sub('exon|intron','',lr1$exon_R)))
 
     ###add transcript orientation
-    orien <- data.frame(fread(paste0(Panel_path,'/ENSEMBL.orientation.txt')))
+    orien <- data.frame(fread(paste0(fusion_library,'/ENSEMBL.orientation.txt')))
     rownames(orien) <- orien[,"ID"]
     nm_L <- lr1[,"nm_L"]
     lr1[,"geneStrand_L"] <- orien[nm_L,"Orientation"]
@@ -104,8 +107,10 @@ if (n.lr1 >0){
 			))
     lr1$exclude = 0
 
-    if (file.exists(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))){
-        (genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
+    #if (file.exists(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))){
+    if (file.exists(panel)){
+#        (genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
+        (genes = readLines(panel)) ###R version###
 	lr1$exclude[!(lr1$gene_T %in% genes)] = 1
     }
 
@@ -298,12 +303,12 @@ if (n.lr3 >0){
 #	(known.partners = readLines(paste(DEPATH, '/fusion.partners.txt', sep='')))
 #	(known.ge = readLines(paste(DEPATH, '/fusion.gene-exon.txt', sep='')))
 #	(known.filter = readLines(paste(DEPATH, '/fusion.gene-exon.filter.txt', sep='')))
-##(known.partners = readLines(paste(SplitFusionPath, '/scripts/','/fusion.partners.txt', sep='')))   ###Modified by Baifeng###
-##(known.ge = readLines(paste(SplitFusionPath, '/scripts/','/fusion.gene-exon.txt', sep='')))   ###Modified by Baifeng###
-##(known.filter = readLines(paste(SplitFusionPath,'/scripts/','/fusion.gene-exon.filter.txt', sep='')))
-(known.partners = readLines(paste(Panel_path,'/fusion.partners.txt', sep='')))   ###R version###
-(known.ge = readLines(paste(Panel_path,'/fusion.gene-exon.txt', sep='')))   ###R version###
-(known.filter = readLines(paste(Panel_path,'/fusion.gene-exon.filter.txt', sep=''))) ###R version###
+##(known.partners = readLines(paste(AnchoredFusionPath, '/scripts/','/fusion.partners.txt', sep='')))   ###Modified by Baifeng###
+##(known.ge = readLines(paste(AnchoredFusionPath, '/scripts/','/fusion.gene-exon.txt', sep='')))   ###Modified by Baifeng###
+##(known.filter = readLines(paste(AnchoredFusionPath,'/scripts/','/fusion.gene-exon.filter.txt', sep='')))
+(known.partners = readLines(paste(fusion_library,'/fusion.partners.txt', sep='')))   ###R version###
+(known.ge = readLines(paste(fusion_library,'/fusion.gene-exon.txt', sep='')))   ###R version###
+(known.filter = readLines(paste(fusion_library,'/fusion.gene-exon.filter.txt', sep=''))) ###R version###
 
 
 	lr3$known=0

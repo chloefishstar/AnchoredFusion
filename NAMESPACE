@@ -1,5 +1,5 @@
 #exportPattern("^[[:alpha:]]+")
-export("runSplitFusion")
+export("runAnchoredFusion")
 export("exon.cds.extraction")
-export("SplitFusion.breakpoint.anno.postscript")
+export("AnchoredFusion.breakpoint.anno.postscript")
 export("fq2png")

@@ -1,14 +1,16 @@
 #!/bin/bash
 
 . $1
-samtools=$SplitFusionPath/data/Database/samtools
-bedtools=$SplitFusionPath/data/Database/bedtools
-java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
-R="$SplitFusionPath/data/Database/R"
-bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
-snpEff="$SplitFusionPath/data/Database/snpEff/"
+samtools=$AnchoredFusionPath/data/Database/samtools
+bedtools=$AnchoredFusionPath/data/Database/bedtools
+java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
+R=$AnchoredFusionPath/data/Database/R
+bwa=$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa
+snpEff=$AnchoredFusionPath/data/Database/snpEff/
 snpEff_ref="hg19"
-StrVarMinStartSite=3
+fusion_library=$AnchoredFusionPath/data/
+
+strVarMinStartSite=3
 
 maxQueryGap=0
 
@@ -60,8 +62,8 @@ minMQ=13
     fi
 
     $java -jar $snpEff/snpEff.jar -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
-#    $R -f $SplitFusionPath/R/exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
-    $R -e 'library(SplitFusion);exon.cds.extraction(input = "__breakpoint.annotated")'
+#    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
+    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "__breakpoint.annotated")'
 
     sort -k1,1b __breakpoint.annotated.ext0 > __breakpoint.annotated.extr
 
@@ -82,8 +84,8 @@ minMQ=13
 #    perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA
 #    Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
     $java -jar $snpEff/snpEff.jar -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
-#    $R -f $SplitFusionPath/R/exon.cds.extraction.R --args mid.anno  ###R version###
-    $R -e 'library(SplitFusion);exon.cds.extraction(input = "mid.anno")'
+#    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args mid.anno  ###R version###
+    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "mid.anno")'
 
     sed 's: :_:' _mid.for.anno0 | sort -k1,1b > _mid.for.anno1
     sort -k1,1b mid.anno.ext0 > _mid.anno.ext

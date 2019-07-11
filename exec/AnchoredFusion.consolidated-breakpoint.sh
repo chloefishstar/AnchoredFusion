@@ -3,13 +3,15 @@
 . $1
 
 #subii=$( pwd | sed "s:.*/::")
-samtools=$SplitFusionPath/data/Database/samtools
-bedtools=$SplitFusionPath/data/Database/bedtools
-java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
-R="$SplitFusionPath/data/Database/R"
-bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
-snpEff="$SplitFusionPath/data/Database/snpEff/"
-StrVarMinStartSite=3
+samtools=$AnchoredFusionPath/data/Database/samtools
+bedtools=$AnchoredFusionPath/data/Database/bedtools
+java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
+R=$AnchoredFusionPath/data/Database/R
+bwa=$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa
+snpEff=$AnchoredFusionPath/data/Database/snpEff/
+fusion_library=$AnchoredFusionPath/data/
+
+strVarMinStartSite=3
 
 maxQueryGap=0
 
@@ -27,17 +29,17 @@ minMQ=13
 subii=$( pwd | sed "s:.*/::")
 
 # get threads
-	head -n 1 $sampleInfo > _head.1
-        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /cpuBWA/) {print $i,i}}}' _head.1 | sed 's/.* /cpuField=/' > _t.sh
-        . _t.sh
-        cpuBWA=$(grep $subii $sampleInfo | cut -f $cpuField | sed 's: .*::')
+#	head -n 1 $sampleInfo > _head.1
+#        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /cpuBWA/) {print $i,i}}}' _head.1 | sed 's/.* /cpuField=/' > _t.sh
+#        . _t.sh
+#        cpuBWA=$(grep $subii $sampleInfo | cut -f $cpuField | sed 's: .*::')
 
 
 	## determine Panel field
-        head -n 1 $sampleInfo > _head.1
-        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /Panel/) {print $i,i}}}' _head.1 | sed 's/.* /PanelField=/' > _t.sh
-        . _t.sh
-    	panel=$(grep $subii $sampleInfo | cut -f $PanelField | sed 's: .*::' | sed 's:[vV][0-9]::')
+#        head -n 1 $sampleInfo > _head.1
+#        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /Panel/) {print $i,i}}}' _head.1 | sed 's/.* /PanelField=/' > _t.sh
+#        . _t.sh
+#    	panel=$(grep $subii $sampleInfo | cut -f $PanelField | sed 's: .*::' | sed 's:[vV][0-9]::')
 	
 
 ##==== 1.1. get reads with SA from both Read 1 and 2

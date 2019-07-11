@@ -2,13 +2,15 @@
 #!/bin/bash
 . $1
 
-samtools=$SplitFusionPath/data/Database/samtools
-bedtools=$SplitFusionPath/data/Database/bedtools
-java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
-R="$SplitFusionPath/data/Database/R"
-bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
-snpEff="$SplitFusionPath/data/Database/snpEff/snpEff"
-StrVarMinStartSite=3
+samtools=$AnchoredFusionPath/data/Database/samtools
+bedtools=$AnchoredFusionPath/data/Database/bedtools
+java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
+R="$AnchoredFusionPath/data/Database/R"
+bwa="$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa"
+snpEff="$AnchoredFusionPath/data/Database/snpEff/snpEff"
+fusion_library=$AnchoredFusionPath/data/
+
+strVarMinStartSite=3
 
 maxQueryGap=0
 
@@ -51,7 +53,7 @@ minMQ=13
 			) {print $0,overlap}}' \
 			     breakpoint.noFilter.w.mid >> _sa.fu0
 
-##==== Filter 2: StrVarMinStartSite
+##==== Filter 2: strVarMinStartSite
 	## breakpoint ($22 now, later $23) and separate start site (chr+pos)
 	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $23,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
@@ -89,8 +91,8 @@ minMQ=13
 	## Apply Filter2
 	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
 	sort -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
-	echo | awk -v StrVarMinStartSite=$StrVarMinStartSite \
-		'{if ($3 >= StrVarMinStartSite){
+	echo | awk -v strVarMinStartSite=$strVarMinStartSite \
+		'{if ($3 >= strVarMinStartSite){
 			print $0 > "breakpoint.siteID.MinStartSite"
 			}
 		}' _breakpoint.stats4.u

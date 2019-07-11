@@ -2,13 +2,15 @@
 . $1
 #subii=$( pwd | sed "s:.*/::")
 #SA_flag=$2
-samtools=$SplitFusionPath/data/Database/samtools
-bedtools=$SplitFusionPath/data/Database/bedtools
-java=$SplitFusionPath/data/Database/jre1.8.0_201/bin/java
-R="$SplitFusionPath/data/Database/R"
-bwa="$SplitFusionPath/data/Database/bwa-0.7.17/bwa"
-snpEff="$SplitFusionPath/data/Database/snpEff/"
-StrVarMinStartSite=3
+samtools=$AnchoredFusionPath/data/Database/samtools
+bedtools=$AnchoredFusionPath/data/Database/bedtools
+java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
+R=$AnchoredFusionPath/data/Database/R
+bwa=$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa
+snpEff=$AnchoredFusionPath/data/Database/snpEff/
+fusion_library=$AnchoredFusionPath/data/
+
+strVarMinStartSite=3
 
 maxQueryGap=0
 
@@ -28,10 +30,10 @@ SA_flag=$2
 
 #== consolidated bam ==
 ##get threads
-head -n 1 $sampleInfo > _head.1
-        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /cpuBWA/) {print $i,i}}}' _head.1 | sed 's/.* /cpuField=/' > _t.sh
-        . _t.sh
-        cpuBWA=$(grep $subii $sampleInfo | cut -f $cpuField | sed 's: .*::')
+#head -n 1 $sampleInfo > _head.1
+#        gawk '{for (i=1; i<=NF; i++) {if ($i ~ /cpuBWA/) {print $i,i}}}' _head.1 | sed 's/.* /cpuField=/' > _t.sh
+#        . _t.sh
+#        cpuBWA=$(grep $subii $sampleInfo | cut -f $cpuField | sed 's: .*::')
 
 if [ ! -s $bam_path/$subii.consolidated.bam ]; then
 

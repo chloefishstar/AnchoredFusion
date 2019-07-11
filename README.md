@@ -1,15 +1,15 @@
-# SplitFusion - a fast pipeline for detection of gene fusion based on fusion-supporting split alignment.
+# AnchoredFusion - a fast pipeline for detection of gene fusion based on fusion-supporting split alignment.
 
 Gene fusion is a hallmark of cancer. Many gene fusions are effective therapeutic targets such as BCR-ABL in chronic myeloid leukemia, EML4-ALK in lung cancer, and any of a number of partners-ROS1 in lung cancer. Accurate detection of gene fusion plays a pivotal role in precision medicine by matching the right drugs to the right patients.
 
 Challenges in the diagnosis of gene fusions include poor sample quality, limited amount of available clinical specimens, and complicated gene rearrangements. The anchored multiplex PCR (AMP) is a clinically proven technology designed, in one purpose, for robust detection of gene fusions across clinical samples of different types and varied qualities, including RNA extracted from FFPE samples.
 
-**SplitFusion** is a companion data pipeline for AMP, for the detection of gene fusion based on split alignments, i.e. reads crossing fusion breakpoints, with the ability to accurately infer in-frame or out-of-frame of fusion partners of a given fusion candidate. SplitFusion also outputs example breakpoint-supporting seqeunces in FASTA format, allowing for further investigations.
+**AnchoredFusion** is a companion data pipeline for AMP, for the detection of gene fusion based on split alignments, i.e. reads crossing fusion breakpoints, with the ability to accurately infer in-frame or out-of-frame of fusion partners of a given fusion candidate. AnchoredFusion also outputs example breakpoint-supporting seqeunces in FASTA format, allowing for further investigations.
 
 ## Reference publication
 [Zheng Z, et al. Anchored multiplex PCR for targeted next-generation sequencing. Nat Med. 2014](http://www.nature.com/nm/journal/v20/n12/full/nm.3729.html)
 
-## How does SplitFusion work?  
+## How does AnchoredFusion work?  
 
 
 The analysis consists of ## computational steps:
@@ -44,65 +44,82 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ```
 
-### 2. Installing SplitFusion
+### 2. Installing AnchoredFusion
 
 ```java
-git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
+git clone https://github.com/Zheng-NGS-Lab/AnchoredFusion.git
 
-R CMD INSTALL SplitFusion
+R CMD INSTALL AnchoredFusion
 ```
 
 
 ## Run
 
-### 1. Preparing Input file ([Example](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/)):
-
-[1.1 sampleInfo (table separated):](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/sampleInfo) Sample information table. Sample name (prefixed name in bam file), Cancer type or project name ( not used in script, just for user labeling ), Panel name (prefixed panel name in panel-name.target.genes), cpuBWA number.
-
-
+### 1. Help
 ```java
-AP7 Sample_ID Panel cpuBWA
+python ./AnchoredFusion/exec/anchored-fusion.py -h
 
-example LungFusion ITFTNA 2
+usage: anchored-fusion.py [-h] --AnchoredFusionPath ANCHOREDFUSIONPATH --R R
+                          --hgRef HGREF --bam_path BAM_PATH --sample_id
+                          SAMPLE_ID --output OUTPUT [--panel PANEL]
+                          [--fusion_library FUSION_LIBRARY] [--step STEP]
+                          [--samtools SAMTOOLS] [--bedtools BEDTOOLS]
+                          [--java JAVA] [--bwa BWA] [--snpEff SNPEFF]
+                          [--snpEff_ref SNPEFF_REF] [--cpuBWA CPUBWA]
+                          [--strVarMinStartSite STRVARMINSTARTSITE]
+                          [--maxQueryGap MAXQUERYGAP] [--minMQ MINMQ]
+                          [--minMapLength MINMAPLENGTH]
+                          [--maxOverlap MAXOVERLAP]
+                          [--minExclusive MINEXCLUSIVE]
 
-example NA NA 2
+Anchored-Fusion is a fast data analysis pipeline detects gene fusion based on
+split reads and/or paired-end reads.
 
-...
+optional arguments:
+  -h, --help            show this help message and exit
+  --AnchoredFusionPath ANCHOREDFUSIONPATH
+                        the path where Anchored-Fusion pipeline is installed
+                        [required]
+  --R R                 the path of R [required]
+  --hgRef HGREF         the path where human genome reference is stored
+                        [required]
+  --bam_path BAM_PATH   the path where bam or fastq file is stored [required]
+  --sample_id SAMPLE_ID
+                        the sample name of running [required]
+  --output OUTPUT       the path where output is stored [required]
+  --panel PANEL         the path where target genes panel file is stored
+  --fusion_library FUSION_LIBRARY
+                        the path where fusion library file is stored
+  --step STEP           the step of running
+  --samtools SAMTOOLS   the path of samtools
+  --bedtools BEDTOOLS   the path of bedtools
+  --java JAVA           the path of java
+  --bwa BWA             the path of bwa
+  --snpEff SNPEFF       the path of snpEff
+  --snpEff_ref SNPEFF_REF
+                        the version of snpEff reference
+  --cpuBWA CPUBWA       threads of BWA
+  --strVarMinStartSite STRVARMINSTARTSITE
+                        minimum start site
+  --maxQueryGap MAXQUERYGAP
+                        maximum gap length
+  --minMQ MINMQ         minimum mapping quality
+  --minMapLength MINMAPLENGTH
+                        minimum read mapping length
+  --maxOverlap MAXOVERLAP
+                        maximum overlap length
+  --minExclusive MINEXCLUSIVE
+                        minimum exclusive length
+
 ```
 
-[1.2 example.runInfo:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/example.runInfo) Config file. You can set the path and parameters of depended tools in this file.
-
-
+### 2. run AnchoredFusion
 ```java
-### Input file
-
-SplitFusionPath="The installed library path of SplitFusion R Package/SplitFusion" ### .libPaths() command in R environment
-
-sampleInfo="/full path/sampleInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/sampleInfo
-
-runInfo="/full path/example.runInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/example.runInfo
-
-bam_path="full path of bam files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/
-
-Panel_path="full path of panel files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/
-
-
-### Tools and database
-
-hgRef="full path of Homo_sapiens_assembly19.fasta"  ## example: "/data/genome_reference/Homo_sapiens_assembly19.fasta"
-
-R="full path of R you used"
-```
-
-### 2. run SplitFusion
-```java
-> Library(SplitFusion)
-
-> runSplitFusion(runInfo= "/path/example.runInfo", output= "/path/result/", sample.id="example") ### ?runSplitFusion to study how to use this function.
+python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath $AnchoredFusionPath --hgRef $hgRef --bam_path $bam_path --sample_id $sample_id --output $output --R $R
 ```
 
 ## Output 
-[An example brief output table:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
+[An example brief output table:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
 
 | AP7         | GeneExon5'---GeneExon3'    | num_unique_reads | frame    | Gene_Exon_cDNA_5'_3'            |
 |:-----------:|:--------------------------:|:----------------:|:--------:|:-------------------------------:|
@@ -111,7 +128,7 @@ R="full path of R you used"
 | A02-P702    | EML4_intronic---ALK_exon20 |               10 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304. |
 | A02-P702    | EML4_exon4---ALK_exon20    |               64 | in-frame | EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
 
-[An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.txt)
+[An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.txt)
 
  >CL100059760L2C005R002_288074
 TTCCCACTTTGGATCCTCCTTTACATCATTATTTCCCACAGCAATTCCTATTTCTGCAAGGTCTTTTAGTAAAGATGC
@@ -137,8 +154,8 @@ GGGAATTCCCACTTTGGATCCTCCTATGTTGGAATTCCCTCGGAAGAACTTGGTTCTTGGAAAAACTCTAAGATCGGA
 
 
 ## Visualization
-[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
-![image](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
+[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
+![image](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
 
 
 
