@@ -1,27 +1,5 @@
 
 #!/bin/bash
-. $1
-
-#subii=$( pwd | sed "s:.*/::")
-samtools=$AnchoredFusionPath/data/Database/samtools
-bedtools=$AnchoredFusionPath/data/Database/bedtools
-java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
-R=$AnchoredFusionPath/data/Database/R
-bwa=$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa
-snpEff=$AnchoredFusionPath/data/Database/snpEff/
-fusion_library=$AnchoredFusionPath/data/
-
-strVarMinStartSite=3
-
-maxQueryGap=0
-
-minMapLength=25
-
-minExclusive=25
-
-maxOverlap=9
-
-minMQ=13
 
 
 . $1

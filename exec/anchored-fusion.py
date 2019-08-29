@@ -28,12 +28,16 @@ def parseArgs():
     parser.add_argument('--output', required=True
                         #, default=''
                         , help="the path where output is stored [required]")
+
+    args = vars(parser.parse_args())
+
     
     parser.add_argument('--panel', required=False
                         , default='NA'
                         , help="the path where target genes panel file is stored")
     parser.add_argument('--fusion_library', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/'
                         , help="the path where fusion library file is stored")
     parser.add_argument('--step', required=False
                         , default='bam-consolidate,breakpoint-consolidate,breakpoint-filter,breakpoint-anno,breakpoint-anno-post'
@@ -41,21 +45,26 @@ def parseArgs():
 
     parser.add_argument('--samtools', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/samtools'
                         , help="the path of samtools")
     parser.add_argument('--bedtools', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/bedtools'
                         , help="the path of bedtools")
     parser.add_argument('--java', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/jre1.8.0_201/bin/java'
                         , help="the path of java")
     parser.add_argument('--bwa', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/bwa-0.7.17/bwa'
                         , help="the path of bwa")
     parser.add_argument('--snpEff', required=False
                         #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/snpEff/'
                         , help="the path of snpEff")
     parser.add_argument('--snpEff_ref', required=False
-                        , default='hg19'
+                        , default='GRCh37.75'
                         , help="the version of snpEff reference")
 
     parser.add_argument('--cpuBWA', type=int
@@ -112,7 +121,9 @@ if __name__ == '__main__':
 
 #config_run = "library(AnchoredFusion);runAnchoredFusion(runInfo = \"config.txt\")"
 #design =  args['AnchoredFusionPath'] + "/data/Database/R" +  " -e " + config_run
-design =  args['R'] +  " -e " + "'library(AnchoredFusion);runAnchoredFusion(runInfo = " + "\"" + config_o + "\"" + ")'"
+design =  args['R'] +  " -e " + "'suppressMessages(library(AnchoredFusion));runAnchoredFusion(runInfo = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
 os.system(design)
+
+
 
 ## END

@@ -115,7 +115,7 @@ optional arguments:
 
 ### 2. run AnchoredFusion
 ```java
-python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath $AnchoredFusionPath --hgRef $hgRef --bam_path $bam_path --sample_id $sample_id --output $output --R $R
+python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath AnchoredFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R
 ```
 
 ## Output 

@@ -1,26 +1,5 @@
 #!/bin/bash
 
-. $1
-samtools=$AnchoredFusionPath/data/Database/samtools
-bedtools=$AnchoredFusionPath/data/Database/bedtools
-java=$AnchoredFusionPath/data/Database/jre1.8.0_201/bin/java
-R=$AnchoredFusionPath/data/Database/R
-bwa=$AnchoredFusionPath/data/Database/bwa-0.7.17/bwa
-snpEff=$AnchoredFusionPath/data/Database/snpEff/
-snpEff_ref="hg19"
-fusion_library=$AnchoredFusionPath/data/
-
-strVarMinStartSite=3
-
-maxQueryGap=0
-
-minMapLength=25
-
-minExclusive=25
-
-maxOverlap=9
-
-minMQ=13
 
 . $1
 
@@ -58,12 +37,13 @@ minMQ=13
     #Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R __breakpoint.annotated ## generate .ext0
 
     if [ ! -x "$snpEff/data/$snpEff_ref" ]; then    
-	$java -jar $snpEff/snpEff.jar download $snpEff_ref
+	logger -s "First run snpEff, downloading snpEff database ..."  
+	$java -jar $snpEff/snpEff.jar download $snpEff_ref > /dev/null 2>&1
     fi
 
-    $java -jar $snpEff/snpEff.jar -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
+    $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
 #    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
-    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "__breakpoint.annotated")'
+    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "__breakpoint.annotated")' > /dev/null 2>&1
 
     sort -k1,1b __breakpoint.annotated.ext0 > __breakpoint.annotated.extr
 
@@ -83,9 +63,9 @@ minMQ=13
 
 #    perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA
 #    Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
-    $java -jar $snpEff/snpEff.jar -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
+    $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
 #    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args mid.anno  ###R version###
-    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "mid.anno")'
+    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "mid.anno")' > /dev/null 2>&1
 
     sed 's: :_:' _mid.for.anno0 | sort -k1,1b > _mid.for.anno1
     sort -k1,1b mid.anno.ext0 > _mid.anno.ext

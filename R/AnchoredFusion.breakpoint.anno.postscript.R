@@ -28,8 +28,6 @@ options(scipen=999)
 #.libPaths(c(paste(DEPATH, '/Rlib', sep=''), .libPaths()))
 
 #runInfo = commandArgs(TRUE)[1]  ###Modified by Baifeng###
-source(runInfo)  ###Modified by Baifeng###
-fusion_library = paste0(AnchoredFusionPath,"/data/")
 source(runInfo)
 
 library(plyr)
@@ -46,9 +44,6 @@ subii = sub('.*/', '', getwd())
 #	(genes = readLines(paste(Panel_path, '/', panel,'.target.genes.txt', sep=''))) ###R version###
 #}
 
-if(!('samtools' %in% ls())){
-	samtools <- paste(paste0(AnchoredFusionPath,"/data/Database/samtools"))
-}
 
 
 
@@ -66,12 +61,13 @@ if(!('samtools' %in% ls())){
     lr1$exonn_R = suppressWarnings(as.numeric(sub('exon|intron','',lr1$exon_R)))
 
     ###add transcript orientation
+    
     orien <- data.frame(fread(paste0(fusion_library,'/ENSEMBL.orientation.txt')))
-    rownames(orien) <- orien[,"ID"]
+    rownames(orien) <- orien[,"ensembl_transcript_id"]
     nm_L <- lr1[,"nm_L"]
-    lr1[,"geneStrand_L"] <- orien[nm_L,"Orientation"]
+    lr1[,"geneStrand_L"] <- orien[nm_L,"strand"]
     nm_R <- lr1[,"nm_R"]
-    lr1[,"geneStrand_R"] <- orien[nm_R,"Orientation"]
+    lr1[,"geneStrand_R"] <- orien[nm_R,"strand"]
 
 #    lr1.rev = subset(lr1, (strand_L != geneStrand_L & strand_R != geneStrand_R)
 #                       | (is.na(geneStrand_L) & strand_R != geneStrand_R)
