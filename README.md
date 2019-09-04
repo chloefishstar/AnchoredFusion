@@ -81,6 +81,7 @@ optional arguments:
                         the path where Anchored-Fusion pipeline is installed
                         [required]
   --R R                 the path of R [required]
+  --perl PERL           the path of perl [required]
   --hgRef HGREF         the path where human genome reference is stored
                         [required]
   --bam_path BAM_PATH   the path where bam or fastq file is stored [required]
@@ -91,6 +92,8 @@ optional arguments:
   --fusion_library FUSION_LIBRARY
                         the path where fusion library file is stored
   --step STEP           the step of running
+  --AnnotationMethod ANNOTATIONMETHOD
+                        the name of annotation tools (annovar or snpEff, default: annovar)
   --samtools SAMTOOLS   the path of samtools
   --bedtools BEDTOOLS   the path of bedtools
   --java JAVA           the path of java
@@ -115,7 +118,7 @@ optional arguments:
 
 ### 2. run AnchoredFusion
 ```java
-python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath AnchoredFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R
+python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath AnchoredFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R --perl perl
 ```
 
 ## Output 
