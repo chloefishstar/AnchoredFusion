@@ -1,5 +1,6 @@
 #exportPattern("^[[:alpha:]]+")
 export("runAnchoredFusion")
-export("exon.cds.extraction")
+export("annovar.exon.cds.extraction")
+export("snpEff.exon.cds.extraction")
 export("AnchoredFusion.breakpoint.anno.postscript")
 export("fq2png")

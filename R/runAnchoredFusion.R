@@ -17,6 +17,7 @@ setwd(paste0(output,"/",sample_id))
 
 step <- unlist(strsplit(step,","))
 
+cat("==========\n", date(), ": AnchoredFusion started successfully.\n==========\n")
 
 ####==== 1: consolidated raw bam ====
 	if ( "bam-consolidate" %in% step & !(file.exists(paste0(bam_path, "/", sample_id, ".consolidated.bam")) & file.size(paste0(bam_path, "/", sample_id, ".consolidated.bam")) !=0)) {

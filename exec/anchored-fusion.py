@@ -16,6 +16,9 @@ def parseArgs():
     parser.add_argument('--R', required=True
                         #, default=''
                         , help="the path of R [required]")
+    parser.add_argument('--perl', required=True
+                        #, default=''
+                        , help="the path of perl [required]")
     parser.add_argument('--hgRef', required=True
                         #, default=''
                         , help="the path where human genome reference is stored [required]")
@@ -29,40 +32,16 @@ def parseArgs():
                         #, default=''
                         , help="the path where output is stored [required]")
 
-    args = vars(parser.parse_args())
-
-    
     parser.add_argument('--panel', required=False
                         , default='NA'
                         , help="the path where target genes panel file is stored")
-    parser.add_argument('--fusion_library', required=False
-                        #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/'
-                        , help="the path where fusion library file is stored")
     parser.add_argument('--step', required=False
                         , default='bam-consolidate,breakpoint-consolidate,breakpoint-filter,breakpoint-anno,breakpoint-anno-post'
-                        , help="the step of running")
-
-    parser.add_argument('--samtools', required=False
+			, help="the step of running")
+    parser.add_argument('--AnnotationMethod', required=False
                         #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/Database/samtools'
-                        , help="the path of samtools")
-    parser.add_argument('--bedtools', required=False
-                        #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/Database/bedtools'
-                        , help="the path of bedtools")
-    parser.add_argument('--java', required=False
-                        #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/Database/jre1.8.0_201/bin/java'
-                        , help="the path of java")
-    parser.add_argument('--bwa', required=False
-                        #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/Database/bwa-0.7.17/bwa'
-                        , help="the path of bwa")
-    parser.add_argument('--snpEff', required=False
-                        #, default=''
-			, default = args['AnchoredFusionPath'] + '/data/Database/snpEff/'
-                        , help="the path of snpEff")
+                        , default = 'annovar'
+                        , help="the name of annotation tools (annovar or snpEff)")
     parser.add_argument('--snpEff_ref', required=False
                         , default='GRCh37.75'
                         , help="the version of snpEff reference")
@@ -80,14 +59,46 @@ def parseArgs():
                         , default=13
                         , help="minimum mapping quality")
     parser.add_argument('--minMapLength', type=int
-			, default=25
-			, help="minimum read mapping length")
+                        , default=25
+                        , help="minimum read mapping length")
     parser.add_argument('--maxOverlap', type=int
                         , default=9
                         , help="maximum overlap length")
     parser.add_argument('--minExclusive', type=int
                         , default=25
                         , help="minimum exclusive length")
+
+    args = vars(parser.parse_args())
+
+
+    parser.add_argument('--snpEff', required=False
+                        #, default=''
+                        , default = args['AnchoredFusionPath'] + '/data/Database/snpEff/'
+                        , help="the path of snpEff")
+    parser.add_argument('--annovar', required=False
+                        #, default=''
+                        , default = args['AnchoredFusionPath'] + '/data/Database/annovar/'
+                        , help="the path of snpEff")
+    parser.add_argument('--fusion_library', required=False
+                        #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/'
+                        , help="the path where fusion library file is stored")
+    parser.add_argument('--samtools', required=False
+                        #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/samtools'
+                        , help="the path of samtools")
+    parser.add_argument('--bedtools', required=False
+                        #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/bedtools'
+                        , help="the path of bedtools")
+    parser.add_argument('--java', required=False
+                        #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/jre1.8.0_201/bin/java'
+                        , help="the path of java")
+    parser.add_argument('--bwa', required=False
+                        #, default=''
+			, default = args['AnchoredFusionPath'] + '/data/Database/bwa-0.7.17/bwa'
+                        , help="the path of bwa")
     
     
 	

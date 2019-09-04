@@ -60,14 +60,17 @@ subii = sub('.*/', '', getwd())
     lr1$exonn_L = suppressWarnings(as.numeric(sub('exon|intron','',lr1$exon_L)))
     lr1$exonn_R = suppressWarnings(as.numeric(sub('exon|intron','',lr1$exon_R)))
 
-    ###add transcript orientation
+    if (AnnotationMethod=="snpEff"){
+ 
+    	###add transcript orientation
     
-    orien <- data.frame(fread(paste0(fusion_library,'/ENSEMBL.orientation.txt')))
-    rownames(orien) <- orien[,"ensembl_transcript_id"]
-    nm_L <- lr1[,"nm_L"]
-    lr1[,"geneStrand_L"] <- orien[nm_L,"strand"]
-    nm_R <- lr1[,"nm_R"]
-    lr1[,"geneStrand_R"] <- orien[nm_R,"strand"]
+    	orien <- data.frame(fread(paste0(fusion_library,'/ENSEMBL.orientation.txt')))
+    	rownames(orien) <- orien[,"ensembl_transcript_id"]
+    	nm_L <- lr1[,"nm_L"]
+    	lr1[,"geneStrand_L"] <- orien[nm_L,"strand"]
+    	nm_R <- lr1[,"nm_R"]
+    	lr1[,"geneStrand_R"] <- orien[nm_R,"strand"]
+    }
 
 #    lr1.rev = subset(lr1, (strand_L != geneStrand_L & strand_R != geneStrand_R)
 #                       | (is.na(geneStrand_L) & strand_R != geneStrand_R)

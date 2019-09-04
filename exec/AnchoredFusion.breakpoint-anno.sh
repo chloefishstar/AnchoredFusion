@@ -30,20 +30,28 @@
     
     cat __orpLeft __orpRight | cut -f 2,3 | sort -u > __breakpoint.for.anno0
 #    awk '{print $1,$2,$2,"A","A"}' __breakpoint.for.anno0 > __breakpoint.for.anno
-    awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' __breakpoint.for.anno0 > __breakpoint.for.anno
+#    awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' __breakpoint.for.anno0 > __breakpoint.for.anno
 
 ## Annotate
-    #perl $REPPATH/annovar/table_annovar.pl __breakpoint.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out __breakpoint.annotated -remove -protocol refGene -operation g -nastring NA
-    #Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R __breakpoint.annotated ## generate .ext0
-
-    if [ ! -x "$snpEff/data/$snpEff_ref" ]; then    
-	logger -s "First run snpEff, downloading snpEff database ..."  
-	$java -jar $snpEff/snpEff.jar download $snpEff_ref > /dev/null 2>&1
+    
+    if [ $AnnotationMethod = "annovar" ]; then
+	awk '{print $1,$2,$2,"A","A"}' __breakpoint.for.anno0 > __breakpoint.for.anno
+    	$perl $annovar/table_annovar.pl __breakpoint.for.anno $annovar/humandb/ -buildver hg19 -out __breakpoint.annotated -remove -protocol refGene -operation g -nastring NA > /dev/null 2>&1
+    	#Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R __breakpoint.annotated ## generate .ext0
+	$R -e 'library(AnchoredFusion);annovar.exon.cds.extraction(input = "__breakpoint.annotated")' > /dev/null 2>&1
     fi
 
-    $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
-#    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
-    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "__breakpoint.annotated")' > /dev/null 2>&1
+    if [ $AnnotationMethod = "snpEff" ]; then
+	    if [ ! -x "$snpEff/data/$snpEff_ref" ]; then    
+		echo "First run snpEff, downloading snpEff database ..."  
+		$java -jar $snpEff/snpEff.jar download $snpEff_ref > /dev/null 2>&1
+    	    fi
+	
+	awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' __breakpoint.for.anno0 > __breakpoint.for.anno
+    	$java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
+#    $R -f $AnchoredFusionPath/R/snpEff.exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
+    	$R -e 'library(AnchoredFusion);snpEff.exon.cds.extraction(input = "__breakpoint.annotated")' > /dev/null 2>&1
+    fi
 
     sort -k1,1b __breakpoint.annotated.ext0 > __breakpoint.annotated.extr
 
@@ -61,11 +69,19 @@
     awk '{mid = $5 + 10; print $4,mid,mid,"A","A",$1,$4,$5,$6}' split.mid > _mid.for.anno0
     tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u |awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' > mid.for.anno
 
-#    perl $REPPATH/annovar/table_annovar.pl mid.for.anno $REPPATH/annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA
-#    Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
-    $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
-#    $R -f $AnchoredFusionPath/R/exon.cds.extraction.R --args mid.anno  ###R version###
-    $R -e 'library(AnchoredFusion);exon.cds.extraction(input = "mid.anno")' > /dev/null 2>&1
+    if [ $AnnotationMethod = "annovar" ]; then
+	    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > mid.for.anno
+	    $perl $annovar/table_annovar.pl mid.for.anno $annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA > /dev/null 2>&1
+	    #Rscript $pipelinePATH/scripts/chr.pos.anno.extraction.R mid.anno ## generate .ext0
+	    $R -e 'library(AnchoredFusion);annovar.exon.cds.extraction(input = "mid.anno")' > /dev/null 2>&1
+    fi
+
+    if [ $AnnotationMethod = "snpEff" ]; then
+	    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u |awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' > mid.for.anno
+	    $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
+#    $R -f $AnchoredFusionPath/R/snpEff.exon.cds.extraction.R --args mid.anno  ###R version###
+    	    $R -e 'library(AnchoredFusion);snpEff.exon.cds.extraction(input = "mid.anno")' > /dev/null 2>&1
+    fi
 
     sed 's: :_:' _mid.for.anno0 | sort -k1,1b > _mid.for.anno1
     sort -k1,1b mid.anno.ext0 > _mid.anno.ext
