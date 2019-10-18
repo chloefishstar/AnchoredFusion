@@ -1,0 +1,13 @@
+# I installed SplitFusion under 
+#	/home/zz/repo/
+# Example run:
+
+python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
+	--SplitFusionPath /home/zz/R/x86_64-pc-linux-gnu-library/3.5/SplitFusion \
+	--refGenome /data/analysis/.db/Homo_sapiens_assembly19.fasta \
+	--bam_path /home/zz/repo/test \
+	--sample_id Lib009 \
+	--output /home/zz/repo/test \
+	--R /home/zz/R/bin/R \
+	--perl /usr/bin/perl \
+	--cpuBWA 4

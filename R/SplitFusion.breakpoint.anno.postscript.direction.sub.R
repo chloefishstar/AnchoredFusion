@@ -40,10 +40,10 @@ if (n.lr3 >0){
 		lr3 = lr3[order(lr3$intragene, lr3$frame, lr3$gec_LR),]
 
 	##==== Optional: add information on known/recurrent fusions (gene-gene, gene-exon, partners)
-	known.gg.file = paste0(path.package("AnchoredFusion"), '/data/fusion.gene-gene.txt'); if (file.exists(known.gg.file)){known.gg = readLines(known.gg.file)}
-	known.ge.file = paste0(path.package("AnchoredFusion"), '/data/fusion.gene-exon.txt'); if (file.exists(known.ge.file)){known.ge = readLines(known.ge.file)}
-	known.partner.file = paste0(path.package("AnchoredFusion"), '/data/fusion.partners.txt'); if (file.exists(known.partner.file)){known.partner = readLines(known.partner.file)}
-	known.ge.filter.file = paste0(path.package("AnchoredFusion"), '/data/fusion.gene-exon.filter.txt'); if (file.exists(known.ge.filter.file)){known.ge.filter = readLines(known.ge.filter.file)} 
+	known.gg.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-gene.txt'); if (file.exists(known.gg.file)){known.gg = readLines(known.gg.file)}
+	known.ge.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-exon.txt'); if (file.exists(known.ge.file)){known.ge = readLines(known.ge.file)}
+	known.partner.file = paste0(path.package("SplitFusion"), '/data/fusion.partners.txt'); if (file.exists(known.partner.file)){known.partner = readLines(known.partner.file)}
+	known.ge.filter.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-exon.filter.txt'); if (file.exists(known.ge.filter.file)){known.ge.filter = readLines(known.ge.filter.file)} 
 	lr3$known=0
 	lr3$known[ (lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partner & lr3$intragene==0)
 		  |(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partner & lr3$intragene==0)
@@ -111,7 +111,7 @@ if (n.lr3 >0){
 					, 'pos_R' = names(sort(table(pos_R), decreasing = TRUE)[1]))
 					
 					bk.genes = unique(c(bk2$gene_L, bk2$gene_R))
-				refGene = read.table(paste0(path.package("AnchoredFusion"), '/data/refGene0.txt'), header=T, sep='\t')
+				refGene = read.table(paste0(path.package("SplitFusion"), '/data/refGene0.txt'), header=T, sep='\t')
 				refGene2 = subset(refGene, name2 %in% bk.genes)[,c('name2', 'exonStarts', 'exonEnds')]
 
 					toStarts = function(row){
@@ -215,7 +215,7 @@ if (n.lr3 >0){
 					system('sed -e "s/:umi.*//" -e "s:/1.*::" -e "s:/2.*::" tmp.readid | sort -u > tmp.readid2')
 
 					## get fa
-					system(paste0(path.package('AnchoredFusion'), "/data/Database/samtools view ", bam_path, "/"
+					system(paste0(path.package('SplitFusion'), "/data/Database/samtools view ", bam_path, "/"
 							, sampleID, ".consolidated.bam | grep -f tmp.readid2 | cut -f1,10 | sed 's/^/>/' |\
 							 awk '{$3=length($2); print $0}' | sort -k1,1b -k3,3nr | sort -k1,1b -u |\
 							 cut -d ' ' -f1,2 | tr ' ' '\n' | sed 's/:umi.*//' > "

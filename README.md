@@ -1,15 +1,15 @@
-# AnchoredFusion - a fast pipeline for detection of gene fusion based on fusion-supporting split alignment.
+# SplitFusion - a fast pipeline for detection of gene fusion based on fusion-supporting split alignment.
 
 Gene fusion is a hallmark of cancer. Many gene fusions are effective therapeutic targets such as BCR-ABL in chronic myeloid leukemia, EML4-ALK in lung cancer, and any of a number of partners-ROS1 in lung cancer. Accurate detection of gene fusion plays a pivotal role in precision medicine by matching the right drugs to the right patients.
 
 Challenges in the diagnosis of gene fusions include poor sample quality, limited amount of available clinical specimens, and complicated gene rearrangements. The anchored multiplex PCR (AMP) is a clinically proven technology designed, in one purpose, for robust detection of gene fusions across clinical samples of different types and varied qualities, including RNA extracted from FFPE samples.
 
-**AnchoredFusion** is a companion data pipeline for AMP, for the detection of gene fusion based on split alignments, i.e. reads crossing fusion breakpoints, with the ability to accurately infer in-frame or out-of-frame of fusion partners of a given fusion candidate. AnchoredFusion also outputs example breakpoint-supporting seqeunces in FASTA format, allowing for further investigations.
+**SplitFusion** is a companion data pipeline for AMP, for the detection of gene fusion based on split alignments, i.e. reads crossing fusion breakpoints, with the ability to accurately infer in-frame or out-of-frame of fusion partners of a given fusion candidate. SplitFusion also outputs example breakpoint-supporting seqeunces in FASTA format, allowing for further investigations.
 
 ## Reference publication
-[Zheng Z, et al. Anchored multiplex PCR for targeted next-generation sequencing. Nat Med. 2014](http://www.nature.com/nm/journal/v20/n12/full/nm.3729.html)
+[Zheng Z, et al. Split multiplex PCR for targeted next-generation sequencing. Nat Med. 2014](http://www.nature.com/nm/journal/v20/n12/full/nm.3729.html)
 
-## How does AnchoredFusion work?  
+## How does SplitFusion work?  
 
 
 The analysis consists of ## computational steps:
@@ -44,7 +44,7 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ```
 
-### 2. Installing AnchoredFusion
+### 2. Installing SplitFusion
 
 ```java
 git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
@@ -57,9 +57,9 @@ R CMD INSTALL SplitFusion
 
 ### 1. Help
 ```java
-python ./AnchoredFusion/exec/anchored-fusion.py -h
+python ./SplitFusion/exec/SplitFusion.py -h
 
-usage: anchored-fusion.py [-h] --AnchoredFusionPath ANCHOREDFUSIONPATH --R R
+usage: SplitFusion.py [-h] --SplitFusionPath SplitFUSIONPATH --R R
                           --hgRef HGREF --bam_path BAM_PATH --sample_id
                           SAMPLE_ID --output OUTPUT [--panel PANEL]
                           [--fusion_library FUSION_LIBRARY] [--step STEP]
@@ -72,13 +72,13 @@ usage: anchored-fusion.py [-h] --AnchoredFusionPath ANCHOREDFUSIONPATH --R R
                           [--maxOverlap MAXOVERLAP]
                           [--minExclusive MINEXCLUSIVE]
 
-Anchored-Fusion is a fast data analysis pipeline detects gene fusion based on
+SplitFusion is a fast data analysis pipeline detects gene fusion based on
 split reads and/or paired-end reads.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --AnchoredFusionPath ANCHOREDFUSIONPATH
-                        the path where Anchored-Fusion pipeline is installed
+  --SplitFusionPath SplitFUSIONPATH
+                        the path where Split-Fusion pipeline is installed
                         [required]
   --R R                 the path of R [required]
   --perl PERL           the path of perl [required]
@@ -116,13 +116,13 @@ optional arguments:
 
 ```
 
-### 2. run AnchoredFusion
+### 2. run SplitFusion
 ```java
-python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath AnchoredFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R --perl perl
+python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R --perl perl
 ```
 
 ## Output 
-[An example brief output table:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
+[An example brief output table:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
 
 | AP7         | GeneExon5'---GeneExon3'    | num_unique_reads | frame    | Gene_Exon_cDNA_5'_3'            |
 |:-----------:|:--------------------------:|:----------------:|:--------:|:-------------------------------:|
@@ -131,7 +131,7 @@ python ./AnchoredFusion/exec/anchored-fusion.py --AnchoredFusionPath AnchoredFus
 | A02-P702    | EML4_intronic---ALK_exon20 |               10 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304. |
 | A02-P702    | EML4_exon4---ALK_exon20    |               64 | in-frame | EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
 
-[An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.txt)
+[An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.txt)
 
  >CL100059760L2C005R002_288074
 TTCCCACTTTGGATCCTCCTTTACATCATTATTTCCCACAGCAATTCCTATTTCTGCAAGGTCTTTTAGTAAAGATGC
@@ -157,8 +157,8 @@ GGGAATTCCCACTTTGGATCCTCCTATGTTGGAATTCCCTCGGAAGAACTTGGTTCTTGGAAAAACTCTAAGATCGGA
 
 
 ## Visualization
-[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
-![image](https://github.com/Zheng-NGS-Lab/AnchoredFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
+[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
+![image](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
 
 
 

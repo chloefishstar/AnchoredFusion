@@ -7,11 +7,11 @@ import argparse
 
 def parseArgs():
 
-    parser = argparse.ArgumentParser(description='Anchored-Fusion is a \
+    parser = argparse.ArgumentParser(description='Split-Fusion is a \
                     fast data analysis pipeline detects gene fusion based \
                     on split reads and/or paired-end reads.')
-    parser.add_argument('--AnchoredFusionPath', required=True
-                        , help="the path where Anchored-Fusion pipeline is installed [required]")
+    parser.add_argument('--SplitFusionPath', required=True
+                        , help="the path where Split-Fusion pipeline is installed [required]")
     parser.add_argument('--R', required=True
                         , help="the path of R [required]")
     parser.add_argument('--perl', required=True
@@ -69,25 +69,25 @@ def parseArgs():
 
 
     parser.add_argument('--snpEff', required=False
-                        , default = args['AnchoredFusionPath'] + '/data/Database/snpEff/'
+                        , default = args['SplitFusionPath'] + '/data/Database/snpEff/'
                         , help="the path of snpEff")
     parser.add_argument('--annovar', required=False
-                        , default = args['AnchoredFusionPath'] + '/data/Database/annovar/'
+                        , default = args['SplitFusionPath'] + '/data/Database/annovar/'
                         , help="the path of snpEff")
     parser.add_argument('--fusion_library', required=False
-			, default = args['AnchoredFusionPath'] + '/data/'
+			, default = args['SplitFusionPath'] + '/data/'
                         , help="the path where fusion library file is stored")
     parser.add_argument('--samtools', required=False
-			, default = args['AnchoredFusionPath'] + '/data/Database/samtools'
+			, default = args['SplitFusionPath'] + '/data/Database/samtools'
                         , help="the path of samtools")
     parser.add_argument('--bedtools', required=False
-			, default = args['AnchoredFusionPath'] + '/data/Database/bedtools'
+			, default = args['SplitFusionPath'] + '/data/Database/bedtools'
                         , help="the path of bedtools")
     parser.add_argument('--java', required=False
-			, default = args['AnchoredFusionPath'] + '/data/Database/jre1.8.0_201/bin/java'
+			, default = args['SplitFusionPath'] + '/data/Database/jre1.8.0_201/bin/java'
                         , help="the path of java")
     parser.add_argument('--bwa', required=False
-			, default = args['AnchoredFusionPath'] + '/data/Database/bwa-0.7.17/bwa'
+			, default = args['SplitFusionPath'] + '/data/Database/bwa-0.7.17/bwa'
                         , help="the path of bwa")
     
 	
@@ -116,9 +116,9 @@ if __name__ == '__main__':
 
     config.close()
 
-#config_run = "library(AnchoredFusion);runAnchoredFusion(runInfo = \"config.txt\")"
-#design =  args['AnchoredFusionPath'] + "/data/Database/R" +  " -e " + config_run
-design =  args['R'] +  " -e " + "'suppressMessages(library(AnchoredFusion));runAnchoredFusion(runInfo = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
+#config_run = "library(SplitFusion);runSplitFusion(runInfo = \"config.txt\")"
+#design =  args['SplitFusionPath'] + "/data/Database/R" +  " -e " + config_run
+design =  args['R'] +  " -e " + "'suppressMessages(library(SplitFusion));runSplitFusion(runInfo = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
 os.system(design)
 
 ## END

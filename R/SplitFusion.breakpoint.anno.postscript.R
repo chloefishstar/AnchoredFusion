@@ -35,7 +35,7 @@ source(runInfo)
 if (panel == 'NA'){
 	lr2 = lr1
 }else{
-	genes = readLines(paste0(path.package("AnchoredFusion"), '/data/', panel, '.target.genes'))
+	genes = readLines(paste0(path.package("SplitFusion"), '/data/', panel, '.target.genes'))
 	if (n.lr1 >0){
 	    # extract ligation end
 	    lr1$ligEnd0 = sub('.*umi:C', '', lr1$readID)
@@ -62,7 +62,7 @@ if (panel == 'NA'){
     lr2$cdna_R0 = lr2$cdna_R
 
     ##==== Optional: remove recurrent breakpoints that are not significant (mannually curated)
-    #filter.breakpointID = readLines(paste0(path.package("AnchoredFusion"), '/data/fusion.filter.breakpointID'))
+    #filter.breakpointID = readLines(paste0(path.package("SplitFusion"), '/data/fusion.filter.breakpointID'))
     #lr = subset(lr, !(fusionID %in% filter.breakpointID))
 
 ##==== 3: connect left-mid-right

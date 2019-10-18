@@ -2,9 +2,9 @@
 ## For genes annotated with multiple transcripts by ANNOVAR, keep one of them (NM, exon#, cdna#) -- here keep the refGene transript with most exons
 
 annovar.exon.cds.extraction <- function(input){
-library("AnchoredFusion")
+library("SplitFusion")
 in.anno = input
-refNM = read.table(paste(path.package("AnchoredFusion"), '/data/refGene.mostExon.NM', sep=''), sep=' ', header=T, stringsAsFactors=F)
+refNM = read.table(paste(path.package("SplitFusion"), '/data/refGene.mostExon.NM', sep=''), sep=' ', header=T, stringsAsFactors=F)
 refNM2 = refNM[,c('name2', 'name')]
 names(refNM2) = c('Gene.refGene', 'refNM')
 

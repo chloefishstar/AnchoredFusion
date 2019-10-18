@@ -86,5 +86,5 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 	fi
 
 
-rm __*
+#rm __*
 
