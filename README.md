@@ -49,7 +49,7 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 ```java
 git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
 
-R CMD INSTALL AnchoredFusion
+R CMD INSTALL SplitFusion
 ```
 
 
