@@ -47,7 +47,7 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 ### 2. Installing AnchoredFusion
 
 ```java
-git clone https://github.com/Zheng-NGS-Lab/AnchoredFusion.git
+git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
 
 R CMD INSTALL AnchoredFusion
 ```
