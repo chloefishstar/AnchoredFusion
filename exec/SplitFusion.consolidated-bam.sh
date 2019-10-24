@@ -16,20 +16,20 @@ if [ ! -s $bam_path/$subii.consolidated.bam ]; then
 
 	#== fasq2bam ==
 	if [ ! -s $bam_path/$subii.bam ]; then
-		$bwa mem -T 20 -5a -t $cpuBWA $hgRef $bam_path/$subii.R1.fq $bam_path/$subii.R2.fq > $bam_path/$subii.sam 2> bwa.log
-		$samtools view -@ $cpuBWA -T $hgRef -bS $bam_path/$subii.sam > $bam_path/$subii.bam
+		$bwa mem -T 20 -5a -t $cpuBWA $refGenome $bam_path/$subii.R1.fq $bam_path/$subii.R2.fq > $bam_path/$subii.sam 2> bwa.log
+		$samtools view -@ $cpuBWA -T $refGenome -bS $bam_path/$subii.sam > $bam_path/$subii.bam
 	fi
 
 	if [ "$SA_flag"x = "SA"x ]; then 
 		$samtools view -@ $cpuBWA $bam_path/$subii.bam | grep 'SA:' > $bam_path/$subii.sam
-		$samtools view -@ $cpuBWA -T $hgRef -bS $bam_path/$subii.sam > $bam_path/$subii.bam
+		$samtools view -@ $cpuBWA -T $refGenome -bS $bam_path/$subii.sam > $bam_path/$subii.bam
 	fi
 	
 	#== processed UMI ==
 	if [ ! -s $bam_path/$subii.UMI.bam ]; then
 
 		#== raw bed ==
-#        	$samtools view -@ $cpuBWA -T $hgRef -bS $bam_path/$subii.sam > $bam_path/$subii.bam
+#        	$samtools view -@ $cpuBWA -T $refGenome -bS $bam_path/$subii.sam > $bam_path/$subii.bam
                 $samtools flagstat $bam_path/$subii.bam > flag.stat
                 $samtools view -H $bam_path/$subii.bam > header
 		
@@ -80,7 +80,7 @@ if [ ! -s $bam_path/$subii.consolidated.bam ]; then
         	join _bed.umi.us _raw.sam.s | sed -e 's/ /:/' -e 's/ /-/' -e 's/ /\t/g' >> $bam_path/$subii.UMI.sam
                 rm _raw.sam.s
  
-	        $samtools view -@ $cpuBWA -T $hgRef -bS $bam_path/$subii.UMI.sam > _umi.bam
+	        $samtools view -@ $cpuBWA -T $refGenome -bS $bam_path/$subii.UMI.sam > _umi.bam
         	$samtools sort -@ $cpuBWA _umi.bam -o $bam_path/$subii.UMI.bam
 		rm _umi.bam
 #	        $samtools index $bam_path/$subii.UMI.bam $bam_path/$subii.UMI.bam.bai
@@ -109,7 +109,7 @@ if [ ! -s $bam_path/$subii.consolidated.bam ]; then
         cat $ramtmp/*.consolidated >> consolidated.sam
         rm -rf $oriDir/$ramtmp
  
-        $samtools view -@ $cpuBWA -T $hgRef -bS consolidated.sam > _consolidated.bam
+        $samtools view -@ $cpuBWA -T $refGenome -bS consolidated.sam > _consolidated.bam
         rm consolidated.sam
         $samtools sort -@ $cpuBWA _consolidated.bam -o $bam_path/$subii.consolidated.bam
         rm _consolidated.bam
