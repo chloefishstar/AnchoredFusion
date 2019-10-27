@@ -70,7 +70,7 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 	    #fi
 
 		tr ' ' '\t' < _mid.for.anno0 | sed 's:\t:_:' | sort -k1,1b > _mid.for.anno1
-		sort -k1,1b mid.anno.hg19_multianno.txt.ext0 > _mid.anno.ext
+		sort -k1,1b _mid.anno.hg19_multianno.txt.ext0 > _mid.anno.ext
 		join _mid.for.anno1 _mid.anno.ext | cut -d ' ' -f2,5- > anno.mid
 		
 	fi
