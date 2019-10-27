@@ -10,4 +10,4 @@ python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
 	--output /home/zz/repo/test \
 	--R /home/zz/R/bin/R \
 	--perl /usr/bin/perl \
-	--cpuBWA 4
+	--thread 4

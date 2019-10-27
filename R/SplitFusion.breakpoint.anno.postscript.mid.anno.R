@@ -1,10 +1,10 @@
 ##==== 3: connect left-mid-right
 ##==== For breakpoints with middle split: to correct breakpoint exon number, cdna, gdna by add/minus middle split size
 SplitFusion.breakpoint.anno.postscript.mid.anno = function(runInfo, lr2){
-if (file.exists('mid.anno2')){
+if (file.exists('anno.mid')){
     colnamesM = c('annoPos', 'readID', 'chr_M', 'start_M', 'end_M', 'gene_M', 'geneStrand_M', 'inEx_M', 'functiontype_M', 'nm_M', 'exon_M', 'cdna_M')
-    #mid = read.table('mid.anno2', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
-    mid = fread('mid.anno2', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
+    #mid = read.table('anno.mid', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
+    mid = fread('anno.mid', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnamesM)
 	if (nrow(mid)>0){
 	mid$exonn_M = suppressWarnings(as.numeric(sub('exon', '', mid$exon_M)))
 	head(mid)

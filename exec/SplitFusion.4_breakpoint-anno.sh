@@ -39,17 +39,9 @@
     fi
 
 
-#    if [ $AnnotationMethod = "snpEff" ]; then
-        #    if [ ! -x "$snpEff/data/$snpEff_ref" ]; then
-        #        echo "First run snpEff, downloading snpEff database ..."
-        #        $java -jar $snpEff/snpEff.jar download $snpEff_ref > /dev/null 2>&1
-        #    fi
-#
-        #awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' __breakpoint.for.anno0 > __breakpoint.for.anno
-        #$java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref __breakpoint.for.anno > __breakpoint.annotated  ### Note: annotation result varys with different version of $snpEff_ref
-	#    $R -f $SplitFusionPath/R/snpEff.exon.cds.extraction.R --args __breakpoint.annotated  ###R version###
-        #$R -e 'library(SplitFusion);snpEff.exon.cds.extraction(input = "__breakpoint.annotated")' > /dev/null 2>&1
-#    fi
+    #if [ $AnnotationMethod = "snpEff" ]; then
+	# under dev...
+    #fi
 
 sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annotated.extr
 
@@ -68,23 +60,18 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 	    awk '{mid = $4 + 10; print $3,mid,mid,"A","A",$1,$3,$4,$5}' split.mid > _mid.for.anno0
 
 		if [ $AnnotationMethod = "annovar" ]; then
-		    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > mid.for.anno
-		    $perl $annovar/table_annovar.pl mid.for.anno $annovar/humandb/ -buildver hg19 -out mid.anno -remove -protocol refGene -operation g -nastring NA > /dev/null 2>&1
-		    $R -e 'library(SplitFusion);annovar.exon.cds.extraction(input = "mid.anno.hg19_multianno.txt")' > /dev/null 2>&1
+		    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > _mid.for.anno
+		    $perl $annovar/table_annovar.pl _mid.for.anno $annovar/humandb/ -buildver hg19 -out _mid.anno -remove -protocol refGene -operation g -nastring NA > /dev/null 2>&1
+		    $R -e 'library(SplitFusion);annovar.exon.cds.extraction(input = "_mid.anno.hg19_multianno.txt")' > /dev/null 2>&1
 		fi
 
-#		if [ $AnnotationMethod = "snpEff" ]; then
-#        	    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u |awk '{OFS="\t"; print $1,$2,".",".","A",".",".","."}' > mid.for.anno
-#	            $java -jar $snpEff/snpEff.jar -q -canon $snpEff_ref mid.for.anno > mid.anno  ### Note: annotation result varys with different version of $snpEff_ref
-#			#    $R -f $SplitFusionPath/R/snpEff.exon.cds.extraction.R --args mid.anno  ###R version###
-#	            $R -e 'library(SplitFusion);snpEff.exon.cds.extraction(input = "mid.anno")' > /dev/null 2>&1
-#		fi
+	    #if [ $AnnotationMethod = "snpEff" ]; then
+		# under dev...
+	    #fi
 
 		tr ' ' '\t' < _mid.for.anno0 | sed 's:\t:_:' | sort -k1,1b > _mid.for.anno1
 		sort -k1,1b mid.anno.hg19_multianno.txt.ext0 > _mid.anno.ext
-		join _mid.for.anno1 _mid.anno.ext | cut -d ' ' -f2,5- > mid.anno2
+		join _mid.for.anno1 _mid.anno.ext | cut -d ' ' -f2,5- > anno.mid
+		
 	fi
-
-
 rm __*
-

@@ -52,7 +52,7 @@ subii=$( pwd | sed "s:.*/::")
 	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $23,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
 	# sort by breakpoint and  start.site.umi
-	sort --parallel=$cpuBWA -k1,1b -k6,6b _sa.fu2 > _sa.fu3
+	sort --parallel=$thread -k1,1b -k6,6b _sa.fu2 > _sa.fu3
 
 	## breakpoint stats: num_start_site (nss), num_unique_molecule (numi), num_start_site2 (diff by at least 2, nss2)
         awk '{OFS="\t";

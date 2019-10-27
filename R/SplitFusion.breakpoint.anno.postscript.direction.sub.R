@@ -215,8 +215,11 @@ if (n.lr3 >0){
 					system('sed -e "s/:umi.*//" -e "s:/1.*::" -e "s:/2.*::" tmp.readid | sort -u > tmp.readid2')
 
 					## get fa
-					system(paste0(path.package('SplitFusion'), "/data/Database/samtools view ", bam_path, "/"
-							, sampleID, ".consolidated.bam | grep -f tmp.readid2 | cut -f1,10 | sed 's/^/>/' |\
+					if (file.exists(paste0(sampleID, '.consolidated.bam'))){
+						bamfile=paste0(sampleID, '.consolidated.bam')
+						}else{ bamfile=paste0(bam_path, "/", sampleID, ".consolidated.bam")}
+					system(paste0(path.package('SplitFusion'), "/data/Database/samtools view ", 
+							bamfile, " | grep -f tmp.readid2 | cut -f1,10 | sed 's/^/>/' |\
 							 awk '{$3=length($2); print $0}' | sort -k1,1b -k3,3nr | sort -k1,1b -u |\
 							 cut -d ' ' -f1,2 | tr ' ' '\n' | sed 's/:umi.*//' > "
 							, sampleID, '.', gei, ".txt", sep=''))

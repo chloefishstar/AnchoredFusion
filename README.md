@@ -65,7 +65,7 @@ usage: SplitFusion.py [-h] --SplitFusionPath SplitFUSIONPATH --R R
                           [--fusion_library FUSION_LIBRARY] [--step STEP]
                           [--samtools SAMTOOLS] [--bedtools BEDTOOLS]
                           [--java JAVA] [--bwa BWA] [--snpEff SNPEFF]
-                          [--snpEff_ref SNPEFF_REF] [--cpuBWA CPUBWA]
+                          [--snpEff_ref SNPEFF_REF] [--thread THREAD]
                           [--strVarMinStartSite STRVARMINSTARTSITE]
                           [--maxQueryGap MAXQUERYGAP] [--minMQ MINMQ]
                           [--minMapLength MINMAPLENGTH]
@@ -101,7 +101,7 @@ optional arguments:
   --snpEff SNPEFF       the path of snpEff
   --snpEff_ref SNPEFF_REF
                         the version of snpEff reference
-  --cpuBWA CPUBWA       threads of BWA
+  --thread THREAD       threads of BWA
   --strVarMinStartSite STRVARMINSTARTSITE
                         minimum start site
   --maxQueryGap MAXQUERYGAP

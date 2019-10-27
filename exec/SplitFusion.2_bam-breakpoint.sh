@@ -4,38 +4,22 @@
 subii=$( pwd | sed "s:.*/::")
 
 ##==== 1.1. get reads with SA from both Read 1 and 2
-	$samtools view -@ $cpuBWA $bam_path/$subii.consolidated.bam \
-		| awk '{if (!($2==0 || $2==16 || $2==147 || $2==163 || $2==99 || $2==83)){
+	if [ ! -s _sa.sam ]; then
+		$samtools view -@ $thread $bam_path/$subii.consolidated.bam \
+			| awk '{if (!($2==0 || $2==16 || $2==147 || $2==163 || $2==99 || $2==83)){
 				if ($0 ~ "SA:") {
 					print $0 > "_sa.sam"
 				} 
 			}}'
+	fi
 
-	$samtools view -@ $cpuBWA -T $refGenome -bS _sa.sam > _sa.bam
+	$samtools view -@ $thread -T $refGenome -bS _sa.sam > _sa.bam
 	$bedtools bamtobed -cigar -i _sa.bam > _sa.bed0
 
 	## bedtools uses 0-base, change to 1-base:
 	awk '{start = $2+1; $2=start; print}' _sa.bed0 | tr ' ' '\t' > _sa.bed 
 
 if [ -s _sa.bed ]; then
-	# re-format read ID if not already in the umi:C.P format
-	goodformat=$(head -n 1 _sa.bed | cut -f 4 | grep umi: | sed 's:.*umi:umi:' | grep C | grep P | wc -l)
-	if [ $goodformat -eq 0 ]; then
-		mv _sa.bed _sa.bed1
-		sort -k4,4 _sa.bed1 > _sa.bed2
-		sed 's/::umi/:umi/' _sa.bed2 | sed 's/:umi:/\tumi\t/' |\
-		gawk '{OFS="\t"; if ($4 != preID){
-					if ($8 == "+"){posC = 100000001 + $2} else {posC = 100000001 + $3};
-                                	umi="C"$1"P"posC"-"$6
-                        	} else {umi=preUmi};
-                        preUmi=umi;
-                        preID=$4;
-			$6=umi;
-			print $0 > "_sa.bed3"
-                }' 2>/dev/null
-		cat _sa.bed3
-		sed 's/\tumi\t/:umi:/' _sa.bed3 > _sa.bed
-	fi
 
 ##==== 1.2. get read length
         awk '{n=length($10); print $1,n}' _sa.sam > _sa.len

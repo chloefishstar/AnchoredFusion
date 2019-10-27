@@ -18,26 +18,31 @@ def parseArgs():
                         , help="the path of perl [required]")
     parser.add_argument('--refGenome', required=True
                         , help="the path where human genome reference is stored [required]")
-    parser.add_argument('--bam_path', required=True
-                        , help="the path where bam or fastq file is stored [required]")
+    parser.add_argument('--fastq_dir'
+                        , help="the path where fastq file is stored. Either fastq_dir or bam_dir should be specified")
+    parser.add_argument('--bam_dir'
+                        , help="the path where bam or fastq file is stored. Either fastq_dir or bam_dir should be specified")
     parser.add_argument('--sample_id', required=True
                         , help="the sample name of running [required]")
+    parser.add_argument('--r1filename'
+                        , help="Read 1 fastq filename. Can be in gzipped format. If not specified, $fastq_dir/$sample_id.R1.fq will be used.")
+    parser.add_argument('--r2filename'
+                        , help="Read 2 fastq filename. Can be in gzipped format. If not specified, $fastq_dir/$sample_id.R2.fq will be used.")
     parser.add_argument('--output', required=True
                         , help="the path where output is stored [required]")
-
     parser.add_argument('--panel', required=False
                         , default='NA'
                         , help="the path where target genes panel file is stored")
     parser.add_argument('--step', required=False
-                        , default='bam-consolidate,BamToBreakpoint,breakpoint-filter,breakpoint-anno,breakpoint-anno-post'
-			, help="the step of running")
+                        , default='1_fastq-bam,2_bam-breakpoint,3_breakpoint-filter,4_breakpoint-anno,5_breakpoint-anno-post'
+			, help="specify steps to run")
     parser.add_argument('--AnnotationMethod', required=False
                         , default = 'annovar'
                         , help="the name of annotation tools (annovar or snpEff)")
     parser.add_argument('--snpEff_ref', required=False
                         , default='GRCh37.75'
                         , help="the version of snpEff reference")
-    parser.add_argument('--cpuBWA', type=int
+    parser.add_argument('--thread', type=int
                         , default=4
                         , help="threads of BWA")
     parser.add_argument('--strVarMinStartSite', type=int
