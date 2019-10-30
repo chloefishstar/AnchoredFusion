@@ -58,7 +58,7 @@ if (file.exists('anno.mid')){
 				)
 			}
 		   
-		lmr2 = rbind(lmr_L, lmr_R)
+		lmr2 = rbind(lmr_L, lmr_R, fill=TRUE)
 		#lmr2.keep = lmr2[, c(names(lr2))]
 		lmr2.keep = lmr2[, c(names(lr2)), with=FALSE]
 		    lr0 = lr2[!(lr2$readID %in% lmr2.keep$readID),]
