@@ -6,18 +6,18 @@
 #	- fu.breakpointID.stgLeft
 #	- fu.breakpointID.stgRight
 #
-SplitFusion.breakpoint.anno.postscript = function(runInfo){
+SplitFusion.breakpoint.anno.postscript = function(configFile){
 
 library(data.table)
 options(width=204)
 options(scipen=999)
 library(plyr)
 (subii = sub('.*/', '', getwd()))
-source(runInfo)
+source(configFile)
 
 ##====1: left-right annotations
     colnames = c('readID', 'chrorp_L', 'chr_L', 'orp_L', 'pos_L', 'strand_L'
-		, 'num_unique_molecules', 'num_start_site', 'num_start_site2', 'breakpoint', 'overlap'
+		, 'num_unique_molecules', 'num_partner_ends', 'num_partner_ends2', 'breakpoint', 'overlap'
 		, 'gene_L', 'geneStrand_L', 'inEx_L', 'functiontype_L', 'nm_L', 'exon_L', 'cdna_L'
 		, 'chrorp_R', 'chr_R', 'orp_R', 'pos_R', 'strand_R', 'gene_R', 'geneStrand_R', 'inEx_R', 'functiontype_R', 'nm_R', 'exon_R', 'cdna_R')
     lr1 = fread('anno.left.right', sep=' ', header=F, fill=T, stringsAsFactors=F, col.names=colnames)
@@ -67,9 +67,9 @@ if (panel == 'NA'){
 
 ##==== 3: connect left-mid-right
 ##==== For breakpoints with middle split: to correct breakpoint exon number, cdna, gdna by add/minus middle split size
-lr2b = SplitFusion.breakpoint.anno.postscript.mid.anno(runInfo = runInfo, lr2)
+lr2b = SplitFusion.breakpoint.anno.postscript.mid.anno(configFile = configFile, lr2)
 
 ##==== 4: sorting direction
-lr3 = SplitFusion.breakpoint.anno.postscript.direction(runInfo = runInfo, lr2b)
-SplitFusion.breakpoint.anno.postscript.direction.sub(runInfo = runInfo, lr3, sampleID=subii)
+lr3 = SplitFusion.breakpoint.anno.postscript.direction(configFile = configFile, lr2b)
+SplitFusion.breakpoint.anno.postscript.direction.sub(configFile = configFile, lr3, sampleID=subii)
 }

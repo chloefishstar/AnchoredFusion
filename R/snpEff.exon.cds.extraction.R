@@ -21,8 +21,8 @@ options(width=204)
 
 in.anno = data.frame(fread(input)) ###Modified by Baifeng###
 #in.anno.exon = commandArgs(TRUE)[2]
-#runInfo = commandArgs(TRUE)[2] ###Modified by Baifeng###
-#source(runInfo)
+#configFile = commandArgs(TRUE)[2] ###Modified by Baifeng###
+#source(configFile)
 #cds <- data.frame(fread(in.anno.cds))
 #exon <- data.frame(fread(in.anno.exon))
 anno <- mclapply(1:nrow(in.anno),function(x) {

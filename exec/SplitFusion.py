@@ -18,12 +18,12 @@ def parseArgs():
                         , help="the path of perl [required]")
     parser.add_argument('--refGenome', required=True
                         , help="the path where human genome reference is stored [required]")
-    parser.add_argument('--fastq_dir'
-                        , help="the path where fastq file is stored. Either fastq_dir or bam_dir should be specified")
-    parser.add_argument('--bam_dir'
-                        , help="the path where bam or fastq file is stored. Either fastq_dir or bam_dir should be specified")
     parser.add_argument('--sample_id', required=True
                         , help="the sample name of running [required]")
+    parser.add_argument('--bam_dir'
+                        , help="the path where bam or fastq file is stored. [Kickstart] The bam file of the sameple_id (xxx.bam or xxx.consolidated.bam) will be used. Either fastq_dir or bam_dir should be specified")
+    parser.add_argument('--fastq_dir'
+                        , help="the path where fastq file is stored. Either fastq_dir or bam_dir should be specified")
     parser.add_argument('--r1filename'
                         , help="Read 1 fastq filename. Can be in gzipped format. If not specified, $fastq_dir/$sample_id.R1.fq will be used.")
     parser.add_argument('--r2filename'
@@ -33,7 +33,7 @@ def parseArgs():
     parser.add_argument('--panel', required=False
                         , default='NA'
                         , help="the path where target genes panel file is stored")
-    parser.add_argument('--step', required=False
+    parser.add_argument('--steps', required=False
                         , default='1_fastq-bam,2_bam-breakpoint,3_breakpoint-filter,4_breakpoint-anno,5_breakpoint-anno-post'
 			, help="specify steps to run")
     parser.add_argument('--AnnotationMethod', required=False
@@ -55,7 +55,7 @@ def parseArgs():
                         , default=13
                         , help="minimum mapping quality")
     parser.add_argument('--minMapLength', type=int
-                        , default=20
+                        , default=18
                         , help="minimum read mapping length")
     parser.add_argument('--maxOverlap', type=int
                         , default=12
@@ -64,10 +64,10 @@ def parseArgs():
                         , default=20
                         , help="minimum exclusive length")
     parser.add_argument('--StrVarMinStartSite', type=int
-                        , default=2
+                        , default=1
                         , help="minimum number of Adaptor Ligation Read Starting Sites to call Structure Variation/Fusion")
     parser.add_argument('--minFusionUniqReads', type=int
-                        , default=3
+                        , default=2
                         , help="minimum number of reads to call Structure Variation/Fusion")
 
     args = vars(parser.parse_args())
@@ -121,9 +121,7 @@ if __name__ == '__main__':
 
     config.close()
 
-#config_run = "library(SplitFusion);runSplitFusion(runInfo = \"config.txt\")"
-#design =  args['SplitFusionPath'] + "/data/Database/R" +  " -e " + config_run
-design =  args['R'] +  " -e " + "'suppressMessages(library(SplitFusion));runSplitFusion(runInfo = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
+design =  args['R'] +  " -e " + "'suppressMessages(library(SplitFusion)); runSplitFusion(configFile = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
 os.system(design)
 
 ## END

@@ -2,7 +2,7 @@
 #===== Final analysis: frame status, filters, exon-junction, output
 #=====================================================================
 
-SplitFusion.breakpoint.anno.postscript.direction.sub = function(runInfo, lr3, sampleID){
+SplitFusion.breakpoint.anno.postscript.direction.sub = function(configFile, lr3, sampleID){
 n.lr3 = nrow(lr3)
 if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
 
@@ -50,7 +50,7 @@ if (n.lr3 >0){
 		  | lr3$ge1ge2 %in% known.ge
 		  | (lr3$ge1 %in% c('FGFR1_exon17', 'FGFR2_exon17', 'FGFR3_exon17') & lr3$intragene==0) # known FGFR exon 18 deletion
 		] = 1
-	lr32 = subset(lr3, (known==1 | (num_start_site >= as.numeric(StrVarMinStartSite) & intragene==0)) & !(ge1 %in% known.ge.filter | ge2 %in% known.ge.filter))
+	lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(StrVarMinStartSite) & intragene==0)) & !(ge1 %in% known.ge.filter | ge2 %in% known.ge.filter))
 		# nrow(lr3); nrow(lr32)
 		# output for furture research
 		write.table(lr32, paste(sampleID, '.fusion.list.pre-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
@@ -141,32 +141,32 @@ if (n.lr3 >0){
 				lr5 = merge(lr4, unique(junc.LR[,c('breakpoint', 'exon.junction')]), by='breakpoint', allow.cartesian=TRUE)
 
 		## output
-			lr5 = lr5[order(-lr5$exon.junction, -lr5$known, -lr5$num_start_site, lr5$intragene, lr5$frame),]
+			lr5 = lr5[order(-lr5$exon.junction, -lr5$known, -lr5$num_partner_ends, lr5$intragene, lr5$frame),]
 			fusion.list = subset(lr5, select=c('SampleID', 'ge1ge2', 'frame','gec_LR','chr_L','pos_L','inEx_L','gene_L','nm_L','exon_L','cdna_L'
 						, 'overlap','chr_R','pos_R','inEx_R','gene_R','nm_R','exon_R','cdna_R','intragene','readID'
-						, 'breakpoint', 'num_start_site', 'known', 'exon.junction'))
+						, 'breakpoint', 'num_partner_ends', 'known', 'exon.junction'))
 				write.table(fusion.list, paste(sampleID, '.fusion.list.post-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
 
 			## consolidate breakpoint
 				fusion.list[is.na(fusion.list)]='-'
 				fusion.list$readID2 = sub(':umi:.*', '', fusion.list$readID)
-			fusion.tab1 = ddply(fusion.list, .(breakpoint, SampleID, ge1ge2, frame, nm_L, inEx_L, gene_L, cdna_L, nm_R, inEx_R, gene_R, cdna_R, intragene, overlap, num_start_site, known), summarize
+			fusion.tab1 = ddply(fusion.list, .(breakpoint, SampleID, ge1ge2, frame, nm_L, inEx_L, gene_L, cdna_L, nm_R, inEx_R, gene_R, cdna_R, intragene, overlap, num_partner_ends, known), summarize
 							, 'num_unique_reads'=length(unique(readID2)), 'exon.junction' = max(exon.junction)
 							)
 				fusion.tab1$transcript_L = fusion.tab1$nm_L
 				fusion.tab1$transcript_R = fusion.tab1$nm_R
 				fusion.tab1$function_L = fusion.tab1$inEx_L
 				fusion.tab1$function_R = fusion.tab1$inEx_R
-			fusion.tab1 = fusion.tab1[order(-fusion.tab1$exon.junction, -fusion.tab1$known, -fusion.tab1$num_start_site, fusion.tab1$intragene, fusion.tab1$frame, -fusion.tab1$num_unique_reads),]
+			fusion.tab1 = fusion.tab1[order(-fusion.tab1$exon.junction, -fusion.tab1$known, -fusion.tab1$num_partner_ends, fusion.tab1$intragene, fusion.tab1$frame, -fusion.tab1$num_unique_reads),]
 
 			## keep first of same breakpoint (exon.junction, most abundant nss, reads)
 			fusion.tab2 = fusion.tab1[!duplicated(fusion.tab1$breakpoint),]
 				head(fusion.tab2)
 
-		out.names = c("SampleID", "ge1ge2", "frame", "num_start_site", "num_unique_reads", "exon.junction", "breakpoint"
+		out.names = c("SampleID", "ge1ge2", "frame", "num_partner_ends", "num_unique_reads", "exon.junction", "breakpoint"
 				, "transcript_L", "transcript_R", "function_L", "function_R", "gene_L", "cdna_L", "gene_R", "cdna_R", "intragene", "known")
 		fusion.table = fusion.tab2[, out.names]
-		fusion.table = fusion.table[order(-fusion.tab2$exon.junction, -fusion.table$known, fusion.table$frame, fusion.table$intragene, -fusion.table$num_start_site),]
+		fusion.table = fusion.table[order(-fusion.tab2$exon.junction, -fusion.table$known, fusion.table$frame, fusion.table$intragene, -fusion.table$num_partner_ends),]
 				name1 = names(fusion.table)
 				name2 = sub('_L', "_5", name1)
 				name3 = sub('_R', "_3", name2)
@@ -189,12 +189,12 @@ if (n.lr3 >0){
 							   & (known ==1 | (frame =='in-frame' & num_unique_reads >= minFusionUniqReads)))
 							| (exon.junction == 'One' 
 							   & frame != 'out-frame'
-							   & num_start_site >= StrVarMinStartSite
+							   & num_partner_ends >= StrVarMinStartSite
 							   & (known ==1 | (intragene==0 & frame =='in-frame')))
 					))[, 1:15]
 
 			# Output 1st of records with same GeneExon5_GeneExon3
-			ex1 = ex[order(ex$frame, -ex$num_start_site, -ex$num_unique_reads),]
+			ex1 = ex[order(ex$frame, -ex$num_partner_ends, -ex$num_unique_reads),]
 			ex2 = ex1[!duplicated(ex1$"GeneExon5_GeneExon3"),]
 			
 				write.table(ex2, paste(sampleID, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')

@@ -3,33 +3,32 @@
 . $1
 subii=$( pwd | sed "s:.*/::")
 
-	#== If specify fastq_dir, do fasq to bam ==
-	if [ "$fastq_dir" != "" ]; then
-		if [ "$r1filename" != "" ]; then
-			$bwa mem -T 20 -5a -t $thread $refGenome $fastq_dir/$r1filename $fastq_dir/$r2filename > _raw.sam 2> bwa.log
-		else	
-			$bwa mem -T 20 -5a -t $thread $refGenome $fastq_dir/$subii.R1.fq $fastq_dir/$subii.R2.fq > _raw.sam 2> bwa.log
+	#=== [Kickstart mode] If specify bam_dir, start from bam ===
+	if [ "$bam_dir" != "" ]; then
+		if [ -s $bam_dir/$subii.bam ]; then
+		    $samtools view -@ $thread $bam_dir/$subii.bam > _raw.sam
+		elif [ -s $bam_dir/$subii.consolidated.bam ]; then
+		    $samtools view -@ $thread $bam_dir/$subii.consolidated.bam > _raw.sam
 		fi
-	elif [ "$bam_dir" != "" ]; then
-	    #== If specify bam_dir, start from bam ==
-	    # SplitFusion requires that the 5' end of Read_1 (ligation site) is integrated into UMI
-	    #   so to calculate the number of unique ligation site supporting a fusion in the final step.
-	    # If existing bam file was not mapped using the '-5a' option during BWA MEM, 
-	    #   we recommend to specify fastq-dir only and leave bam_dir unspecified so that the pipeline
-	    #   starts from fastq mapping using BWA MEM with the -5a option.
 
-	    $samtools view -@ $thread $bam_dir/$subii.bam > _raw.sam
+	#=== If specify fastq_dir, do fasq to bam ===
+	elif [ "$fastq_dir" != "" ]; then
+		if [ "$r1filename" != "" ]; then
+			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$r1filename $fastq_dir/$r2filename > _raw.sam 2> bwa.log
+		else	
+			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$subii.R1.fq $fastq_dir/$subii.R2.fq > _raw.sam 2> bwa.log
+		fi
 	else 
 		echo "Must specify fastq_dir or bam_dir"
 		exit
 	fi
 
-	head -n 1000 _raw.sam | grep -v ^@ > header
+	head -n 10000 _raw.sam | grep ^@ > header
 
 #== Consolidate reads based on unique UMI
 
 	#==== if no umi, add umi:A for compatability
-        hasUmi=$(grep -v ^@ _raw.sam | head -n 1 | cut -f 4 | grep umi: | wc -l)
+        hasUmi=$(grep -v ^@ _raw.sam | head -n 1 | cut -f 1 | grep umi: | wc -l)
 		if [ $hasUmi -eq 0 ]; then
 			grep -v ^@ _raw.sam | sed 's/\t/:umi:A\t/' > _raw.sam2
 			mv _raw.sam2 _raw.sam
@@ -37,68 +36,61 @@ subii=$( pwd | sed "s:.*/::")
 
 	$samtools view -@ $thread -T $refGenome -bS _raw.sam > _raw.bam
 
-	#==== Prepare UMI: add chr.pos (at ligation site) to umi
+	#==== Tag chr.pos (at ligation site) to umi
                 $bedtools bamtobed -cigar -i _raw.bam > _raw.bed
 
-		#==== Reformat if not already in the required UMI format, which has ligation site integrated in UMI
-	        goodformat=$(head -n 1 _raw.bed | cut -f 4 | grep umi: | sed 's:.*umi:umi:' | grep C | grep P | wc -l)
-       		if [ $goodformat -eq 0 ]; then
-		    sed -e 's/:umi:/\tumi\t/' _raw.bed |\
-		    gawk '{OFS="\t";
-			    if ($4 != preID){
-				    if ($8 == "+"){
-					    posC = 100000001 + $2
-				    } else {
-					    posC = 100000001 + $3
-				    }
-				    umi="C"$1"P"posC
-			    } else {
-				    umi=preUmi
-			    };
+		#==== Reformat if not already in the required ligate UMI format, which 
+		#====  has chr.pos (of ligation site) integrated in UMI (some 
+		#====  read with suppl alignments need correction for ligate site later)
+		ligateUmiFormat=$(head -n 1 _raw.bed | cut -f 4 | grep umi: | sed 's:.*umi:umi:' | grep C | grep P | wc -l)
+		    if [ $ligateUmiFormat -eq 0 ]; then
+
+			sed -e 's/:umi:/\tumi\t/' _raw.bed |\
+			gawk '{OFS="\t";
+				if ($4 != preID){
+					if ($8 == "+"){
+						posC = 100000001 + $2
+					} else {
+						posC = 100000001 + $3
+					}
+					umi="C"$1"P"posC
+				} else {
+					umi=preUmi
+				};
+	 
+				preUmi=umi;
+				preID=$4;
+	 
+				if ($6 ~ /N/){
+					print $4":umi",umi"-"$6 > "_id.N.umi"
+				} else {
+					print $4":umi",umi"-"$6 > "_id.ligateUmi"
+				}
+			}' 2>/dev/null
+		    else
+			   cut -f4 _raw.bed | sed 's/:umi:/:umi\t/' > _id.ligateUmi 
+		    fi
      
-			    preUmi=umi;
-			    preID=$4;
-     
-			    if ($6 ~ /N/){
-				    print $4":umi",umi > "_bed.umiN"
-			    } else {
-				    print $4":umi",umi > "_bed.umi"
-			    }
-		    }' 2>/dev/null
-     
-		    uniq _bed.umi > _bed.umi.u
-		    	wc -l _bed.umi* > umiN
-		    sort --parallel=$thread -k1,1b _bed.umi.u > _bed.umi.us
-     
-		    #=== join Cleaned umi with raw sam by Read ID ===
-		    sed -e 's:\t\t:\t*\t:g' -e 's/:umi:/:umi\t/' _raw.sam > _raw.samC
-		    sort --parallel=$thread -k1,1b _raw.samC > _raw.sam.s
+	#==== consolidation
+	sed 's:/[12]$::' _id.ligateUmi | uniq >  _id.ligateUmi1
+	sort -k2,2b -u _id.ligateUmi1 > uniq.ligateUmi
+	sort --parallel=$thread -k1,1b -u uniq.ligateUmi > _consolidated.readID
+
+	#=== 	join raw sam with consolidated ID ===
+		sed -e 's:\t\t:\t*\t:g' -e 's/:umi:/:umi\t/' _raw.sam > _raw.samC
+		sort --parallel=$thread -k1,1b _raw.samC > _raw.sam.s
 			    rm _raw.samC
      
-		    join _bed.umi.us _raw.sam.s > _umi.sam0
-		    sed -e 's/ /:/' -e 's/ /-/' -e 's/ /\t/g' _umi.sam0 > _umi.sam
-			    rm _raw.sam.s
-		fi
+	join _consolidated.readID _raw.sam.s > _consolidated.sam0
+		cp header consolidated.sam
+		sed -e 's/ /:/' -e 's/ /\t/g' _consolidated.sam0 | cut -f1,3- >> consolidated.sam
+		    rm _raw.sam.s
 	
-	#== Parallel de-duplication / consolidate umi bam ==
-	        oriDir="$(pwd)"
-       		ramtmp="$(mktemp -dp .)"
-        	cd $oriDir/$ramtmp
-        
-		sed -e 's/\t/_flag_/'  -e 's/:umi:/\t/' $oriDir/_umi.sam | grep -ve '^@SQ' -ve '^@PG' | awk '{OFS="\t"; if ($3 != "") {print $0 > $3}}'
-
-	        # keep 1st umi-flag
-       		# sort chr.pos_umi_flag in each chr
-	        find ./ -type f | parallel "sort -k2,2b -u {} | sed -e 's/\t/:umi:/' -e 's/_flag_/\t/' > {}.consolidated"
+rm _*
+grep -P '\tSA:Z:' consolidated.sam > _sa.sam
  
-	        cd $oriDir
-	        cat $ramtmp/*.consolidated > consolidated.sam
-	        rm -rf $oriDir/$ramtmp
-		rm _*
-		grep 'SA:' consolidated.sam > _sa.sam
- 
-        $samtools view -@ $thread -T $refGenome -bS consolidated.sam > _consolidated.bam
-        $samtools sort -@ $thread _consolidated.bam -o $subii.consolidated.bam
-	        rm consolidated.sam _consolidated.bam
-	$samtools index $subii.consolidated.bam 
+$samtools view -@ $thread -T $refGenome -bS consolidated.sam > _consolidated.bam
+$samtools sort -@ $thread _consolidated.bam -o $subii.consolidated.bam
+	rm consolidated.sam _consolidated.bam
+$samtools index $subii.consolidated.bam 
 

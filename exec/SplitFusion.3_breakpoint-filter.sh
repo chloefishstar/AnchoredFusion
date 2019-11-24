@@ -14,11 +14,11 @@ subii=$( pwd | sed "s:.*/::")
 		    ## right:       $19------$20
 		echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
 		    '{ gap = $19-$10-1; 
-		       overlap = $10-$19+1;
-			    if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
-				    && ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
-			) {print $0,overlap} else {print $1 > "_filter1"}}' \
-			     breakpoint.candidates.preFilter > _sa.fu01
+			   overlap = $10-$19+1;
+				if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
+					&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+			    ) {print $0,overlap} else {print $1 > "_filter1"}
+			}' breakpoint.candidates.preFilter > _sa.fu01
 
 		## reads with middle split, turn off maxQueryGap by let maxQueryGap=100
 		    ## left:  $9-------$10
@@ -26,11 +26,12 @@ subii=$( pwd | sed "s:.*/::")
 		if [ -f breakpoint.noFilter.w.mid ]; then
 		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=1000 \
 		    '{ gap = $19-$10-1; 
-		       overlap = $10-$19+1;
-			    if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
-				    && ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
-			) {print $0,overlap} else {print $1 > "_filter2"}}' \
-			     breakpoint.noFilter.w.mid > _sa.fu02
+			   overlap = $10-$19+1;
+				if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
+					&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap) \
+			    ) {print $0,overlap} else {print $1 > "_filter2"}
+			}' breakpoint.noFilter.w.mid > _sa.fu02
+
 			join -v 1 _sa.fu02 _filter2 > _sa.fu02f
 
 			# remove gap
@@ -45,6 +46,7 @@ subii=$( pwd | sed "s:.*/::")
 
 			join -v 1 _sa.fu02f _mid.gap.id.u > _sa.fu02ff 
 			cat _sa.fu01 _sa.fu02ff > _sa.fu0
+		else cp _sa.fu01 _sa.fu0
 		fi
 
 ##==== Filter 2: StrVarMinStartSite
@@ -54,7 +56,7 @@ subii=$( pwd | sed "s:.*/::")
 	# sort by breakpoint and  start.site.umi
 	sort --parallel=$thread -k1,1b -k6,6b _sa.fu2 > _sa.fu3
 
-	## breakpoint stats: num_start_site (nss), num_unique_molecule (numi), num_start_site2 (diff by at least 2, nss2)
+	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2)
         awk '{OFS="\t";
 		if ($1 == pre1 && $2 == pre2){
 			diff = $3-pre3;
@@ -87,8 +89,8 @@ subii=$( pwd | sed "s:.*/::")
 		minStartStepSize=1
 	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
 	sort -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
-	echo | awk -v StrVarMinStartSite=$StrVarMinStartSite -v minStartStepSize=$minStartStepSize \
-		'{if ($3 >= StrVarMinStartSite && $4 >= minStartStepSize){
+	echo | awk -v minFusionUniqReads=$minFusionUniqReads -v StrVarMinStartSite=$StrVarMinStartSite -v minStartStepSize=$minStartStepSize \
+		'{if ($2 >= minFusionUniqReads && $3 >= StrVarMinStartSite && $4 >= minStartStepSize){
 			print $0 > "breakpoint.siteID.MinStartSite"
 			}
 		}' _breakpoint.stats4.u
@@ -99,6 +101,6 @@ subii=$( pwd | sed "s:.*/::")
 		| tr ' ' '\t' | cut -f 2,3,4,12- > breakpoint.candidates
 
 touch _0
-rm _*
+#rm _*
 
 ## End: breakpoint candidates

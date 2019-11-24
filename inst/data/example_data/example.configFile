@@ -3,7 +3,7 @@ SplitFusionPath="The installed library path of SplitFusion R Package/SplitFusion
 
 sampleInfo="/full path/sampleInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/sampleInfo
 
-runInfo="/full path/example.runInfo" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/example.runInfo
+configFile="/full path/example.configFile" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/example.configFile
 
 bam_path="full path of bam files" ## example: The installed library path of SplitFusion R Package/SplitFusion/data/example_data/
 

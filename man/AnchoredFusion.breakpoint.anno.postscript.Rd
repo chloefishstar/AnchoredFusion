@@ -4,10 +4,10 @@
 \alias{AnchoredFusion.breakpoint.anno.postscript}
 \title{AnchoredFusion.breakpoint.anno.postscript}
 \usage{
-AnchoredFusion.breakpoint.anno.postscript(runInfo)
+AnchoredFusion.breakpoint.anno.postscript(configFile)
 }
 \arguments{
-\item{runInfo}{config file which sets the path and parameters of depended tools.}
+\item{configFile}{config file which sets the path and parameters of depended tools.}
 }
 \description{
 Post annotation of breakpoint detected by AnchoredFusion.
@@ -16,6 +16,6 @@ Post annotation of breakpoint detected by AnchoredFusion.
 
 #"anno.left.right" file outputted by last step "breakpoint-anno" of AnchoredFusion should be exist.
 
-AnchoredFusion.breakpoint.anno.postscript(runInfo = "/path/example.runInfo")
+AnchoredFusion.breakpoint.anno.postscript(configFile = "/path/example.configFile")
 
 }

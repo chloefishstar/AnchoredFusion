@@ -3,14 +3,9 @@
 
 subii=$( pwd | sed "s:.*/::")
 
-##==== 1.1. get reads with SA from both Read 1 and 2
+##==== 1.1. get reads with SA
 	if [ ! -s _sa.sam ]; then
-		$samtools view -@ $thread $bam_path/$subii.consolidated.bam \
-			| awk '{if (!($2==0 || $2==16 || $2==147 || $2==163 || $2==99 || $2==83)){
-				if ($0 ~ "SA:") {
-					print $0 > "_sa.sam"
-				} 
-			}}'
+		$samtools view -@ $thread $subii.consolidated.bam | grep -P '\tSA:Z:' > _sa.sam
 	fi
 
 	$samtools view -@ $thread -T $refGenome -bS _sa.sam > _sa.bam
@@ -41,7 +36,9 @@ if [ -s _sa.bed ]; then
 
 ##==== 4. calculate query start, end
 	# corrected read length for small size clipping which is either
-	# transform CIGAR strings
+	#===============================#
+	#=== transform CIGAR strings ===#
+	#===============================#
 	cut -f 2,7,8 -d ' ' _sa.len.bed.mq > _sa.SMH1
 	sed -e 's/M/ M /g' -e 's/S/ S /g' -e 's/H/ H /g' _sa.SMH1 > _sa.SMH2
 	awk '{if ($4=="M"){
@@ -60,6 +57,24 @@ if [ -s _sa.bed ]; then
 	paste _sa.len.bed.mq _sa.SMH3 | tr ' ' '\t' > _sa.SMH4
 	sort -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
 
+	#=== Correcting ligate.UMI
+	sed -e "s/:umi:/\t/" -e "s/-/\t/" _sa.SMH4s > _corr.ligat1
+	sort -k1,1b -u _corr.ligat1 > _corr.ligat2
+
+	gawk '{OFS="\t"; if ($9 == "+"){
+				posC = 100000002 + $6 - $11
+		} else {
+                                posC = 100000000 + $7 + $11
+                }
+                       
+		umi="C"$5"P"posC;
+		$2=umi;
+		print $1,$2
+		}' _corr.ligat2 > corr.ligat3
+
+	join corr.ligat3 _corr.ligat1 | tr ' ' '\t' | cut -f1,2,4- | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
+	
+
 ##==== 5. separate left and right split alignments
 	awk '{if ($1==pre1){
 			n=n+1
@@ -73,7 +88,7 @@ if [ -s _sa.bed ]; then
 		};
 		pre1=$1; pren=n; pre0=$0;
 		print n,$0 > "_sa.SMH4sn"
-	}' _sa.SMH4s
+	}' _sa.SMH.corr
 
 ##==== 6. get the 4 positions on a SA query read (after left and right alignments are merged by ReadID):
 		## skematic drawing:

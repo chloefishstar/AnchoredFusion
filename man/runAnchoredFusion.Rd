@@ -5,7 +5,7 @@
 \title{runAnchoredFusion}
 \usage{
 runAnchoredFusion(step = c("bam-consolidate", "breakpoint-consolidate",
-  "breakpoint-filter", "breakpoint-anno", "breakpoint-anno-post"), runInfo,
+  "breakpoint-filter", "breakpoint-anno", "breakpoint-anno-post"), configFile,
   output, sample.id)
 }
 \arguments{
@@ -13,7 +13,7 @@ runAnchoredFusion(step = c("bam-consolidate", "breakpoint-consolidate",
 "breakpoint-consolidate", "breakpoint-filter", "breakpoint-anno" and "breakpoint-anno-post"
 five steps.}
 
-\item{runInfo}{config file which sets the path and parameters of depended tools.}
+\item{configFile}{config file which sets the path and parameters of depended tools.}
 
 \item{output}{directory of output.}
 
@@ -30,7 +30,7 @@ A fast pipeline for detection of gene fusion based on fusion-supporting split al
 \examples{
 
 runSplitFuion(step = c("bam-consolidate", "breakpoint-consolidate", "breakpoint-filter"),
-runInfo = "/path/example.runInfo", output = "/path/result", sample.id = "example")
+configFile = "/path/example.configFile", output = "/path/result", sample.id = "example")
 
 
 }
