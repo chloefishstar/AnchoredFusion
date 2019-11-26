@@ -74,4 +74,4 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 		join _mid.for.anno1 _mid.anno.ext | cut -d ' ' -f2,5- > anno.mid
 		
 	fi
-#rm __*
+rm _*

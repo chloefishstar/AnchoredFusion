@@ -181,22 +181,15 @@ if (n.lr3 >0){
 	##=======================================
 		    # inter-gene, in-frame
 		    # or known
-		#	if (!exists('StrVarMinStartSite')){StrVarMinStartSite=1}
-		#	if (!exists('minPartnerEnds_OneExonJunction')){minPartnerEnds_OneExonJunction=3}
-		#	if (!exists('minPartnerEnds_BothExonJunction')){minPartnerEnds_BothExonJunction=1}
-				fusion.table$g5g3 = paste(fusion.table$gene_5, fusion.table$gene_3, sep='_')
-
-				# supporing partner ends by gene5_gene3
-				gg_partner_ends = ddply(fusion.table, .(g5g3), summarize, gene5_gene3_partner_ends = sum(num_partner_ends))
-
-			fusion.table2 = merge(fusion.table, gg_partner_ends, by = 'g5g3')
+			fusion.table$g5g3 = paste(fusion.table$gene_5, fusion.table$gene_3, sep='_')
 				
-			ex = subset(fusion.table2, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
+			ex = subset(fusion.table, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
 							| (exon.junction == 'Both' 
-							   & (known ==1 | (frame =='in-frame' & gene5_gene3_partner_ends >= minPartnerEnds_BothExonJunction)))
+							   & (known ==1 | (frame =='in-frame' & num_partner_ends >= minPartnerEnds_BothExonJunction 
+										& (num_partner_ends >= num_unique_reads | num_partner_ends >= minPartnerEnds_OneExonJunction))))
 							| (exon.junction == 'One' 
 							   & frame != 'out-frame'
-							   & gene5_gene3_partner_ends >= minPartnerEnds_OneExonJunction
+							   & num_partner_ends >= minPartnerEnds_OneExonJunction
 							   & (known ==1 | (intragene==0 & frame =='in-frame')))
 					))[, 1:15]
 
