@@ -1,14 +1,14 @@
 #!/bin/bash
 
 . $1
-subii=$( pwd | sed "s:.*/::")
+SampleId=$( pwd | sed "s:.*/::")
 
 	#=== [Kickstart mode] If specify bam_dir, start from bam ===
 	if [ "$bam_dir" != "" ]; then
-		if [ -s $bam_dir/$subii.bam ]; then
-		    $samtools view -@ $thread $bam_dir/$subii.bam > _raw.sam
-		elif [ -s $bam_dir/$subii.consolidated.bam ]; then
-		    $samtools view -@ $thread $bam_dir/$subii.consolidated.bam > _raw.sam
+		if [ -s $bam_dir/$SampleId.bam ]; then
+		    $samtools view -@ $thread $bam_dir/$SampleId.bam > _raw.sam
+		elif [ -s $bam_dir/$SampleId.consolidated.bam ]; then
+		    $samtools view -@ $thread $bam_dir/$SampleId.consolidated.bam > _raw.sam
 		fi
 
 	#=== If specify fastq_dir, do fasq to bam ===
@@ -16,7 +16,7 @@ subii=$( pwd | sed "s:.*/::")
 		if [ "$r1filename" != "" ]; then
 			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$r1filename $fastq_dir/$r2filename > _raw.sam 2> bwa.log
 		else	
-			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$subii.R1.fq $fastq_dir/$subii.R2.fq > _raw.sam 2> bwa.log
+			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$SampleId.R1.fq $fastq_dir/$SampleId.R2.fq > _raw.sam 2> bwa.log
 		fi
 	else 
 		echo "Must specify fastq_dir or bam_dir"
@@ -90,7 +90,7 @@ rm _*
 grep -P '\tSA:Z:' consolidated.sam > _sa.sam
  
 $samtools view -@ $thread -T $refGenome -bS consolidated.sam > _consolidated.bam
-$samtools sort -@ $thread _consolidated.bam -o $subii.consolidated.bam
+$samtools sort -@ $thread _consolidated.bam -o $SampleId.consolidated.bam
 	rm consolidated.sam _consolidated.bam
-$samtools index $subii.consolidated.bam 
+$samtools index $SampleId.consolidated.bam 
 

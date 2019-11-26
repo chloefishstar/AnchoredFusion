@@ -12,7 +12,7 @@ library(data.table)
 options(width=204)
 options(scipen=999)
 library(plyr)
-(subii = sub('.*/', '', getwd()))
+(SampleId = sub('.*/', '', getwd()))
 source(configFile)
 
 ##====1: left-right annotations
@@ -71,5 +71,5 @@ lr2b = SplitFusion.breakpoint.anno.postscript.mid.anno(configFile = configFile, 
 
 ##==== 4: sorting direction
 lr3 = SplitFusion.breakpoint.anno.postscript.direction(configFile = configFile, lr2b)
-SplitFusion.breakpoint.anno.postscript.direction.sub(configFile = configFile, lr3, sampleID=subii)
+SplitFusion.breakpoint.anno.postscript.direction.sub(configFile = configFile, lr3, sampleID=SampleId)
 }

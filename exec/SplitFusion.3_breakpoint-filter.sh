@@ -1,7 +1,7 @@
 #!/bin/bash
 . $1
 
-subii=$( pwd | sed "s:.*/::")
+SampleId=$( pwd | sed "s:.*/::")
 
 ##==== Filter 1: minMapLength, minExclusive, maxQueryGap, maxOverlap ====:
 		## 1. at least minMapLength 

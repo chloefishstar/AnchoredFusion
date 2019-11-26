@@ -1,11 +1,11 @@
 #!/bin/bash
 . $1
 
-subii=$( pwd | sed "s:.*/::")
+SampleId=$( pwd | sed "s:.*/::")
 
 ##==== 1.1. get reads with SA
 	if [ ! -s _sa.sam ]; then
-		$samtools view -@ $thread $subii.consolidated.bam | grep -P '\tSA:Z:' > _sa.sam
+		$samtools view -@ $thread $SampleId.consolidated.bam | grep -P '\tSA:Z:' > _sa.sam
 	fi
 
 	$samtools view -@ $thread -T $refGenome -bS _sa.sam > _sa.bam
@@ -40,8 +40,47 @@ if [ -s _sa.bed ]; then
 	#=== transform CIGAR strings ===#
 	#===============================#
 	cut -f 2,7,8 -d ' ' _sa.len.bed.mq > _sa.SMH1
+
 	sed -e 's/M/ M /g' -e 's/S/ S /g' -e 's/H/ H /g' _sa.SMH1 > _sa.SMH2
-	awk '{if ($4=="M"){
+
+	    # correct D in CIGAR (1)
+	    gawk '{if ($5 ~ /D/){
+			    lenM = $3 + substr($5, 1, 1) + substr($5, 3, 3)
+			    $1= $1 + substr($5, 1, 1); 
+			    $3 = lenM; $5="_"; $6="_";
+			    }
+		    print $0
+		    }' _sa.SMH2 | sed 's/_ //g' > _sa.SMH2a
+
+	    # correct D in CIGAR (2)
+	    gawk '{if ($7 ~ /D/){
+			    lenM = $5 + substr($7, 1, 1) + substr($7, 3, 3)
+			    $1= $1 + substr($7, 1, 1); 
+			    $5 = lenM; $7="_"; $8="_";
+			    }
+		    print $0
+		    }' _sa.SMH2a | sed 's/_ //g' > _sa.SMH2b
+
+	    # correct I in CIGAR (1)
+	    gawk '{if ($5 ~ /I/){
+			    lenM = $3 - substr($5, 1, 1) + substr($5, 3, 3)
+			    $1= $1 - substr($5, 1, 1);
+			    $3 = lenM; $5="_"; $6="_";
+			    }
+		    print $0
+		    }' _sa.SMH2b | sed 's/_ //g' > _sa.SMH2c
+
+	    # correct I in CIGAR (2)
+	    gawk '{if ($7 ~ /I/){
+			    lenM = $5 - substr($7, 1, 1) + substr($7, 3, 3)
+			    $1= $1 - substr($7, 1, 1); 
+			    $5 = lenM; $7="_"; $8="_";
+			    }
+		    print $0
+		    }' _sa.SMH2c | sed 's/_ //g' > _sa.SMH2d
+
+
+	gawk '{if ($4=="M"){
 			if ($2=="+"){
 				start=1; end=$3
 			}else if ($2=="-"){
@@ -53,7 +92,7 @@ if [ -s _sa.bed ]; then
 			}else if ($2=="-"){
 				start=$1-$3-$5+1; end=$1-$3
 			}
-		} else {start=0; end=0}; print start,end}' _sa.SMH2 > _sa.SMH3
+		} else {start=0; end=0}; print start,end}' _sa.SMH2d > _sa.SMH3
 	paste _sa.len.bed.mq _sa.SMH3 | tr ' ' '\t' > _sa.SMH4
 	sort -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
 
