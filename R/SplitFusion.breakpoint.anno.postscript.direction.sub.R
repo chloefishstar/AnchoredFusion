@@ -4,7 +4,7 @@
 
 SplitFusion.breakpoint.anno.postscript.direction.sub = function(configFile, lr3, sampleID){
 n.lr3 = nrow(lr3)
-if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
+#if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
 
 if (n.lr3 >0){
 	## add the 6 base back to cDNA position
@@ -50,7 +50,7 @@ if (n.lr3 >0){
 		  | lr3$ge1ge2 %in% known.ge
 		  | (lr3$ge1 %in% c('FGFR1_exon17', 'FGFR2_exon17', 'FGFR3_exon17') & lr3$intragene==0) # known FGFR exon 18 deletion
 		] = 1
-	lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(StrVarMinStartSite) & intragene==0)) & !(ge1 %in% known.ge.filter | ge2 %in% known.ge.filter))
+	lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(FusionMinStartSite) & intragene==0)) & !(ge1 %in% known.ge.filter | ge2 %in% known.ge.filter))
 		# nrow(lr3); nrow(lr32)
 		# output for furture research
 		write.table(lr32, paste(sampleID, '.fusion.list.pre-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
@@ -177,19 +177,26 @@ if (n.lr3 >0){
 			write.table(fusion.table, paste(sampleID, '.fusion.table.NoFilter.txt', sep=''), row.names=F, quote=F, sep='\t')
 
 	##=======================================
-	## export max 10 example fusion reads
+	## Filter: exon boundary
 	##=======================================
 		    # inter-gene, in-frame
 		    # or known
-			if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
-			if (!exists('minFusionUniqReads')){minFusionUniqReads=3}
+		#	if (!exists('StrVarMinStartSite')){StrVarMinStartSite=1}
+		#	if (!exists('minPartnerEnds_OneExonJunction')){minPartnerEnds_OneExonJunction=3}
+		#	if (!exists('minPartnerEnds_BothExonJunction')){minPartnerEnds_BothExonJunction=1}
 				fusion.table$g5g3 = paste(fusion.table$gene_5, fusion.table$gene_3, sep='_')
-			ex = subset(fusion.table, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
+
+				# supporing partner ends by gene5_gene3
+				gg_partner_ends = ddply(fusion.table, .(g5g3), summarize, gene5_gene3_partner_ends = sum(num_partner_ends))
+
+			fusion.table2 = merge(fusion.table, gg_partner_ends, by = 'g5g3')
+				
+			ex = subset(fusion.table2, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
 							| (exon.junction == 'Both' 
-							   & (known ==1 | (frame =='in-frame' & num_unique_reads >= minFusionUniqReads)))
+							   & (known ==1 | (frame =='in-frame' & gene5_gene3_partner_ends >= minPartnerEnds_BothExonJunction)))
 							| (exon.junction == 'One' 
 							   & frame != 'out-frame'
-							   & num_partner_ends >= StrVarMinStartSite
+							   & gene5_gene3_partner_ends >= minPartnerEnds_OneExonJunction
 							   & (known ==1 | (intragene==0 & frame =='in-frame')))
 					))[, 1:15]
 
@@ -199,6 +206,9 @@ if (n.lr3 >0){
 			
 				write.table(ex2, paste(sampleID, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
 			
+	##=======================================
+	## export max 10 example fusion reads
+	##=======================================
 		ex2 = read.table(paste(sampleID, '.brief.summary', sep=''), sep='\t', stringsAsFactors=F, header=T)
 			# ex2 = subset(ex2, frame != 'gDNA')
 			(nex = min(10, nrow(ex2)))

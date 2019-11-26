@@ -49,7 +49,7 @@ SampleId=$( pwd | sed "s:.*/::")
 		else cp _sa.fu01 _sa.fu0
 		fi
 
-##==== Filter 2: StrVarMinStartSite
+##==== Filter 2: FusionMinStartSite
 	## breakpoint ($22 now, later $23) and separate start site (chr+pos)
 	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $23,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
@@ -89,8 +89,8 @@ SampleId=$( pwd | sed "s:.*/::")
 		minStartStepSize=1
 	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
 	sort -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
-	echo | awk -v minFusionUniqReads=$minFusionUniqReads -v StrVarMinStartSite=$StrVarMinStartSite -v minStartStepSize=$minStartStepSize \
-		'{if ($2 >= minFusionUniqReads && $3 >= StrVarMinStartSite && $4 >= minStartStepSize){
+	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize \
+		'{if ($3 >= FusionMinStartSite && $4 >= minStartStepSize){
 			print $0 > "breakpoint.siteID.MinStartSite"
 			}
 		}' _breakpoint.stats4.u

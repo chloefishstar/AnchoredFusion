@@ -45,9 +45,6 @@ def parseArgs():
     parser.add_argument('--thread', type=int
                         , default=4
                         , help="threads of BWA")
-    parser.add_argument('--strVarMinStartSite', type=int
-                        , default=3
-                        , help="minimum start site")
     parser.add_argument('--maxQueryGap', type=int
                         , default=0
                         , help="maximum gap length")
@@ -61,14 +58,17 @@ def parseArgs():
                         , default=12
                         , help="maximum overlap length")
     parser.add_argument('--minExclusive', type=int
-                        , default=20
+                        , default=18
                         , help="minimum exclusive length")
-    parser.add_argument('--StrVarMinStartSite', type=int
+    parser.add_argument('--FusionMinStartSite', type=int
                         , default=1
-                        , help="minimum number of Adaptor Ligation Read Starting Sites to call Structure Variation/Fusion")
-    parser.add_argument('--minFusionUniqReads', type=int
-                        , default=2
-                        , help="minimum number of reads to call Structure Variation/Fusion")
+                        , help="minimum number of Adaptor Ligation Read Starting Sites to call Structure Variation/Fusion. Should be less or equal minPartnerEnds_BothExonJunction")
+    parser.add_argument('--minPartnerEnds_BothExonJunction', type=int
+                        , default=1
+                        , help="minimum number of fusion partner ends (ligation site), when both breakpoints are at exon junctions, to call Structure Variation/Fusion")
+    parser.add_argument('--minPartnerEnds_OneExonJunction', type=int
+                        , default=3
+                        , help="minimum number of fusion partner ends (ligation site), when one breakpoint is at exon junction, to call Structure Variation/Fusion")
 
     args = vars(parser.parse_args())
 
