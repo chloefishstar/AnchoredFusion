@@ -73,7 +73,7 @@ SampleId=$( pwd | sed "s:.*/::")
      
 	#==== consolidation
 	sed 's:/[12]$::' _id.ligateUmi | uniq >  _id.ligateUmi1
-	sort -k2,2b -u _id.ligateUmi1 > uniq.ligateUmi
+	sort --parallel=$thread -k2,2b -u _id.ligateUmi1 > uniq.ligateUmi
 	sort --parallel=$thread -k1,1b -u uniq.ligateUmi > _consolidated.readID
 
 	#=== 	join raw sam with consolidated ID ===

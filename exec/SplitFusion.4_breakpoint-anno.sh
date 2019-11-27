@@ -28,7 +28,7 @@
     cut -f 1-5,11- _orp > __orpLeft 
     cut -f 6-11 _orp > __orpRight
     
-    cat __orpLeft __orpRight | cut -f 2,3 | sort -u > __breakpoint.for.anno0
+    cat __orpLeft __orpRight | cut -f 2,3 | sort --parallel=$thread -u > __breakpoint.for.anno0
 
 ## Annotate
 
@@ -43,16 +43,16 @@
 	# under dev...
     #fi
 
-sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annotated.extr
+sort --parallel=$thread -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annotated.extr
 
 ## Merge annotation back to read
-	sort -k1,1b __orpLeft > __orpLeft.s
-	sort -k1,1b __orpRight > __orpRight.s
+	sort --parallel=$thread -k1,1b __orpLeft > __orpLeft.s
+	sort --parallel=$thread -k1,1b __orpRight > __orpRight.s
 	join __orpLeft.s  __breakpoint.annotated.extr > __anno.left
 	join __orpRight.s __breakpoint.annotated.extr > __anno.right
 
-	sort -k6,6b __anno.left > _anno.left
-	sort -k6,6b __anno.right > _anno.right
+	sort --parallel=$thread -k6,6b __anno.left > _anno.left
+	sort --parallel=$thread -k6,6b __anno.right > _anno.right
 	join -1 6 -2 6 _anno.left _anno.right > anno.left.right
 
 ##=== anno middle split
@@ -60,7 +60,7 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 	    awk '{mid = $4 + 10; print $3,mid,mid,"A","A",$1,$3,$4,$5}' split.mid > _mid.for.anno0
 
 		if [ $AnnotationMethod = "annovar" ]; then
-		    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort -u > _mid.for.anno
+		    tr ' ' '\t' < _mid.for.anno0 | cut -f1-5 | sort --parallel=$thread -u > _mid.for.anno
 		    $perl $annovar/table_annovar.pl _mid.for.anno $annovar/humandb/ -buildver hg19 -out _mid.anno -remove -protocol refGene -operation g -nastring NA > /dev/null 2>&1
 		    $R -e 'library(SplitFusion);annovar.exon.cds.extraction(input = "_mid.anno.hg19_multianno.txt")' > /dev/null 2>&1
 		fi
@@ -69,8 +69,8 @@ sort -k1,1b __breakpoint.annotated.hg19_multianno.txt.ext0 > __breakpoint.annota
 		# under dev...
 	    #fi
 
-		tr ' ' '\t' < _mid.for.anno0 | sed 's:\t:_:' | sort -k1,1b > _mid.for.anno1
-		sort -k1,1b _mid.anno.hg19_multianno.txt.ext0 > _mid.anno.ext
+		tr ' ' '\t' < _mid.for.anno0 | sed 's:\t:_:' | sort --parallel=$thread -k1,1b > _mid.for.anno1
+		sort --parallel=$thread -k1,1b _mid.anno.hg19_multianno.txt.ext0 > _mid.anno.ext
 		join _mid.for.anno1 _mid.anno.ext | cut -d ' ' -f2,5- > anno.mid
 		
 	fi

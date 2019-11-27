@@ -34,15 +34,15 @@ SampleId=$( pwd | sed "s:.*/::")
 
 			join -v 1 _sa.fu02 _filter2 > _sa.fu02f
 
-			# remove gap
-			echo | awk -v maxQueryGap=$maxQueryGap \
+			# filter gap and overlap
+			echo | awk -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
 			'{ if ($1==pre1){
-					gap = $10 - pre11;
-					if (gap > maxQueryGap) {print $1}
-				} else {gap=0};
+					gap = $10 - pre11 -1; overlap = pre11 - $10 + 1
+					if (gap > maxQueryGap || overlap > maxOverlap) {print $1}
+				} else {gap=0; overlap=0};
 				pre1=$1; pre11=$11;
 			}' split.mid.expanded > _mid.gap.id
-			sort -u _mid.gap.id > _mid.gap.id.u
+			sort --parallel=$thread -u _mid.gap.id > _mid.gap.id.u
 
 			join -v 1 _sa.fu02f _mid.gap.id.u > _sa.fu02ff 
 			cat _sa.fu01 _sa.fu02ff > _sa.fu0
@@ -54,11 +54,11 @@ SampleId=$( pwd | sed "s:.*/::")
 	sed 's/:umi:/\t/' _sa.fu0 | tr ' ' '\t' | awk '{OFS="\t"; print $23,$2,$0}' | sed -e 's/C\([^\t]\+\)P\([0-9]\+\)-/\1\t\2\t/' -e 's:/[12]::' > _sa.fu2
 
 	# sort by breakpoint and  start.site.umi
-	sort --parallel=$thread -k1,1b -k6,6b _sa.fu2 > _sa.fu3
+	sort --parallel=$thread -k1,1b -k28,28n -k6,6b _sa.fu2 > _sa.fu3
 
 	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2)
         awk '{OFS="\t";
-		if ($1 == pre1 && $2 == pre2){
+		if ($1 == pre1 && $2 == pre2 && $28 == pre28){
 			diff = $3-pre3;
 			if (diff < 750000){
 				siteID = preSiteID
@@ -81,26 +81,26 @@ SampleId=$( pwd | sed "s:.*/::")
 				numi=1; nss=1; nss2=1; siteID=NR
 		}
 		print siteID,numi,nss,nss2,$0 > "breakpoint.stats";
-     		pre1=$1; pre2=$2; pre3=$3; pre4=$4; preSiteID=siteID
+     		pre1=$1; pre2=$2; pre3=$3; pre4=$4; pre28=$28; preSiteID=siteID
 	}' _sa.fu3
 
 	##====  Apply Filter2, and
 	## min start site step size of 2 (Deprecated: set to 1)
 		minStartStepSize=1
 	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
-	sort -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
+	sort --parallel=$thread -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
 	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize \
 		'{if ($3 >= FusionMinStartSite && $4 >= minStartStepSize){
 			print $0 > "breakpoint.siteID.MinStartSite"
 			}
 		}' _breakpoint.stats4.u
 
-	sort -k1,1b breakpoint.stats > _breakpoint.stats.s
+	sort --parallel=$thread -k1,1b breakpoint.stats > _breakpoint.stats.s
 	join -1 1 -2 1 breakpoint.siteID.MinStartSite  _breakpoint.stats.s \
 		| sed 's/ /:umi:/12' \
 		| tr ' ' '\t' | cut -f 2,3,4,12- > breakpoint.candidates
 
 touch _0
-#rm _*
+rm _*
 
 ## End: breakpoint candidates

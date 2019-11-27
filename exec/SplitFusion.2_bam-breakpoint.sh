@@ -24,11 +24,11 @@ if [ -s _sa.bed ]; then
     	paste _sa.len _sa.bed | tr ' ' '\t' | cut -f2- > _sa.len.bed
 		
 	cut -f1,5 _sa.len.bed > _len.readID1
-	sort -k2,2b -k1,1nr _len.readID1 > _len.readID2
-	sort -k2,2b -u _len.readID2 > _len.readID
+	sort --parallel=$thread -k2,2b -k1,1nr _len.readID1 > _len.readID2
+	sort --parallel=$thread -k2,2b -u _len.readID2 > _len.readID
 
-	sort -k2,2b _len.readID > _len.readID.s
-	sort -k4,4b _sa.bed > _sa.bed.s
+	sort --parallel=$thread -k2,2b _len.readID > _len.readID.s
+	sort --parallel=$thread -k4,4b _sa.bed > _sa.bed.s
 	join -1 2 -2 4 _len.readID.s _sa.bed.s > _sa.len.bed
 
 ##==== 3. remove MQ low
@@ -44,7 +44,7 @@ if [ -s _sa.bed ]; then
 	sed -e 's/M/ M /g' -e 's/S/ S /g' -e 's/H/ H /g' _sa.SMH1 > _sa.SMH2
 
 	    # correct D in CIGAR (1)
-	    gawk '{if ($5 ~ /D/){
+	    gawk '{if ($5 ~ /M1D/){
 			    lenM = $3 + substr($5, 1, 1) + substr($5, 3, 3)
 			    $1= $1 + substr($5, 1, 1); 
 			    $3 = lenM; $5="_"; $6="_";
@@ -53,7 +53,7 @@ if [ -s _sa.bed ]; then
 		    }' _sa.SMH2 | sed 's/_ //g' > _sa.SMH2a
 
 	    # correct D in CIGAR (2)
-	    gawk '{if ($7 ~ /D/){
+	    gawk '{if ($7 ~ /M1D/){
 			    lenM = $5 + substr($7, 1, 1) + substr($7, 3, 3)
 			    $1= $1 + substr($7, 1, 1); 
 			    $5 = lenM; $7="_"; $8="_";
@@ -62,7 +62,7 @@ if [ -s _sa.bed ]; then
 		    }' _sa.SMH2a | sed 's/_ //g' > _sa.SMH2b
 
 	    # correct I in CIGAR (1)
-	    gawk '{if ($5 ~ /I/){
+	    gawk '{if ($5 ~ /M1I/){
 			    lenM = $3 - substr($5, 1, 1) + substr($5, 3, 3)
 			    $1= $1 - substr($5, 1, 1);
 			    $3 = lenM; $5="_"; $6="_";
@@ -71,7 +71,7 @@ if [ -s _sa.bed ]; then
 		    }' _sa.SMH2b | sed 's/_ //g' > _sa.SMH2c
 
 	    # correct I in CIGAR (2)
-	    gawk '{if ($7 ~ /I/){
+	    gawk '{if ($7 ~ /M1I/){
 			    lenM = $5 - substr($7, 1, 1) + substr($7, 3, 3)
 			    $1= $1 - substr($7, 1, 1); 
 			    $5 = lenM; $7="_"; $8="_";
@@ -94,11 +94,12 @@ if [ -s _sa.bed ]; then
 			}
 		} else {start=0; end=0}; print start,end}' _sa.SMH2d > _sa.SMH3
 	paste _sa.len.bed.mq _sa.SMH3 | tr ' ' '\t' > _sa.SMH4
-	sort -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
+	sort --parallel=$thread -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
 
 	#=== Correcting ligate.UMI
 	sed -e "s/:umi:/\t/" -e "s/-/\t/" _sa.SMH4s > _corr.ligat1
-	sort -k1,1b -u _corr.ligat1 > _corr.ligat2
+	sort --parallel=$thread -k1,1b _corr.ligat1 > _corr.ligat1s
+	sort --parallel=$thread -k1,1b -u _corr.ligat1s > _corr.ligat2
 
 	gawk '{OFS="\t"; if ($9 == "+"){
 				posC = 100000002 + $6 - $11
@@ -111,7 +112,7 @@ if [ -s _sa.bed ]; then
 		print $1,$2
 		}' _corr.ligat2 > corr.ligat3
 
-	join corr.ligat3 _corr.ligat1 | tr ' ' '\t' | cut -f1,2,4- | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
+	join corr.ligat3 _corr.ligat1s | tr ' ' '\t' | cut -f1,2,4- | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
 	
 
 ##==== 5. separate left and right split alignments
@@ -153,7 +154,9 @@ if [ -s _sa.bed ]; then
                 }' _right | tr ' ' '\t' | sed 1d > _rights
 
 	##=== join leftmost and rightmost
-        join _lefts _rights > _left_right.j
+		sort --parallel=$thread -k1,1b _lefts > _lefts.s
+		sort --parallel=$thread -k1,1b _rights > _rights.s
+        join _lefts.s _rights.s > _left_right.j
 
 ##==== 7. breakpoint.candidates.preFilter
 	## left: 2-11; right 12-21
@@ -163,14 +166,14 @@ if [ -s _sa.bed ]; then
 		}; 
 		print $0,pp
 	}' _left_right.j > _breakpoint.noFilter1
-	sort -k1,1b _breakpoint.noFilter1 > _breakpoint.noFilter2
+	sort --parallel=$thread -k1,1b _breakpoint.noFilter1 > _breakpoint.noFilter2
 else
 	touch breakpoint.candidates.preFilter
 fi
 ##==== 8. correct breakpoint for those containing mid
 if [ -f split.mid ]; then
-	cut -f1 split.mid | sort -u > _mid.id
-	sort -k2,2b _sa.SMH4sn > _sa.SMH4sns
+	cut -f1 split.mid | sort --parallel=$thread -u > _mid.id
+	sort --parallel=$thread -k2,2b _sa.SMH4sn > _sa.SMH4sns
 	join -1 1 -2 2 _mid.id _sa.SMH4sns > split.mid.expanded
 
 	if [ -s split.mid.expanded ]; then
@@ -190,7 +193,7 @@ if [ -f split.mid ]; then
 		pre1=$1; pre4=$4; pre5=$5; pre6=$6; pre8=$8; pre10=$10; pre11=$11
 		}' split.mid.expanded
 
-		sort -k1,1b _sa.mid.bkp > _sa.mid.bkps
+		sort --parallel=$thread -k1,1b _sa.mid.bkp > _sa.mid.bkps
 		join -a1 _breakpoint.noFilter2 _sa.mid.bkps > _breakpoint.noFilter3
 
 		awk '{if (NF==25) {$9=$24; $10=$25; $22=$23}; print}' _breakpoint.noFilter3 | cut -d ' ' -f 1-22 > _breakpoint.noFilter.bkp.corrected
