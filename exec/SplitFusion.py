@@ -48,6 +48,9 @@ def parseArgs():
     parser.add_argument('--minMQ', type=int
                         , default=13
                         , help="minimum mapping quality")
+    parser.add_argument('--minAvgMQ', type=int
+                        , default=30
+                        , help="minimum average mapping quality of a fusion partner")
     parser.add_argument('--minMapLength', type=int
                         , default=18
                         , help="minimum read mapping length")

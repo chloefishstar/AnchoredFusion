@@ -56,51 +56,54 @@ SampleId=$( pwd | sed "s:.*/::")
 	# sort by breakpoint and  start.site.umi
 	sort --parallel=$thread -k1,1b -k28,28n -k6,6b _sa.fu2 > _sa.fu3
 
-	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2)
+	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2), average MQ (avgMQ1, avgMQ2)
         awk '{OFS="\t";
 		if ($1 == pre1 && $2 == pre2 && $28 == pre28){
+			i += 1;
 			diff = $3-pre3;
 			if (diff < 750000){
 				siteID = preSiteID
 				if (diff==0){
 					if ($4 != pre4){
-						numi = numi+1
+						numi += 1
 					}
 				} else {
-					numi = numi+1;
-					nss = nss+1;
-					if (diff >1){
-						nss2 = nss2+1
-					}
+					numi += 1;
+					nss += 1;
+					if (diff >1){nss2 += 1}
 				}
 			} else {
 				siteID = NR
 				numi=1; nss=1; nss2=1
 			};
+
+			mq1 += $11;
+			mq2 += $21;
 		} else {
-				numi=1; nss=1; nss2=1; siteID=NR
-		}
-		print siteID,numi,nss,nss2,$0 > "breakpoint.stats";
+				i=1; numi=1; nss=1; nss2=1; siteID=NR; mq1=$11; mq2=$21
+		};
+
+		avgMQ1 = mq1/i; avgMQ2 = mq2/i;
+		print siteID,numi,nss,nss2,avgMQ1,avgMQ2,$0 > "breakpoint.stats";
      		pre1=$1; pre2=$2; pre3=$3; pre4=$4; pre28=$28; preSiteID=siteID
 	}' _sa.fu3
 
 	##====  Apply Filter2, and
 	## min start site step size of 2 (Deprecated: set to 1)
 		minStartStepSize=1
-	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats4
-	sort --parallel=$thread -k1,1b -u _breakpoint.stats4 > _breakpoint.stats4.u
-	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize \
-		'{if ($3 >= FusionMinStartSite && $4 >= minStartStepSize){
-			print $0 > "breakpoint.siteID.MinStartSite"
+	cut -f1-6 breakpoint.stats | tac > _breakpoint.stats6
+	sort --parallel=$thread -k1,1b -u _breakpoint.stats6 > _breakpoint.stats6.u
+	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize -v minAvgMQ=$minAvgMQ \
+		'{OFS="\t"; if ($3 >= FusionMinStartSite && $4 >= minStartStepSize && $5 >= minAvgMQ && $6 >= minAvgMQ){
+			print $1,$2,$3,$4 > "breakpoint.siteID.stats.filtered"
 			}
-		}' _breakpoint.stats4.u
+		}' _breakpoint.stats6.u
 
 	sort --parallel=$thread -k1,1b breakpoint.stats > _breakpoint.stats.s
-	join -1 1 -2 1 breakpoint.siteID.MinStartSite  _breakpoint.stats.s \
-		| sed 's/ /:umi:/12' \
-		| tr ' ' '\t' | cut -f 2,3,4,12- > breakpoint.candidates
+	join -1 1 -2 1 breakpoint.siteID.stats.filtered  _breakpoint.stats.s \
+		| sed 's/ /:umi:/14' \
+		| tr ' ' '\t' | cut -f 2,3,4,14- > breakpoint.candidates
 
-touch _0
-rm _*
+touch _0; rm _*
 
 ## End: breakpoint candidates
