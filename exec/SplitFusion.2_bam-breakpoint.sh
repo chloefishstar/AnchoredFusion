@@ -130,8 +130,8 @@ if [ -s _sa.bed ]; then
 		print n,$0 > "_sa.SMH4sn"
 	}' _sa.SMH.corr.srt
 
-	# remove ligation.site not near Left
-	sed "s/:umi:C/\t/" _left | sed -e "s/P/\t/" -e "s/-/\t/" | gawk '{OFS="\t";
+	# remove ligation.site not near Read 1 _Left
+	grep "/1" _left | sed "s/:umi:C/\t/" | sed -e "s/P/\t/" -e "s/-/\t/" | gawk '{OFS="\t";
 			diff = $3 - 100000000 - $7;
 			if (diff <0) {diff = -diff};
 			if ($2 != $6 || diff > 750000){
