@@ -56,7 +56,7 @@ SampleId=$( pwd | sed "s:.*/::")
 	# sort by breakpoint and  start.site.umi
 	sort --parallel=$thread -k1,1b -k28,28n -k6,6b _sa.fu2 > _sa.fu3
 
-	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2), average MQ (avgMQ1, avgMQ2)
+	## breakpoint stats: num_unique_molecule (numi), num_start_site (nss), num_start_site2 (diff by at least 2, nss2), average MQ (avgMQ)
         awk '{OFS="\t";
 		if ($1 == pre1 && $2 == pre2 && $28 == pre28){
 			i += 1;
@@ -77,32 +77,31 @@ SampleId=$( pwd | sed "s:.*/::")
 				numi=1; nss=1; nss2=1
 			};
 
-			mq1 += $11;
-			mq2 += $21;
+			mq += $11;
 		} else {
-				i=1; numi=1; nss=1; nss2=1; siteID=NR; mq1=$11; mq2=$21
+			i=1; numi=1; nss=1; nss2=1; siteID=NR; mq=$11
 		};
 
-		avgMQ1 = mq1/i; avgMQ2 = mq2/i;
-		print siteID,numi,nss,nss2,avgMQ1,avgMQ2,$0 > "breakpoint.stats";
+		avgMQ = mq/i;
+		print siteID,numi,nss,nss2,avgMQ,$0 > "breakpoint.stats";
      		pre1=$1; pre2=$2; pre3=$3; pre4=$4; pre28=$28; preSiteID=siteID
 	}' _sa.fu3
 
 	##====  Apply Filter2, and
 	## min start site step size of 2 (Deprecated: set to 1)
 		minStartStepSize=1
-	cut -f1-6 breakpoint.stats | tac > _breakpoint.stats6
-	sort --parallel=$thread -k1,1b -u _breakpoint.stats6 > _breakpoint.stats6.u
+	cut -f1-5 breakpoint.stats | tac > _breakpoint.stats.tac
+	sort --parallel=$thread -k1,1b -u _breakpoint.stats.tac > _breakpoint.stats.u
 	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize -v minAvgMQ=$minAvgMQ \
-		'{OFS="\t"; if ($3 >= FusionMinStartSite && $4 >= minStartStepSize && $5 >= minAvgMQ && $6 >= minAvgMQ){
+		'{OFS="\t"; if ($3 >= FusionMinStartSite && $4 >= minStartStepSize && $5 >= minAvgMQ){
 			print $1,$2,$3,$4 > "breakpoint.siteID.stats.filtered"
 			}
-		}' _breakpoint.stats6.u
+		}' _breakpoint.stats.u
 
 	sort --parallel=$thread -k1,1b breakpoint.stats > _breakpoint.stats.s
 	join -1 1 -2 1 breakpoint.siteID.stats.filtered  _breakpoint.stats.s \
-		| sed 's/ /:umi:/14' \
-		| tr ' ' '\t' | cut -f 2,3,4,14- > breakpoint.candidates
+		| sed 's/ /:umi:/13' \
+		| tr ' ' '\t' | cut -f 2,3,4,13- > breakpoint.candidates
 
 touch _0; rm _*
 

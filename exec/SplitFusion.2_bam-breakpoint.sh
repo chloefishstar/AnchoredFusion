@@ -98,7 +98,7 @@ if [ -s _sa.bed ]; then
 
 	#=== Correcting ligate.UMI
 	sed -e "s/:umi:/\t/" -e "s/-/\t/" _sa.SMH4s > _corr.ligat1
-	sort --parallel=$thread -k1,1b _corr.ligat1 > _corr.ligat1s
+	sort --parallel=$thread -k1,1b -k11,11n _corr.ligat1 > _corr.ligat1s
 	sort --parallel=$thread -k1,1b -u _corr.ligat1s > _corr.ligat2
 
 	gawk '{OFS="\t"; if ($9 == "+"){
@@ -113,7 +113,7 @@ if [ -s _sa.bed ]; then
 		}' _corr.ligat2 > corr.ligat3
 
 	join corr.ligat3 _corr.ligat1s | tr ' ' '\t' | cut -f1,2,4- | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
-	
+	sort -k1,1b -k9,9n _sa.SMH.corr > _sa.SMH.corr.srt
 
 ##==== 5. separate left and right split alignments
 	awk '{if ($1==pre1){
@@ -128,7 +128,17 @@ if [ -s _sa.bed ]; then
 		};
 		pre1=$1; pren=n; pre0=$0;
 		print n,$0 > "_sa.SMH4sn"
-	}' _sa.SMH.corr
+	}' _sa.SMH.corr.srt
+
+	# remove ligation.site not near Left
+	sed "s/:umi:C/\t/" _left | sed -e "s/P/\t/" -e "s/-/\t/" | gawk '{OFS="\t";
+			diff = $3 - 100000000 - $7;
+			if (diff <0) {diff = -diff};
+			if ($2 != $6 || diff > 750000){
+				print $1":umi:C"$2"P"$3"-"$4 > "_diff_ligate_left"
+			}
+		}'
+	join -v 1 _left _diff_ligate_left > _left2
 
 ##==== 6. get the 4 positions on a SA query read (after left and right alignments are merged by ReadID):
 		## skematic drawing:
@@ -143,7 +153,7 @@ if [ -s _sa.bed ]; then
                                 mstart=$5; mend=$4; $4=mstart; $5=mend;
                                 print $0,$3"_"$5
                         }
-                }' _left | tr ' ' '\t' > _lefts
+                }' _left2 | tr ' ' '\t' > _lefts
 
             awk '{if ($7 =="+") {
                                 print $0,$3"_"$4
@@ -187,7 +197,7 @@ if [ -f split.mid ]; then
 			};
 		if (bkp1 < bkp2){bkp = bkp1"__"bkp2};
 		if (bkp1 > bkp2){bkp = bkp2"__"bkp1};
-		if (bkp != ""){print $1,bkp,q1,q2,q3,q4 > "_sa.mid.bkp"}
+		if (bkp != ""){print $1,bkp,q1,q2 > "_sa.mid.bkp"}
 
 		diff=""; bkp=""; bkp1=""; bkp2=""; q1=""; q2=""
 		pre1=$1; pre4=$4; pre5=$5; pre6=$6; pre8=$8; pre10=$10; pre11=$11
