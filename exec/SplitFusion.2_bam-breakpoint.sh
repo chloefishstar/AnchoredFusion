@@ -142,7 +142,12 @@ if [ -s _sa.bed ]; then
 				print $1":umi:C"$2"P"$3"-"$4 > "_diff_ligate_left"
 			}
 		}'
-	join -v 1 _left _diff_ligate_left > _left2
+	
+		if [ -s _diff_ligate_left ]; then
+			join -v 1 _left _diff_ligate_left > _left2
+		else 
+			cp _left _left2
+		fi; 
 
 ##==== 6. get the 4 positions on a SA query read (after left and right alignments are merged by ReadID):
 		## skematic drawing:
