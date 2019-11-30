@@ -96,23 +96,27 @@ if [ -s _sa.bed ]; then
 	paste _sa.len.bed.mq _sa.SMH3 | tr ' ' '\t' > _sa.SMH4
 	sort --parallel=$thread -k1,1b -k9,9n _sa.SMH4 > _sa.SMH4s
 
-	#=== Correcting ligate.UMI
+	#=== Correcting ligate.UMI based on Read1 head or, when Read1 is not mapped, Read2 tail
 	sed -e "s/:umi:/\t/" -e "s/-/\t/" _sa.SMH4s > _corr.ligat1
-	sort --parallel=$thread -k1,1b -k11,11n _corr.ligat1 > _corr.ligat1s
+	gawk '{OFS="\t"; if ($1 ~ /\//1) {order=$11} else {order=-$11}; print $0,order}' _corr.ligat1 > _corr.ligat1b
+	sort --parallel=$thread -k1,1b -k13,13n _corr.ligat1b > _corr.ligat1s
 	sort --parallel=$thread -k1,1b -u _corr.ligat1s > _corr.ligat2
 
-	gawk '{OFS="\t"; if ($9 == "+"){
-				posC = 100000002 + $6 - $11
-		} else {
-                                posC = 100000000 + $7 + $11
-                }
+	gawk '{OFS="\t"; 
+		if ($3 ~ /\/1/){
+		    	if ($9 == "+"){posC = 100000002 + $6 - $11
+				}else{ posC = 100000000 + $7 + $11}
+			}
+		else { 	if ($9 == "-"){posC = 100000002 + $6 - $11
+				}else{ posC = 100000000 + $7 + $11}
+			}
                        
 		umi="C"$5"P"posC;
 		$2=umi;
 		print $1,$2
 		}' _corr.ligat2 > corr.ligat3
 
-	join corr.ligat3 _corr.ligat1s | tr ' ' '\t' | cut -f1,2,4- | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
+	join corr.ligat3 _corr.ligat1s | tr ' ' '\t' | cut -f1,2,4-13 | sed -e "s/\t/:umi:/" -e "s/\t/-/" > _sa.SMH.corr
 	sort -k1,1b -k9,9n _sa.SMH.corr > _sa.SMH.corr.srt
 
 ##==== 5. separate left and right split alignments
