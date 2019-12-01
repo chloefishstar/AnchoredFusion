@@ -54,6 +54,9 @@ def parseArgs():
     parser.add_argument('--minMapLength', type=int
                         , default=18
                         , help="minimum read mapping length")
+    parser.add_argument('--minMapLength2', type=int
+                        , default=25
+                        , help="minimum mapping length of rightmost of Read1 (lefmost of Read2)")
     parser.add_argument('--maxQueryGap', type=int
                         , default=0
                         , help="maximum gap length on a query read of split alignments")
