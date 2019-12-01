@@ -25,7 +25,7 @@ SampleId=$( pwd | sed "s:.*/::")
 		    ## left:  $9-------$10
 		    ## right:		       $19------$20
 		if [ -f breakpoint.candidates.preFilter.w.mid ]; then
-		 echo | awk -v minMapLength=$minMapLength -v minMapLength=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=1000 \
+		 echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=1000 \
 		    '{ gap = $19-$10-1; overlap = $10-$19+1;
 			if ($1 ~ /\/1/) {mapLen1 = $10-$9+1; mapLen2 = $20-$19+1
                                 } else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1};
