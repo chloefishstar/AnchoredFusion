@@ -12,11 +12,12 @@ SampleId=$( pwd | sed "s:.*/::")
 		## reads without middle split
 		    ## left:  $9-------$10
 		    ## right:       $19------$20
-		echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
-		    '{ gap = $19-$10-1; 
-			   overlap = $10-$19+1;
-				if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
-					&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
+		echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
+		    '{ gap = $19-$10-1; overlap = $10-$19+1;
+			if ($1 ~ /\/1/)	{mapLen1 = $10-$9+1; mapLen2 = $20-$19+1
+				} else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1};
+			if ((mapLen1 >= minMapLength && mapLen2 >= minMapLength2) \
+				&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			    ) {print $0,overlap} else {print $1 > "_filter1"}
 			}' breakpoint.candidates.preFilter > _sa.fu01
 
@@ -24,10 +25,12 @@ SampleId=$( pwd | sed "s:.*/::")
 		    ## left:  $9-------$10
 		    ## right:		       $19------$20
 		if [ -f breakpoint.noFilter.w.mid ]; then
-		 echo | awk -v minMapLength=$minMapLength -v minExclusive=$minExclusive -v maxQueryGap=1000 \
-		    '{ gap = $19-$10-1; 
-			   overlap = $10-$19+1;
-				if (  ($10-$9 >= minMapLength && $20-$19 >= minMapLength) \
+		 echo | awk -v minMapLength=$minMapLength -v minMapLength=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=1000 \
+		    '{ gap = $19-$10-1; overlap = $10-$19+1;
+			if ($1 ~ /\/1/) {mapLen1 = $10-$9+1; mapLen2 = $20-$19+1
+                                } else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1};
+
+			if (  (mapLen1 >= minMapLength && mapLen2 >= minMapLength2) \
 					&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap) \
 			    ) {print $0,overlap} else {print $1 > "_filter2"}
 			}' breakpoint.noFilter.w.mid > _sa.fu02

@@ -217,7 +217,7 @@ if [ -f split.mid ]; then
 
 		awk '{if (NF==25) {$9=$24; $10=$25; $22=$23}; print}' _breakpoint.noFilter3 | cut -d ' ' -f 1-22 > _breakpoint.noFilter.bkp.corrected
 
-		join _breakpoint.noFilter.bkp.corrected _mid.id > breakpoint.noFilter.w.mid
+		join _breakpoint.noFilter.bkp.corrected _mid.id > breakpoint.candidates.preFilter.w.mid
 		join -v 1 _breakpoint.noFilter.bkp.corrected _mid.id > breakpoint.candidates.preFilter
 	else 
         	cp _breakpoint.noFilter2 breakpoint.candidates.preFilter
