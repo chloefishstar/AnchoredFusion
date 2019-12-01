@@ -24,7 +24,7 @@ SampleId=$( pwd | sed "s:.*/::")
 		## reads with middle split, turn off maxQueryGap by let maxQueryGap=100
 		    ## left:  $9-------$10
 		    ## right:		       $19------$20
-		if [ -f breakpoint.noFilter.w.mid ]; then
+		if [ -f breakpoint.candidates.preFilter.w.mid ]; then
 		 echo | awk -v minMapLength=$minMapLength -v minMapLength=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=1000 \
 		    '{ gap = $19-$10-1; overlap = $10-$19+1;
 			if ($1 ~ /\/1/) {mapLen1 = $10-$9+1; mapLen2 = $20-$19+1
@@ -33,7 +33,7 @@ SampleId=$( pwd | sed "s:.*/::")
 			if (  (mapLen1 >= minMapLength && mapLen2 >= minMapLength2) \
 					&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap) \
 			    ) {print $0,overlap} else {print $1 > "_filter2"}
-			}' breakpoint.noFilter.w.mid > _sa.fu02
+			}' breakpoint.candidates.preFilter.w.mid > _sa.fu02
 
 			join -v 1 _sa.fu02 _filter2 > _sa.fu02f
 
