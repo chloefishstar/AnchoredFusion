@@ -12,7 +12,7 @@ SampleId=$( pwd | sed "s:.*/::")
 		## reads without middle split
 		    ## left:  $9-------$10
 		    ## right:       $19------$20
-		echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap -v avgMQ1=$minMQ1 \
+		echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap -v minMQ1=$minMQ1 \
 		    '{ gap = $19-$10-1; overlap = $10-$19+1;
 			if ($1 ~ /\/1/)	{mapLen1 = $10-$9+1; mapLen2 = $20-$19+1; mq1=$6
 				} else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1; mq1=$16};
