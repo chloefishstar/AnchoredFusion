@@ -12,11 +12,11 @@ SampleId=$( pwd | sed "s:.*/::")
 		## reads without middle split
 		    ## left:  $9-------$10
 		    ## right:       $19------$20
-		echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap \
+		echo | awk -v minMapLength=$minMapLength -v minMapLength2=$minMapLength2 -v minExclusive=$minExclusive -v maxQueryGap=$maxQueryGap -v maxOverlap=$maxOverlap -v avgMQ1=$minMQ1 \
 		    '{ gap = $19-$10-1; overlap = $10-$19+1;
-			if ($1 ~ /\/1/)	{mapLen1 = $10-$9+1; mapLen2 = $20-$19+1
-				} else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1};
-			if ((mapLen1 >= minMapLength && mapLen2 >= minMapLength2) \
+			if ($1 ~ /\/1/)	{mapLen1 = $10-$9+1; mapLen2 = $20-$19+1; mq1=$6
+				} else { mapLen2 = $10-$9+1; mapLen1 = $20-$19+1; mq1=$16};
+			if ((mapLen1 >= minMapLength && mapLen2 >= minMapLength2 && mq1 >= minMQ1) \
 				&& ($19-$9 >= minExclusive && $20-$10 >= minExclusive && gap <= maxQueryGap && overlap <= maxOverlap) \
 			    ) {print $0,overlap} else {print $1 > "_filter1"}
 			}' breakpoint.candidates.preFilter > _sa.fu01
@@ -79,32 +79,29 @@ SampleId=$( pwd | sed "s:.*/::")
 				siteID = NR
 				numi=1; nss=1; nss2=1
 			};
-
-			mq += $11;
 		} else {
-			i=1; numi=1; nss=1; nss2=1; siteID=NR; mq=$11
+			i=1; numi=1; nss=1; nss2=1; siteID=NR
 		};
 
-		avgMQ = mq/i;
-		print siteID,numi,nss,nss2,avgMQ,$0 > "breakpoint.stats";
+		print siteID,numi,nss,nss2,$0 > "breakpoint.stats";
      		pre1=$1; pre2=$2; pre3=$3; pre4=$4; pre28=$28; preSiteID=siteID
 	}' _sa.fu3
 
 	##====  Apply Filter2, and
 	## min start site step size of 2 (Deprecated: set to 1)
 		minStartStepSize=1
-	cut -f1-5 breakpoint.stats | tac > _breakpoint.stats.tac
+	cut -f1-4 breakpoint.stats | tac > _breakpoint.stats.tac
 	sort --parallel=$thread -k1,1b -u _breakpoint.stats.tac > _breakpoint.stats.u
-	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize -v minAvgMQ=$minAvgMQ \
-		'{OFS="\t"; if ($3 >= FusionMinStartSite && $4 >= minStartStepSize && $5 >= minAvgMQ){
+	echo | awk -v FusionMinStartSite=$FusionMinStartSite -v minStartStepSize=$minStartStepSize \
+		'{OFS="\t"; if ($3 >= FusionMinStartSite && $4 >= minStartStepSize){
 			print $1,$2,$3,$4 > "breakpoint.siteID.stats.filtered"
 			}
 		}' _breakpoint.stats.u
 
 	sort --parallel=$thread -k1,1b breakpoint.stats > _breakpoint.stats.s
 	join -1 1 -2 1 breakpoint.siteID.stats.filtered  _breakpoint.stats.s \
-		| sed 's/ /:umi:/13' \
-		| tr ' ' '\t' | cut -f 2,3,4,13- > breakpoint.candidates
+		| sed 's/ /:umi:/12' \
+		| tr ' ' '\t' | cut -f 2,3,4,12- > breakpoint.candidates
 
 touch _0; rm _*
 
