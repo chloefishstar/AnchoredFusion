@@ -72,18 +72,18 @@ SampleId=$( pwd | sed "s:.*/::")
 		    fi
      
 	#==== consolidation
-	sed 's:/[12]$::' _id.ligateUmi | uniq >  _id.ligateUmi1
+	sed 's:/[12]$::' _id.ligateUmi >  _id.ligateUmi1
 	sort --parallel=$thread -k2,2b -u _id.ligateUmi1 > uniq.ligateUmi
 	sort --parallel=$thread -k1,1b -u uniq.ligateUmi > _consolidated.readID
 
 	#=== 	join raw sam with consolidated ID ===
-		sed -e 's:\t\t:\t*\t:g' -e 's/:umi:/:umi\t/' _raw.sam > _raw.samC
+		sed -e 's:\t\t:\t*\t:g' _raw.sam | sed -e 's/:umi:/:umi\t/' > _raw.samC
 		sort --parallel=$thread -k1,1b _raw.samC > _raw.sam.s
 			    rm _raw.samC
      
 	join _consolidated.readID _raw.sam.s > _consolidated.sam0
 		cp header consolidated.sam
-		sed -e 's/ /:/' -e 's/ /\t/g' _consolidated.sam0 | cut -f1,3- >> consolidated.sam
+		sed -e 's/ /:/' _consolidated.sam0 | sed -e 's/ /\t/g' | cut -f1,3- >> consolidated.sam
 		    rm _raw.sam.s
 	
 rm _*

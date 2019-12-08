@@ -2,8 +2,9 @@
 #===== Final analysis: frame status, filters, exon-junction, output
 #=====================================================================
 
-SplitFusion.breakpoint.anno.postscript.direction.sub = function(configFile, lr3, sampleID){
+SplitFusion.breakpoint.anno.postscript.direction.sub = function(configFile, lr3){
 n.lr3 = nrow(lr3)
+sampleID = sub(".*\\/", "", getwd())
 #if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
 
 if (n.lr3 >0){
@@ -182,6 +183,8 @@ if (n.lr3 >0){
 		    # inter-gene, in-frame
 		    # or known
 			fusion.table$g5g3 = paste(fusion.table$gene_5, fusion.table$gene_3, sep='_')
+			minPartnerEnds_BothExonJunction = as.numeric(minPartnerEnds_BothExonJunction)
+			minPartnerEnds_OneExonJunction = as.numeric(minPartnerEnds_OneExonJunction)
 				
 			ex = subset(fusion.table, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
 							| (exon.junction == 'Both' 

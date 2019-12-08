@@ -71,5 +71,5 @@ lr2b = SplitFusion.breakpoint.anno.postscript.mid.anno(configFile = configFile, 
 
 ##==== 4: sorting direction
 lr3 = SplitFusion.breakpoint.anno.postscript.direction(configFile = configFile, lr2b)
-SplitFusion.breakpoint.anno.postscript.direction.sub(configFile = configFile, lr3, sampleID=SampleId)
+SplitFusion.breakpoint.anno.postscript.direction.sub(configFile = configFile, lr3)
 }
