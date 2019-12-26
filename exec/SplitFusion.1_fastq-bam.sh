@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. $1
+. config.txt
 SampleId=$( pwd | sed "s:.*/::")
 
 	#=== [Kickstart mode] If specify bam_dir, start from bam ===
@@ -14,9 +14,9 @@ SampleId=$( pwd | sed "s:.*/::")
 	#=== If specify fastq_dir, do fasq to bam ===
 	elif [ "$fastq_dir" != "" ]; then
 		if [ "$r1filename" != "" ]; then
-			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$r1filename $fastq_dir/$r2filename > _raw.sam 2> bwa.log
+			$bwa mem -T 18 -t $thread $database_dir/$refGenome $fastq_dir/$r1filename $fastq_dir/$r2filename > _raw.sam 2> bwa.log
 		else	
-			$bwa mem -T 18 -t $thread $refGenome $fastq_dir/$SampleId.R1.fq $fastq_dir/$SampleId.R2.fq > _raw.sam 2> bwa.log
+			$bwa mem -T 18 -t $thread $database_dir/$refGenome $fastq_dir/$SampleId.R1.fq $fastq_dir/$SampleId.R2.fq > _raw.sam 2> bwa.log
 		fi
 	else 
 		echo "Must specify fastq_dir or bam_dir"
@@ -34,7 +34,7 @@ SampleId=$( pwd | sed "s:.*/::")
 			mv _raw.sam2 _raw.sam
 		fi
 
-	$samtools view -@ $thread -T $refGenome -bS _raw.sam > _raw.bam
+	$samtools view -@ $thread -T $database_dir/$refGenome -bS _raw.sam > _raw.bam
 
 	#==== Tag chr.pos (at ligation site) to umi
                 $bedtools bamtobed -cigar -i _raw.bam > _raw.bed
@@ -68,7 +68,7 @@ SampleId=$( pwd | sed "s:.*/::")
 				}
 			}' 2>/dev/null
 		    else
-			   cut -f4 _raw.bed | sed 's/:umi:/:umi\t/' > _id.ligateUmi 
+			   cut -f4 _raw.bed | sed 's/umi:/umi\t/' > _id.ligateUmi 
 		    fi
      
 	#==== consolidation
@@ -77,19 +77,19 @@ SampleId=$( pwd | sed "s:.*/::")
 	sort --parallel=$thread -k1,1b -u uniq.ligateUmi > _consolidated.readID
 
 	#=== 	join raw sam with consolidated ID ===
-		sed -e 's:\t\t:\t*\t:g' _raw.sam | sed -e 's/:umi:/:umi\t/' > _raw.samC
+		sed -e 's:\t\t:\t*\t:g' _raw.sam | sed -e 's/umi:/umi\t/' > _raw.samC
 		sort --parallel=$thread -k1,1b _raw.samC > _raw.sam.s
 			    rm _raw.samC
      
 	join _consolidated.readID _raw.sam.s > _consolidated.sam0
 		cp header consolidated.sam
-		sed -e 's/ /:/' _consolidated.sam0 | sed -e 's/ /\t/g' | cut -f1,3- >> consolidated.sam
+		sed -e 's/ /:/' _consolidated.sam0 | tr ' ' '\t' | cut -f1,3- >> consolidated.sam
 		    rm _raw.sam.s
 	
 rm _*
 grep -P '\tSA:Z:' consolidated.sam > _sa.sam
  
-$samtools view -@ $thread -T $refGenome -bS consolidated.sam > _consolidated.bam
+$samtools view -@ $thread -T $database_dir/$refGenome -bS consolidated.sam > _consolidated.bam
 $samtools sort -@ $thread _consolidated.bam -o $SampleId.consolidated.bam
 	rm consolidated.sam _consolidated.bam
 $samtools index $SampleId.consolidated.bam 

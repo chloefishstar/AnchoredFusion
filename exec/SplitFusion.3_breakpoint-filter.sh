@@ -1,9 +1,51 @@
 #!/bin/bash
-. $1
 
+. config.txt
 SampleId=$( pwd | sed "s:.*/::")
 
+##========================================
+## If exists TARGET panel information, use the SplitFusion-TARGET model
+##========================================
+
+if [ $panel != "NA" ]; then
+	gawk '{if ($1 ~ /\/2/ && $9 == 1) print}' breakpoint.candidates.preFilter > _preFilter.r2
+
+	gawk '{OFS="\t"; if ($7 == "-"){start=$5; $5=$4; $4=start};
+		print $3,$4,$5,$1,$6,$7
+		}' _preFilter.r2 > _preFilter.r2.bed
+
+		sort --parallel=$thread -k1,1n -k2,2n _preFilter.r2.bed > _preFilter.r2.srt.bed
+	$bedtools intersect -wa -wb -a $panel_dir/$panel.GSP2.bed -b _preFilter.r2.srt.bed -S > _preFilter.GSP2.bed
+                # anchored
+                awk '{diff1 = $8 - $2; diff2 = $9 - $3;
+		if ($6 == "-"){
+			if (diff1 >= -1 && diff1 <=1) {
+					if (diff2 >= 3) {
+						print > "_preFilter.anchored.onTarget.bed"
+					} else {print > "_preFilter.anchored.offTarget.bed"}
+				} else {print > "_preFilter.nonAnchored.bed"}
+		} else {
+			if (diff2 >= -1 && diff2 <=1) {
+					if (diff1 <= -3) {
+                        	        print > "_preFilter.anchored.onTarget.bed"
+				} else {print > "_preFilter.anchored.offTarget.bed"}
+			} else {print > "_preFilter.nonAnchored.bed"}
+		}}' _preFilter.GSP2.bed 
+
+	cut -f 10 _preFilter.anchored.onTarget.bed | sed "s:umi.*::" > _preFilter.anchored.onTarget.readID0
+        sort --parallel=$thread -k1,1b -u _preFilter.anchored.onTarget.readID0 > _preFilter.anchored.onTarget.readID.srt
+	
+	sed "s:umi:\tumi:" breakpoint.candidates.preFilter > _breakpoint.candidates.preFilter
+        sort --parallel=$thread -k1,1b _breakpoint.candidates.preFilter > _breakpoint.candidates.preFilter.srt
+
+	join _preFilter.anchored.onTarget.readID.srt _breakpoint.candidates.preFilter.srt > _breakpoint.candidates.preFilter.target
+	sed 's: ::' _breakpoint.candidates.preFilter.target > breakpoint.candidates.preFilter
+fi
+
+
+##========================================
 ##==== Filter 1: minMapLength, minExclusive, maxQueryGap, maxOverlap ====:
+##========================================
 		## 1. at least minMapLength 
 		## 2. at least minExclusive bp mapped exculsively to alignments 1 and 2
 		## 3. no larger than maxQueryGap

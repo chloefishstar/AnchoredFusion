@@ -2,7 +2,7 @@
 #===== Final analysis: frame status, filters, exon-junction, output
 #=====================================================================
 
-SplitFusion.breakpoint.anno.postscript.direction.sub = function(configFile, lr3){
+SplitFusion.breakpoint.anno.postscript.direction.sub = function(lr3){
 n.lr3 = nrow(lr3)
 sampleID = sub(".*\\/", "", getwd())
 #if (!exists('StrVarMinStartSite')){StrVarMinStartSite=2}
@@ -17,12 +17,13 @@ if (n.lr3 >0){
 	lr3$exon = substr(lr3$exon_L,1,4)
 	lr3$exonD = 0
 	lr3$exonD = ifelse(lr3$gene_L == lr3$gene_R, lr3$exonn_R - lr3$exonn_L, lr3$exonD)
-	lr3$gec_L = paste(lr3$gene_L, ' ', lr3$exon_L, ' c.', lr3$cdna_L, ' (', lr3$nm_L, ')', sep='')
-	lr3$gec_R = paste(lr3$gene_R, ' ', lr3$exon_R, ' c.', lr3$cdna_R, ' (', lr3$nm_R, ')', sep='')
+	lr3$gec_L = paste0(lr3$gene_L, ' ', lr3$exon_L, ' c.', lr3$cdna_L, ' (', lr3$nm_L, ')')
+	lr3$gec_R = paste0(lr3$gene_R, ' ', lr3$exon_R, ' c.', lr3$cdna_R, ' (', lr3$nm_R, ')')
 	lr3$gec_LR = paste(lr3$gec_L, lr3$gec_R, sep='---')
-	lr3$ge1 = paste(lr3$gene_L, '_', lr3$exon_L, sep='')
-	lr3$ge2 = paste(lr3$gene_R, '_', lr3$exon_R, sep='')
-	lr3$ge1ge2 = paste(lr3$ge1,'---', lr3$ge2, sep='')
+	lr3$gg = paste0(lr3$gene_L, '_', lr3$gene_R)
+	lr3$ge1 = paste0(lr3$gene_L, '_', lr3$exon_L)
+	lr3$ge2 = paste0(lr3$gene_R, '_', lr3$exon_R)
+	lr3$ge1ge2 = paste0(lr3$ge1,'---', lr3$ge2)
 
 	##======================
 	## frame status
@@ -40,21 +41,32 @@ if (n.lr3 >0){
 		## order
 		lr3 = lr3[order(lr3$intragene, lr3$frame, lr3$gec_LR),]
 
-	##==== Optional: add information on known/recurrent fusions (gene-gene, gene-exon, partners)
-	known.gg.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-gene.txt'); if (file.exists(known.gg.file)){known.gg = readLines(known.gg.file)}
-	known.ge.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-exon.txt'); if (file.exists(known.ge.file)){known.ge = readLines(known.ge.file)}
-	known.partner.file = paste0(path.package("SplitFusion"), '/data/fusion.partners.txt'); if (file.exists(known.partner.file)){known.partner = readLines(known.partner.file)}
-	known.ge.filter.file = paste0(path.package("SplitFusion"), '/data/fusion.gene-exon.filter.txt'); if (file.exists(known.ge.filter.file)){known.ge.filter = readLines(known.ge.filter.file)} 
-	lr3$known=0
-	lr3$known[ (lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partner & lr3$intragene==0)
-		  |(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partner & lr3$intragene==0)
-		  | lr3$ge1ge2 %in% known.ge
-		  | (lr3$ge1 %in% c('FGFR1_exon17', 'FGFR2_exon17', 'FGFR3_exon17') & lr3$intragene==0) # known FGFR exon 18 deletion
-		] = 1
-	lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(FusionMinStartSite) & intragene==0)) & !(ge1 %in% known.ge.filter | ge2 %in% known.ge.filter))
-		# nrow(lr3); nrow(lr32)
-		# output for furture research
-		write.table(lr32, paste(sampleID, '.fusion.list.pre-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
+	##===========================================================
+	##=== Optional: Backend database supported target output or filtering
+	##===========================================================
+	    ##==== Targeted output known significant fusions or splicing isoforms (e.g. MET ex14 skipping)
+		known.gg=NA; known.ge=NA; known.partner=NA; known.3UTR=NA;
+	    known.gg.file = paste0(panel_dir, '/known.gene-gene.txt'); if (file.exists(known.gg.file)){known.gg = readLines(known.gg.file)}
+	    known.ge.file = paste0(panel_dir, '/known.gene-exon.txt'); if (file.exists(known.ge.file)){known.ge = readLines(known.ge.file)}
+	    known.partner.file = paste0(panel_dir, '/known.partners.txt'); if (file.exists(known.partner.file)){known.partner = readLines(known.partner.file)}
+	    known.3UTR.truncation.file = paste0(panel_dir, '/known.3UTR.truncation.txt'); if (file.exists(known.3UTR.truncation.file)){known.3UTR = readLines(known.3UTR.truncation.file)} 
+
+	    ##==== Targeted remove unwanted fusions (e.g. involving homologous genes or recurrent falsed positives)
+		filter.gg=NA; filter.ge=NA; 
+	    filter.gg.file = paste0(panel_dir, '/filter.gene-gene.txt'); if (file.exists(filter.gg.file)){filter.gg0 = read.table(filter.gg.file, header=F, stringsAsFactors=F);
+				 filter.gg = c(paste(filter.gg0$V1, filter.gg0$V2, sep='_'), paste(filter.gg0$V2, filter.gg0$V1, sep='_'))} 
+	    filter.ge.file = paste0(panel_dir, '/filter.gene-exon.txt'); if (file.exists(filter.ge.file)){filter.ge = readLines(filter.ge.file)}
+
+	    lr3$known=0
+	    lr3$known[ (lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partner & lr3$intragene==0)
+		      |(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partner & lr3$intragene==0)
+		      | lr3$ge1ge2 %in% known.ge
+		      | (lr3$ge1 %in% known.3UTR & lr3$intragene==0) 
+		    ] = 1
+	    lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(FusionMinStartSite) & intragene==0)) & !(gg %in% filter.gg | ge1 %in% filter.ge | ge2 %in% filter.ge))
+		    # nrow(lr3); nrow(lr32)
+		    # output for furture research
+		    write.table(lr32, paste(sampleID, '.fusion.list.pre-processing.txt', sep=''), row.names=F, quote=F, sep='\t')
 
 	##======================
 	## Further filters

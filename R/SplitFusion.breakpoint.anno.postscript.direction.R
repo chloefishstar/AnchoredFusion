@@ -1,6 +1,6 @@
 ##==== 4: sorting direction
 ##	1) reverse read2 Left/Right to get the same as Read1
-SplitFusion.breakpoint.anno.postscript.direction = function(configFile, lr2b){
+SplitFusion.breakpoint.anno.postscript.direction = function(lr2b){
 r1 = lr2b[!(grepl("/2", lr2b$readID)),]
 r2 = lr2b[grepl("/2", lr2b$readID),]
 

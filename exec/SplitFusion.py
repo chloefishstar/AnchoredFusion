@@ -20,10 +20,14 @@ def parseArgs():
                         , help="the path where human genome reference is stored [required]")
     parser.add_argument('--sample_id', required=True
                         , help="the sample name of running [required]")
+    parser.add_argument('--database_dir', required=True
+                        , help="the path where large databases e.g. reference genome and annotation databases are stored [required]")
     parser.add_argument('--bam_dir'
                         , help="the path where bam or fastq file is stored. [Kickstart] The bam file of the sameple_id (xxx.bam or xxx.consolidated.bam) will be used. Either fastq_dir or bam_dir should be specified")
     parser.add_argument('--fastq_dir'
                         , help="the path where fastq file is stored. Either fastq_dir or bam_dir should be specified")
+    parser.add_argument('--panel_dir'
+                        , help="For Target mode: the path where panel specific files are stored.")
     parser.add_argument('--r1filename'
                         , help="Read 1 fastq filename. Can be in gzipped format. If not specified, $fastq_dir/$sample_id.R1.fq will be used.")
     parser.add_argument('--r2filename'
@@ -120,14 +124,14 @@ if __name__ == '__main__':
     output=[str(k) + "=" + "\"" + str(v)+ "\"" for k,v in args.iteritems() if v != None]
     config_p = args['output'] + "/" + args['sample_id'] + "/" 
     mkdir(config_p)
-    config_o = config_p + args['sample_id'] + ".config.txt"
+    config_o = config_p + "config.txt"
     config = open(config_o, "w+")
-    #print(args, file = config, sep="\n")
     print("\n".join(output), file = config, sep="\n")
 
     config.close()
 
-design =  args['R'] +  " -e " + "'suppressMessages(library(SplitFusion)); runSplitFusion(configFile = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
-os.system(design)
+#design =  args['R'] +  " -e " + "'suppressMessages(library(SplitFusion)); runSplitFusion(configFile = " + "\"" + config_o + "\"" + ")'" #+ "> /dev/null 2>&1"
+cmd =  "cd " + config_p + "; " + args['R'] +  " -e " + "'suppressMessages(library(SplitFusion)); runSplitFusion()'"
+os.system(cmd)
 
 ## END
