@@ -58,11 +58,10 @@ if (n.lr3 >0){
 	    filter.ge.file = paste0(panel_dir, '/filter.gene-exon.txt'); if (file.exists(filter.ge.file)){filter.ge = readLines(filter.ge.file)}
 
 	    lr3$known=0
-	    lr3$known[ (lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partner & lr3$intragene==0)
-		      |(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partner & lr3$intragene==0)
-		      | lr3$ge1ge2 %in% known.ge
-		      | (lr3$ge1 %in% known.3UTR & lr3$intragene==0) 
-		    ] = 1
+	    lr3$known[(lr3$gene_T == lr3$gene_L & lr3$gene_R %in% known.partner & lr3$intragene==0)] = 1
+	    lr3$known[(lr3$gene_T == lr3$gene_R & lr3$gene_L %in% known.partner & lr3$intragene==0)] = 1
+	    lr3$known[(lr3$ge1ge2 %in% known.ge)] = 1
+	    lr3$known[(lr3$ge1 %in% known.3UTR & lr3$intragene==0)] = 1
 	    lr32 = subset(lr3, (known==1 | (num_partner_ends >= as.numeric(FusionMinStartSite) & intragene==0)) & !(gg %in% filter.gg | ge1 %in% filter.ge | ge2 %in% filter.ge))
 		    # nrow(lr3); nrow(lr32)
 		    # output for furture research
@@ -210,14 +209,14 @@ if (n.lr3 >0){
 
 			# Output 1st of records with same GeneExon5_GeneExon3
 			ex1 = ex[order(ex$frame, -ex$num_partner_ends, -ex$num_unique_reads),]
-			ex2 = ex1[!duplicated(ex1$"GeneExon5_GeneExon3"),]
+				write.table(ex1, paste(sampleID, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
 			
-				write.table(ex2, paste(sampleID, '.brief.summary', sep=''), row.names=F, quote=F, sep='\t')
 			
 	##=======================================
 	## export max 10 example fusion reads
 	##=======================================
-		ex2 = read.table(paste(sampleID, '.brief.summary', sep=''), sep='\t', stringsAsFactors=F, header=T)
+			ex1 = read.table(paste(sampleID, '.brief.summary', sep=''), sep='\t', stringsAsFactors=F, header=T)
+			ex2 = ex1[!duplicated(ex1$"GeneExon5_GeneExon3"),]
 			# ex2 = subset(ex2, frame != 'gDNA')
 			(nex = min(10, nrow(ex2)))
 			if (nex >0){
