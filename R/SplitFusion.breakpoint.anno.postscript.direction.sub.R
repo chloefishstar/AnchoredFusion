@@ -197,14 +197,14 @@ if (n.lr3 >0){
 			minPartnerEnds_BothExonJunction = as.numeric(minPartnerEnds_BothExonJunction)
 			minPartnerEnds_OneExonJunction = as.numeric(minPartnerEnds_OneExonJunction)
 				
-			ex = subset(fusion.table, ((g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
-							| (exon.junction == 'Both' 
-							   & (known ==1 | (frame =='in-frame' & num_partner_ends >= minPartnerEnds_BothExonJunction 
+			ex = subset(fusion.table, (known | (g5g3 %in% known.gg & (exon.junction != '0') | frame =='gDNA') ## for future compatibility with gDNA reads
+							 | (exon.junction == 'Both' 
+							    & (known ==1 | (frame =='in-frame' & num_partner_ends >= minPartnerEnds_BothExonJunction 
 										& (num_partner_ends >= num_unique_reads | num_partner_ends >= minPartnerEnds_OneExonJunction))))
-							| (exon.junction == 'One' 
-							   & frame != 'out-frame'
-							   & num_partner_ends >= minPartnerEnds_OneExonJunction
-							   & (known ==1 | (intragene==0 & frame =='in-frame')))
+							 | (exon.junction == 'One' 
+							    & frame != 'out-frame'
+							    & num_partner_ends >= minPartnerEnds_OneExonJunction
+							    & (known ==1 | (intragene==0 & frame =='in-frame')))
 					))[, 1:15]
 
 			# Output 1st of records with same GeneExon5_GeneExon3
