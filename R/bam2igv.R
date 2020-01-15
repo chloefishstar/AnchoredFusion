@@ -93,7 +93,7 @@ bam2igv <- function(bam,pos1,pos2,chr1,chr2,bk1name,bk2name){
     }
   }
   igv.bed.show(pos = 42492091,name = "EML4_intron6",chr = 2,bed = "breakpoint.reads")
-  igv.bed.show(pos = 29446396,name = "ALK_exon20",chr = 2,bed = "breakpoint.reads")]
+  igv.bed.show(pos = 29446396,name = "ALK_exon20",chr = 2,bed = "breakpoint.reads")
 
 
 
