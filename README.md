@@ -157,7 +157,8 @@ python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --ref
 ## Output 
 [An example brief output table:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
 
-| SampleID |        GeneExon5_GeneExon3 |     frame |   num_partner_ends |        num_unique_reads |        exon.junction |   breakpoint |      transcript_5 |    transcript_3 |    function_5 |      function_3 |      gene_5 |  cdna_5 |  gene_3 |  cdna_3 |
+|	SampleID	|	GeneExon5_GeneExon3	|	frame	| num_partner_ends |        num_unique_reads |        exon.junction |   breakpoint |      transcript_5 |    transcript_3 |    function_5 |      function_3 |      gene_5 |  cdna_5 |  gene_3 |  cdna_3 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Lib009 |  EML4_intronic---ALK_exon20 |      N.A. |    7 |       298 |     One |     2_29446396__2_42492091 |  NM_019063 |       NM_004304 |       intronic |        exonic |  EML4 |    - |       ALK |     3171 |
 | Lib009 |  EML4_exon6---ALK_exon20 | in-frame |        14 |      481 |     Both |    2_29446396__2_42491871 |  NM_019063 |       NM_004304 |       exonic |  exonic |  EML4 |    667 |     ALK |     3171 |
 | Lib009 |  EML4_exon5---ALK_exon20 | out-frame |       14 |      83 |      One |     2_29446396__2_42490447 |  NM_019063 |       NM_004304 |       exonic |  exonic |  EML4 |    596 |     ALK |     3171 |
@@ -165,23 +166,23 @@ python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --ref
 
 [An example output fastq file for the EML4_intronic---ALK_exon20 fusion of sample Lib009 is:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/Lib009.EML4_intronic---ALK_exon20.txt)
 
->NS500673:45:HHK2HAFXX:1:21106:26233:4628:
+ >NS500673:45:HHK2HAFXX:1:21106:26233:4628:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGATTAAAGATGTCATCATT
->NS500673:45:HHK2HAFXX:1:21108:4972:6200:
+ >NS500673:45:HHK2HAFXX:1:21108:4972:6200:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTTTTTTCGCGAGTTTACATTTTTGCTTGGTTGATT
->NS500673:45:HHK2HAFXX:2:11207:14331:12205:
+ >NS500673:45:HHK2HAFXX:2:11207:14331:12205:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGGTTGATG
->NS500673:45:HHK2HAFXX:2:11301:14903:19850:
+ >NS500673:45:HHK2HAFXX:2:11301:14903:19850:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
->NS500673:45:HHK2HAFXX:2:21111:24355:8828:
+ >NS500673:45:HHK2HAFXX:2:21111:24355:8828:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
->NS500673:45:HHK2HAFXX:4:11406:15146:11569:
+ >NS500673:45:HHK2HAFXX:4:11406:15146:11569:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCCGTTTTTTTCGCGAGTTGACATTTTTG
->NS500673:45:HHK2HAFXX:4:11606:2779:2081:
+ >NS500673:45:HHK2HAFXX:4:11606:2779:2081:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGGTTGATGATGACATCTTT
->NS500673:45:HHK2HAFXX:4:21409:22050:11159:
+ >NS500673:45:HHK2HAFXX:4:21409:22050:11159:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTATTTTCGCGAGTAGACATTTTTGCTTGGTTGATG
->NS500673:45:HHK2HAFXX:4:21508:24201:16676:
+ >NS500673:45:HHK2HAFXX:4:21508:24201:16676:
 ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
 
 
