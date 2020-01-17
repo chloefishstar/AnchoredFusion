@@ -1,100 +1,61 @@
 #setwd("/Users/baizha/Desktop/KIproject/Project/Fusion/test/SplitFusion/inst/data/example_data/result/example/")
 
 
-bam2igv <- function(bam,pos1,pos2,chr1,chr2,bk1name,bk2name){
-  library(devtools)
-  #install_github("PriceLab/igvR")
-  library(igvR)
-  library(VariantAnnotation)
-  library(AnnotationHub)
-  #library(pxR)
-  igv.bam.show <- function(pos,bam,name,chr){
-    igv <- igvR()
-
-    setBrowserWindowTitle(igv,name)
-    setGenome(igv, "hg19")
-
-    Sys.sleep(5)   # wait a few seconds before zooming into MEF2C
-  #showGenomicRegion(igv, "EML4")
-    showGenomicRegion(igv, list(chrom=chr, start=pos-75, end=pos+75))
-
-      bam.data <- data.frame(do.call(rbind,mclapply(system(paste0("samtools view ",bam), intern = TRUE),function(x){str_split(x,"\t")[[1]]})))
+#fq2igv <- function(config){
+  
+  #system(paste0(bwa," mem -T 18 -t ",thread," ",database_dir,"/",refGenome," ",fastq_dir,"/",r1filename," |",samtools," view -@ ",thread," -bS - > ",paste0(fastq_dir,"/",r1filename,".bam")))
+  
+  bam2igv <- function(bamfile,outname = bamfile, win.size=100){
     
-  #bam.gr <- GRanges(seqnames = as.character(bam.data$X3),
-  #                  IRanges(start = ifelse(as.numeric(as.character(bam.data$X4))<as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X4)),as.numeric(as.character(bam.data$X8))),
-  #                          end = ifelse(as.numeric(as.character(bam.data$X4))<as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X4)))),
-  #                  name=as.character(bam.data$X1))
-
-  #bam.bed <- (bam.data[,c("X3","X4","X8","X1")])
-
-    bam.data$X1 <- as.character(bam.data$X1)
-
-    colors <- terrain.colors(10)
-    color.index <- 0
-
-    for (i in unique(bam.data$X1)){
-      color.index <- color.index + 1
-      track.read <- DataFrameAnnotationTrack(i, bam.data[bam.data$X1==i,c("X3","X4","X8","X1")], trackHeight=20, color=colors[color.index])
-      displayTrack(igv, track.read)
-      Sys.sleep(5)
-    }
-  }
-  igv.bam.show(pos = 42492091,name = "EML4_intron6",chr = 2,bam = bam)
-  igv.bam.show(pos = 29446396,name = "ALK_exon20",chr = 2,bam = bam)
-
-  igv.bed.show <- function(pos,bed,name,chr,n.reads=10){
+    #### New version ###
+  
+    require("igvR")
+    #outname <- "L18-00527T.MET_exon13---MET_exon15"
     igv <- igvR()
-
-    setBrowserWindowTitle(igv,name)
+    #setBrowserWindowTitle(igv,outname)
     setGenome(igv, "hg19")
-
-    Sys.sleep(5)   # wait a few seconds before zooming into MEF2C
-    #showGenomicRegion(igv, "EML4")
-    showGenomicRegion(igv, list(chrom=chr, start=pos-75, end=pos+75))
-
-    #bam.data <- data.frame(do.call(rbind,mclapply(system(paste0("samtools view ",bam), intern = TRUE),function(x){str_split(x,"\t")[[1]]})))
-    #bam.gr <- GRanges(seqnames = as.character(bam.data$X3),
-    #                  IRanges(start = ifelse(as.numeric(as.character(bam.data$X4))<as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X4)),as.numeric(as.character(bam.data$X8))),
-    #                          end = ifelse(as.numeric(as.character(bam.data$X4))<as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X8)),as.numeric(as.character(bam.data$X4)))),
-    #                  name=as.character(bam.data$X1))
-
-    bam.data <- data.frame(fread(bed))
-    bam.data <- subset(bam.data,V3 == chr & V4 > pos-150 & V5 < pos+150)
-
-    #bam.bed <- (bam.data[,c("X3","X4","X8","X1")])
-
-    #bam.data$X1 <- as.character(bam.data$X1)
-
-    #colors <- terrain.colors(10)
-    #color.index <- 0
-
-    ### read orientation ###
-    bam.data[,"read_ori"] <- gsub(".+umi:(.+)/(\\d)","\\2",bam.data$V1)
-    ### read part ###
-    bam.data[,"read_part"] <- as.numeric(gsub("(^\\d*) .+umi:(.+/\\d)","\\1",bam.data$V1))
-
-    #### read name ###
-    #bam.data$V1 <- gsub(".+umi:(.+)/(\\d)","\\1",bam.data$V1)
-    bam.data$V1 <- gsub(".+umi:(.+/\\d)","\\1",bam.data$V1)
-
-    for (i in head(unique(bam.data$V1),n.reads)){
-      #color.index <- color.index + 1
-      dd <- bam.data[bam.data$V1==i,]
-      for (j in 1:nrow(dd)){
-
-        track.read <- DataFrameAnnotationTrack(i, dd[j,c("V3","V4","V5","V1")],
-                                             #trackHeight=20, color=ifelse(dd[j,"strand"]=="1","red","green"))#color=colors[color.index])
-                                             trackHeight=20, color=ifelse(dd[j,"read_ori"]=="1",
-                                                                          colorRampPalette(c("red","black"))(ifelse(nrow(dd) < dd[j,"read_part"],dd[j,"read_part"],nrow(dd)))[dd[j,"read_part"]],
-                                                                          colorRampPalette(c("green","black"))(ifelse(nrow(dd) < dd[j,"read_part"],dd[j,"read_part"],nrow(dd)))[dd[j,"read_part"]]))
-        displayTrack(igv, track.read)
+    #Sys.sleep(5)   # wait a few seconds before zooming into MEF2C
+  
+  
+    x <- readGAlignments(bamfile, use.names=TRUE)
+    track <- GenomicAlignmentTrack(outname, x, trackHeight = 300)
+    displayTrack(igv, track)
+  
+    for (i in unique(seqnames(x)@values)) {
+      x.p <- c(start(x[which(strand(x)=="-" & seqnames(x)==i)]),end(x[which(strand(x)=="-" & seqnames(x)==i)]),
+               start(x[which(strand(x)=="+" & seqnames(x)==i)]),end(x[which(strand(x)=="+" & seqnames(x)==i)]))
+      x.p.start <- min(x.p)
+      x.p.end <- max(x.p)
+    
+      if (x.p.end - x.p.start < win.size){
+      
+        showGenomicRegion(igv, list(chrom=i, start=round((x.p.start+x.p.end)/2)-round(win.size/2), end=round((x.p.start+x.p.end)/2)+round(win.size/2)))
         Sys.sleep(5)
+        saveToSVG(obj = igv,filename = paste0(outname,".",i,".",x.p.start,".",x.p.end,".svg"))
+      
+      }else{
+      
+        showGenomicRegion(igv, list(chrom=i, start=x.p.start-round(win.size/2), end=x.p.start+round(win.size/2)))
+        Sys.sleep(5)
+        saveToSVG(obj = igv,filename = paste0(outname,".",i,".",x.p.start,".svg"))
+    
+        showGenomicRegion(igv, list(chrom=i, start=x.p.end-round(win.size/2), end=x.p.end+round(win.size/2)))
+        Sys.sleep(5)
+        saveToSVG(obj = igv,filename = paste0(outname,".",i,".",x.p.end,".svg"))
+      
       }
     }
   }
-  igv.bed.show(pos = 42492091,name = "EML4_intron6",chr = 2,bed = "breakpoint.reads")
-  igv.bed.show(pos = 29446396,name = "ALK_exon20",chr = 2,bed = "breakpoint.reads")
+  
+#  igv.bed.show(pos = 42492091,name = "EML4_intron6",chr = 2,bed = "breakpoint.reads")
+#library(parallel)
+#mclapply(list.files("./"),function(x){system(paste0(bwa," mem -T 18 -t ",thread," ",database_dir,"/",refGenome," ",fastq_dir,"/",x," |",samtools," view -@ ",thread," -bS - > ",paste0(fastq_dir,"/",x,".bam")))})
+#mclapply(list.files("./",pattern = ".bam"),function(x){igv.bam.show(bamfile = x)})
 
+#setwd("/Users/baizha/Dropbox/SplitFusion/Picture/SplitFusionManuscript/Fig4/fusion.sequences")
+#for (i in list.files("./",pattern = "Lib*.*.bam$")){
+#  igv.bam.show(bamfile = i)
+#  #Sys.sleep(5)
+#  #print(i)
+#}
 
-
-}

@@ -35,12 +35,12 @@ Lastly, outputs a summary table and breakpoint-spanning reads.
 
 ### 1. Dependencies
 
-- R packages ("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2")
+- R packages ("plyr", "data.table", "parallel")
 
 
 ```java
 
-> install.packages(c("plyr", "data.table", "parallel", "dplyr", "tidyr", "ggplot2"))
+> install.packages(c("plyr", "data.table", "parallel"))
 
 ```
 
