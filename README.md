@@ -150,8 +150,82 @@ optional arguments:
 ```
 
 ### 2. run SplitFusion
+[An example command:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/example.command.txt)
 ```java
-python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --refGenome refGenome --bam_dir bam_dir --sample_id sample_id --output output --R R --perl perl --database_dir database_dir --panel_dir SplitFusionPath/data/panel/
+#python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --refGenome refGenome --bam_dir bam_dir --sample_id sample_id --output output --R R --perl perl --database_dir database_dir --panel_dir SplitFusionPath/data/panel/
+# I installed SplitFusion under
+#       /home/zz/repo/
+# Example run:
+
+##=========================================================
+## Start from FASTQ files, no panel info
+## , compatible with RNA-seq whole transcriptome analysis
+##=========================================================
+python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
+        --SplitFusionPath /home/zz/R/x86_64-pc-linux-gnu-library/3.5/SplitFusion \
+        --sample_id Lib001 \
+        --fastq_dir /home/zz/repo/test \
+        --database_dir /home/zz/repo/database \
+        --r1filename "Lib001".R1.fq \
+        --r2filename "Lib001".R2.fq \
+        --output /home/zz/repo/test \
+        --refGenome Homo_sapiens_assembly19.fasta \
+        --R /home/zz/R/bin/R \
+        --perl /usr/bin/perl \
+        --thread 6 &
+
+
+##=========================================================
+## Kickstart mode, no panel info
+## , compatible with RNA-seq whole transcriptome analysis
+##=========================================================
+python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
+        --SplitFusionPath /home/zz/R/x86_64-pc-linux-gnu-library/3.5/SplitFusion \
+        --sample_id "Lib001" \
+        --bam_dir /home/zz/repo/test \
+        --database_dir /home/zz/repo/database \
+        --output /home/zz/repo/test \
+        --refGenome Homo_sapiens_assembly19.fasta \
+        --R /home/zz/R/bin/R \
+        --perl /usr/bin/perl \
+        --thread 6 &
+
+
+##===============================
+## TARGET mode, with panel info
+##===============================
+python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
+        --SplitFusionPath /home/zz/R/x86_64-pc-linux-gnu-library/3.5/SplitFusion \
+        --sample_id Lib001 \
+        --fastq_dir /home/zz/repo/test \
+        --database_dir /home/zz/repo/database \
+        --panel_dir /home/zz/repo/panel \
+        --panel LungFusion \
+        --r1filename "Lib001".R1.fq \
+        --r2filename "Lib001".R2.fq \
+        --output /home/zz/repo/test \
+        --refGenome Homo_sapiens_assembly19.fasta \
+        --R /home/zz/R/bin/R \
+        --perl /usr/bin/perl \
+        --thread 6 &
+
+
+##===============================
+## Selecting only some steps to run
+##===============================
+python /home/zz/repo/SplitFusion/exec/SplitFusion.py \
+        --SplitFusionPath /home/zz/R/x86_64-pc-linux-gnu-library/3.5/SplitFusion \
+        --sample_id "Lib001" \
+        --bam_dir /home/zz/repo/test \
+        --database_dir /home/zz/repo/database \
+        --panel_dir /home/zz/repo/panel \
+        --panel LungFusion \
+        --output /home/zz/repo/test \
+        --refGenome Homo_sapiens_assembly19.fasta \
+        --R /home/zz/R/bin/R \
+        --perl /usr/bin/perl \
+        --steps "3_breakpoint-filter,4_breakpoint-anno,5_breakpoint-anno-post" \
+        --thread 6 &
 ```
 
 ## Output 
