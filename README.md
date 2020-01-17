@@ -59,106 +59,135 @@ R CMD INSTALL SplitFusion
 ```java
 python ./SplitFusion/exec/SplitFusion.py -h
 
-usage: SplitFusion.py [-h] --SplitFusionPath SplitFUSIONPATH --R R
-                          --hgRef HGREF --bam_path BAM_PATH --sample_id
-                          SAMPLE_ID --output OUTPUT [--panel PANEL]
-                          [--fusion_library FUSION_LIBRARY] [--step STEP]
-                          [--samtools SAMTOOLS] [--bedtools BEDTOOLS]
-                          [--java JAVA] [--bwa BWA] [--snpEff SNPEFF]
-                          [--snpEff_ref SNPEFF_REF] [--thread THREAD]
-                          [--strVarMinStartSite STRVARMINSTARTSITE]
-                          [--maxQueryGap MAXQUERYGAP] [--minMQ MINMQ]
-                          [--minMapLength MINMAPLENGTH]
-                          [--maxOverlap MAXOVERLAP]
-                          [--minExclusive MINEXCLUSIVE]
+usage: SplitFusion.py [-h] --SplitFusionPath SPLITFUSIONPATH --R R --perl PERL
+                      --refGenome REFGENOME --sample_id SAMPLE_ID
+                      --database_dir DATABASE_DIR [--bam_dir BAM_DIR]
+                      [--fastq_dir FASTQ_DIR] [--panel_dir PANEL_DIR]
+                      [--r1filename R1FILENAME] [--r2filename R2FILENAME]
+                      --output OUTPUT [--panel PANEL] [--steps STEPS]
+                      [--AnnotationMethod ANNOTATIONMETHOD]
+                      [--snpEff_ref SNPEFF_REF] [--thread THREAD]
+                      [--minMQ MINMQ] [--minMQ1 MINMQ1]
+                      [--minMapLength MINMAPLENGTH]
+                      [--minMapLength2 MINMAPLENGTH2]
+                      [--maxQueryGap MAXQUERYGAP] [--maxOverlap MAXOVERLAP]
+                      [--minExclusive MINEXCLUSIVE]
+                      [--FusionMinStartSite FUSIONMINSTARTSITE]
+                      [--minPartnerEnds_BothExonJunction MINPARTNERENDS_BOTHEXONJUNCTION]
+                      [--minPartnerEnds_OneExonJunction MINPARTNERENDS_ONEEXONJUNCTION]
 
-SplitFusion is a fast data analysis pipeline detects gene fusion based on
+Split-Fusion is a fast data analysis pipeline detects gene fusion based on
 split reads and/or paired-end reads.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --SplitFusionPath SplitFUSIONPATH
+  --SplitFusionPath SPLITFUSIONPATH
                         the path where Split-Fusion pipeline is installed
                         [required]
   --R R                 the path of R [required]
   --perl PERL           the path of perl [required]
-  --hgRef HGREF         the path where human genome reference is stored
+  --refGenome REFGENOME
+                        the path where human genome reference is stored
                         [required]
-  --bam_path BAM_PATH   the path where bam or fastq file is stored [required]
   --sample_id SAMPLE_ID
                         the sample name of running [required]
+  --database_dir DATABASE_DIR
+                        the path where large databases e.g. reference genome
+                        and annotation databases are stored [required]
+  --bam_dir BAM_DIR     the path where bam or fastq file is stored.
+                        [Kickstart] The bam file of the sameple_id (xxx.bam or
+                        xxx.consolidated.bam) will be used. Either fastq_dir
+                        or bam_dir should be specified
+  --fastq_dir FASTQ_DIR
+                        the path where fastq file is stored. Either fastq_dir
+                        or bam_dir should be specified
+  --panel_dir PANEL_DIR
+                        For Target mode: the path where panel specific files
+                        are stored.
+  --r1filename R1FILENAME
+                        Read 1 fastq filename. Can be in gzipped format. If
+                        not specified, $fastq_dir/$sample_id.R1.fq will be
+                        used.
+  --r2filename R2FILENAME
+                        Read 2 fastq filename. Can be in gzipped format. If
+                        not specified, $fastq_dir/$sample_id.R2.fq will be
+                        used.
   --output OUTPUT       the path where output is stored [required]
   --panel PANEL         the path where target genes panel file is stored
-  --fusion_library FUSION_LIBRARY
-                        the path where fusion library file is stored
-  --step STEP           the step of running
+  --steps STEPS         specify steps to run
   --AnnotationMethod ANNOTATIONMETHOD
-                        the name of annotation tools (annovar or snpEff, default: annovar)
-  --samtools SAMTOOLS   the path of samtools
-  --bedtools BEDTOOLS   the path of bedtools
-  --java JAVA           the path of java
-  --bwa BWA             the path of bwa
-  --snpEff SNPEFF       the path of snpEff
+                        the name of annotation tools (annovar or snpEff)
   --snpEff_ref SNPEFF_REF
                         the version of snpEff reference
-  --thread THREAD       threads of BWA
-  --strVarMinStartSite STRVARMINSTARTSITE
-                        minimum start site
-  --maxQueryGap MAXQUERYGAP
-                        maximum gap length
+  --thread THREAD       number of threads for computing
   --minMQ MINMQ         minimum mapping quality
+  --minMQ1 MINMQ1       minimum mapping quality of a leftmost of Read1
+                        (rightmost of Read2
   --minMapLength MINMAPLENGTH
                         minimum read mapping length
+  --minMapLength2 MINMAPLENGTH2
+                        minimum mapping length of rightmost of Read1 (leftmost
+                        of Read2)
+  --maxQueryGap MAXQUERYGAP
+                        maximum gap length on a query read of split alignments
   --maxOverlap MAXOVERLAP
-                        maximum overlap length
+                        maximum overlap bases of two split alignments
   --minExclusive MINEXCLUSIVE
-                        minimum exclusive length
+                        minimum exclusive length between two split alignments
+  --FusionMinStartSite FUSIONMINSTARTSITE
+                        minimum number of Adaptor Ligation Read Starting Sites
+                        to call Structure Variation/Fusion. Should be less or
+                        equal minPartnerEnds_BothExonJunction
+  --minPartnerEnds_BothExonJunction MINPARTNERENDS_BOTHEXONJUNCTION
+                        minimum number of fusion partner ends (ligation site),
+                        when both breakpoints are at exon junctions, to call
+                        Structure Variation/Fusion
+  --minPartnerEnds_OneExonJunction MINPARTNERENDS_ONEEXONJUNCTION
+                        minimum number of fusion partner ends (ligation site),
+                        when one breakpoint is at exon junction, to call
+                        Structure Variation/Fusion
 
 ```
 
 ### 2. run SplitFusion
 ```java
-python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --hgRef hgRef --bam_path bam_path --sample_id sample_id --output output --R R --perl perl
+python ./SplitFusion/exec/SplitFusion.py --SplitFusionPath SplitFusionPath --refGenome refGenome --bam_dir bam_dir --sample_id sample_id --output output --R R --perl perl --database_dir database_dir --panel_dir SplitFusionPath/data/panel/
 ```
 
 ## Output 
 [An example brief output table:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.brief.summary)
 
-| AP7         | GeneExon5'---GeneExon3'    | num_unique_reads | frame    | Gene_Exon_cDNA_5'_3'            |
-|:-----------:|:--------------------------:|:----------------:|:--------:|:-------------------------------:|
-| A01-P701    | KIF5B_exon15---RET_exon12  |                7 | in-frame | KIF5B exon15 c.1723 .NM_004521.---RET exon12 c.2138 .NM_020630. |
-| A02-P702    | EML4_intronic---ALK_exon20 |                9 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
-| A02-P702    | EML4_intronic---ALK_exon20 |               10 | _NA_     | EML4 intronic c.NA .NM_001145076.---ALK exon20 c.3173 .NM_004304. |
-| A02-P702    | EML4_exon4---ALK_exon20    |               64 | in-frame | EML4 exon4 c.468 .NM_001145076.---ALK exon20 c.3171 .NM_004304. |
+| SampleID |        GeneExon5_GeneExon3 |     frame |   num_partner_ends |        num_unique_reads |        exon.junction |   breakpoint |      transcript_5 |    transcript_3 |    function_5 |      function_3 |      gene_5 |  cdna_5 |  gene_3 |  cdna_3 |
+| Lib009 |  EML4_intronic---ALK_exon20 |      N.A. |    7 |       298 |     One |     2_29446396__2_42492091 |  NM_019063 |       NM_004304 |       intronic |        exonic |  EML4 |    - |       ALK |     3171 |
+| Lib009 |  EML4_exon6---ALK_exon20 | in-frame |        14 |      481 |     Both |    2_29446396__2_42491871 |  NM_019063 |       NM_004304 |       exonic |  exonic |  EML4 |    667 |     ALK |     3171 |
+| Lib009 |  EML4_exon5---ALK_exon20 | out-frame |       14 |      83 |      One |     2_29446396__2_42490447 |  NM_019063 |       NM_004304 |       exonic |  exonic |  EML4 |    596 |     ALK |     3171 |
 
-[An example output fastq file for the KIF5B_exon15---RET_exon12 fusion of sample A01-P701 is:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.txt)
 
- >CL100059760L2C005R002_288074
-TTCCCACTTTGGATCCTCCTTTACATCATTATTTCCCACAGCAATTCCTATTTCTGCAAGGTCTTTTAGTAAAGATGC
- >CL100059760L2C008R017_227619
-TTCCGAGGGAATTCCCACTTTGGATCCTCCTTTACATCATTATTTCCCACAGCAATTCCTATTTCTGCAAGGTCTTTT
- >CL100059760L2C005R026_187567
-TTGACTGGAGTTCAGACGTGTGCTCTTCCGAAAGCCCTCCCCGGTGCGCATGTTGGCAGGCTCAGACAAGGCCCTGG
- >CL100059760L2C003R075_538109
-TAGGAATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAACTTGGTTCTTGGAA
- >CL100059760L2C006R047_14778
-ATAGGAATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAACTTGGTTCTTGGA
- >CL100059760L2C012R012_483791
-GAATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAACTTGGTTCTTGGAAAAA
- >CL100059760L2C013R006_484169
-AATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAACTTGGTTCTTGGAAAAAC
- >CL100059760L2C017R020_507274
-ATAGGAATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAACTTGGTTCTTGGA
- >CL100059760L2C017R091_315407
-GAATTGCTGTGGGAAATAATGATGTAAAGGAGGATCCAAAGTGGGAATTCCCTCGGAAGAGCTTGGTTCTTGGAAAAA
- >CL100059760L2C003R015_252083
-GGGAATTCCCACTTTGGATCCTCCTATGTTGGAATTCCCTCGGAAGAACTTGGTTCTTGGAAAAACTCTAAGATCGGA
+[An example output fastq file for the EML4_intronic---ALK_exon20 fusion of sample Lib009 is:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/Lib009.EML4_intronic---ALK_exon20.txt)
 
+>NS500673:45:HHK2HAFXX:1:21106:26233:4628:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGATTAAAGATGTCATCATT
+>NS500673:45:HHK2HAFXX:1:21108:4972:6200:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTTTTTTCGCGAGTTTACATTTTTGCTTGGTTGATT
+>NS500673:45:HHK2HAFXX:2:11207:14331:12205:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGGTTGATG
+>NS500673:45:HHK2HAFXX:2:11301:14903:19850:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
+>NS500673:45:HHK2HAFXX:2:21111:24355:8828:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
+>NS500673:45:HHK2HAFXX:4:11406:15146:11569:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCCGTTTTTTTCGCGAGTTGACATTTTTG
+>NS500673:45:HHK2HAFXX:4:11606:2779:2081:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTGCTTGGTTGATGATGACATCTTT
+>NS500673:45:HHK2HAFXX:4:21409:22050:11159:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTGGCTGTTATTTTCGCGAGTAGACATTTTTGCTTGGTTGATG
+>NS500673:45:HHK2HAFXX:4:21508:24201:16676:
+ATGGCTTGCAGCTCCTGGTGCTTCCGGCGGTACACTTGGCTGTTTTTTTCGCGAGTTGACATTTTTG
 
 
 ## Visualization
-[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
-![image](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.EML4_intron6---ALK_exon20.png)
+[An visualization of example output fastq for the EML4_intron6---ALK_exon20:](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.fusion.png)
+![image](https://github.com/Zheng-NGS-Lab/SplitFusion/blob/master/inst/data/example_data/result/example/example.fusion.png)
 
 
 
