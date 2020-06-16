@@ -52,6 +52,27 @@ git clone https://github.com/Zheng-NGS-Lab/SplitFusion.git
 R CMD INSTALL SplitFusion
 ```
 
+### 3. Downloading database required by SplitFusion 
+
+```java
+1. R: download from https://www.r-project.org/
+
+2. perl: download from https://www.perl.org/get.html
+
+3. refGenome:
+
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.amb
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.ann
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.bwt
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.fai
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.pac
+wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.sa
+
+4. annovar: http://download.openbioinformatics.org/annovar_download_form.php
+
+```
+
 
 ## Run
 
