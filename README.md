@@ -69,7 +69,11 @@ wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.
 wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.pac
 wget https://data.broadinstitute.org/snowman/hg19/Homo_sapiens_assembly19.fasta.sa
 
-4. annovar: http://download.openbioinformatics.org/annovar_download_form.php
+4. 3rd-party tools
+   bwa: http://bio-bwa.sourceforge.net/
+   samtools: http://samtools.sourceforge.net/
+   bedtools: https://sourceforge.net/projects/bedtools/
+   annovar: http://download.openbioinformatics.org/annovar_download_form.php
 
 ```
 
